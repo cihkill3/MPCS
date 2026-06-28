@@ -1,0 +1,1 @@
+"""MPCS GUI panels package."""

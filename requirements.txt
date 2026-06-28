@@ -1,0 +1,10 @@
+# MALDI Polymer Composition Solver (MPCS)
+# Python 3.12+ / Windows 10/11
+# SRS v1.0 §2 System Requirements
+
+PySide6>=6.7.0
+numpy>=1.26.0
+sympy>=1.12.0
+pandas>=2.1.0
+openpyxl>=3.1.0
+molmass>=2023.1.31
