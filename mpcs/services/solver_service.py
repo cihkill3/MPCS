@@ -157,14 +157,19 @@ class SolverService:
             raise ValueError(f"솔버 파라미터 오류: {'; '.join(param_errors)}")
 
         # Step 1: 제약식 파싱 및 위상 정렬
-        monomer_names = [m.name for m in params.monomers]
+        monomer_names = []
+        block_names = set()
+        mass_map: dict[str, float] = {}
 
-        # name.mw 치환을 위한 질량 매핑 구성
-        # 모노머, 말단기, 어덕트의 정밀/평균 질량을 포함
-        mass_map: dict[str, float] = {
-            m.name: m.effective_average_mass() if params.mass_type == "AVERAGE" else m.effective_mass()
-            for m in params.monomers
-        }
+        for m in params.monomers:
+            monomer_names.append(m.name)
+            mass_map[m.name] = m.effective_average_mass() if params.mass_type == "AVERAGE" else m.effective_mass()
+            if m.monomer_type == MonomerType.BLOCK and m.sub_items:
+                block_names.add(m.name)
+                for sub in m.sub_items:
+                    monomer_names.append(sub.name)
+                    mass_map[sub.name] = sub.average_mass if params.mass_type == "AVERAGE" else sub.exact_mass
+
         # 말단기: EndGroup.mw 로 참조 가능 (이름 'EndGroup')
         mass_map["EndGroup"] = params.end_group.average_mass if params.mass_type == "AVERAGE" else params.end_group.mass
         # 어덕트: 어덕트 레이블로도 참조 가능
@@ -191,7 +196,7 @@ class SolverService:
         dep_monomers = {m.name: m for m in params.monomers if m.name in dependent_vars}
 
         # 말단기 질량
-        end_group_mass = params.end_group.mass
+        end_group_mass = params.end_group.average_mass if params.mass_type == "AVERAGE" else params.end_group.mass
 
         # 각 어덕트별로 중성 MW 목표값 계산
         # 어덕트별로 역산된 중성 MW를 허용 범위로 변환
@@ -205,7 +210,33 @@ class SolverService:
             ))
 
         # 탐색 범위 (독립 변수만)
-        ranges = [list(m.search_range()) for m in free_monomers]
+        ranges = []
+        for m in free_monomers:
+            if m.monomer_type == MonomerType.BLOCK and m.sub_items:
+                block_states = []
+                for b_cnt in m.search_range():
+                    if b_cnt == 0:
+                        state = {m.name: 0}
+                        for sub in m.sub_items:
+                            state[sub.name] = 0
+                        block_states.append(state)
+                    else:
+                        sub_ranges = []
+                        for sub in m.sub_items:
+                            if sub.name in dependent_vars:
+                                sub_ranges.append([0])
+                            else:
+                                sub_ranges.append(range(b_cnt * sub.count_min, b_cnt * sub.count_max + 1))
+                        
+                        for sub_counts in itertools.product(*sub_ranges):
+                            state = {m.name: b_cnt}
+                            for sub, cnt in zip(m.sub_items, sub_counts):
+                                state[sub.name] = cnt
+                            block_states.append(state)
+                ranges.append(block_states)
+            else:
+                ranges.append([{m.name: cnt} for cnt in m.search_range()])
+
         total_candidates = 1
         for r in ranges:
             total_candidates *= len(r)
@@ -223,13 +254,14 @@ class SolverService:
             # 진행률 콜백
             processed += 1
             if progress_callback is not None and processed % _PROGRESS_INTERVAL == 0:
-                progress_callback(processed, total_candidates)
+                progress_callback(processed, len(results), total_candidates)
 
             # 현재 독립 변수 값 딕셔너리
-            current_values: dict[str, int] = {
-                m.name: cnt
-                for m, cnt in zip(free_monomers, candidate_counts)
-            }
+            import collections
+            current_values: dict[str, int] = collections.defaultdict(int)
+            for state in candidate_counts:
+                for k, v in state.items():
+                    current_values[k] += v
 
             # Step 2: 제약식으로 종속 변수 결정 + 검증
             constraint_valid = True
@@ -261,6 +293,19 @@ class SolverService:
                     constraint_valid = False
                     break
 
+            if constraint_valid:
+                # Block 하위 성분 동적 범위 검증 (종속 변수일 경우를 대비)
+                for m in params.monomers:
+                    if m.monomer_type == MonomerType.BLOCK and m.sub_items:
+                        b_cnt = current_values.get(m.name, 0)
+                        for sub in m.sub_items:
+                            sub_cnt = current_values.get(sub.name, 0)
+                            if sub_cnt < b_cnt * sub.count_min or sub_cnt > b_cnt * sub.count_max:
+                                constraint_valid = False
+                                break
+                    if not constraint_valid:
+                        break
+
             if not constraint_valid:
                 continue
 
@@ -271,7 +316,7 @@ class SolverService:
 
             # Step 4: 이론 질량 계산
             neutral_mw = self._calc_composition_mass(
-                current_values, flattened_monomers, end_group_mass
+                current_values, mass_map, block_names, end_group_mass
             )
 
             # SEC 필터 (SRS §17)
@@ -311,7 +356,7 @@ class SolverService:
 
         # 최종 진행률
         if progress_callback is not None:
-            progress_callback(valid_candidates_count, valid_candidates_count, total_candidates)
+            progress_callback(processed, len(results), total_candidates)
 
         # Step 7: 오차 기준 정렬 (SRS §13.4) + Q8: 상위 MAX_RESULTS(100)개만 반환
         results.sort(key=lambda r: r.error_da)
@@ -506,7 +551,8 @@ class SolverService:
     def _calc_composition_mass(
         self,
         values: dict[str, int],
-        monomers: list[Monomer],
+        mass_map: dict[str, float],
+        block_names: set[str],
         end_group_mass: float,
     ) -> float:
         """
@@ -514,14 +560,11 @@ class SolverService:
 
         MW = Σ(n_i × ExactMass_i) + EndGroupMass
 
-        Block 유형: effective_mass() 사용 (sub_items에서 계산된 블록 질량)
-        SRS §7.4, §13.2 step 4 준수.
+        Block 이름은 무시하고 하위 성분(sub_items)의 질량을 더한다.
         """
-        mass_map: dict[str, float] = {m.name: m.effective_mass() for m in monomers}
-
         total = end_group_mass
         for name, count in values.items():
-            if count > 0 and name in mass_map:
+            if count > 0 and name not in block_names and name in mass_map:
                 total += count * mass_map[name]
 
         return total

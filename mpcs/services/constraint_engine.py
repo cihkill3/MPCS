@@ -42,7 +42,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Iterator
 
 import sympy
-from sympy import Symbol, sympify, Integer, Float
+from sympy import Symbol, sympify, Integer, Float, lambdify
 from sympy.core.expr import Expr
 
 from mpcs.models.constraint import Constraint
@@ -105,6 +105,9 @@ class ParsedConstraint:
     rhs_expr: Expr
     equality_lhs: str | None         # 등식이고 LHS가 단일 변수인 경우
     free_vars: frozenset[str]        # RHS에 등장하는 반복횟수 변수들
+    compiled_lhs: Callable | None = None
+    compiled_rhs: Callable | None = None
+    args_tuple: tuple[str, ...] = field(default_factory=tuple)
 
 
 # ---------------------------------------------------------------------------
@@ -380,10 +383,8 @@ class ConstraintEngine:
             return None
 
         try:
-            substituted = parsed.rhs_expr.subs(
-                {self._get_symbol(k): v for k, v in values.items()}
-            )
-            result = float(substituted.evalf())
+            args = [values.get(name, 0) for name in parsed.args_tuple]
+            result = float(parsed.compiled_rhs(*args))
         except Exception as exc:
             raise ConstraintEvalError(
                 parsed.original,
@@ -418,11 +419,10 @@ class ConstraintEngine:
         Raises:
             ConstraintEvalError: 평가 중 오류
         """
-        sym_subs = {self._get_symbol(k): v for k, v in values.items()}
-
         try:
-            lhs_val = float(parsed.lhs_expr.subs(sym_subs).evalf())
-            rhs_val = float(parsed.rhs_expr.subs(sym_subs).evalf())
+            args = [values.get(name, 0) for name in parsed.args_tuple]
+            lhs_val = float(parsed.compiled_lhs(*args))
+            rhs_val = float(parsed.compiled_rhs(*args))
         except Exception as exc:
             raise ConstraintEvalError(
                 parsed.original,
@@ -475,9 +475,11 @@ class ConstraintEngine:
         self,
         expression: str,
         monomer_names: list[str],
-        mass_map: dict[str, float],
+        mass_map: dict[str, float] | None = None,
     ) -> ParsedConstraint:
         """단일 제약식 문자열을 ParsedConstraint로 변환한다."""
+        if mass_map is None:
+            mass_map = {}
         expr = expression.strip()
         if not expr:
             raise ConstraintParseError(expression, "빈 제약식")
@@ -527,6 +529,14 @@ class ConstraintEngine:
         # free_vars: 반복횟수 변수만 포함 (name.mw는 이미 상수로 치환됨)
         free_vars = frozenset(str(s) for s in rhs_sympy.free_symbols)
 
+        # Compile for speed
+        all_symbols = sorted(list(set(monomer_names) & set(str(s) for s in all_free)))
+        args_tuple = tuple(all_symbols)
+        syms = [self._get_symbol(n) for n in args_tuple]
+        
+        compiled_lhs = lambdify(syms, lhs_sympy, "math")
+        compiled_rhs = lambdify(syms, rhs_sympy, "math")
+
         return ParsedConstraint(
             original=expression,
             comparison=op,
@@ -534,6 +544,9 @@ class ConstraintEngine:
             rhs_expr=rhs_sympy,
             equality_lhs=equality_lhs,
             free_vars=free_vars,
+            compiled_lhs=compiled_lhs,
+            compiled_rhs=compiled_rhs,
+            args_tuple=args_tuple,
         )
 
     def _get_symbol(self, name: str) -> Symbol:

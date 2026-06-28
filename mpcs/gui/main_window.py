@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
 
     def _connect_signals(self) -> None:
         """패널 간 신호를 연결한다."""
-        # 중합 계산기 → MonomerPanel: 최솟값/최댓값 반영
+        # 중합 계산기 → MonomerPanel: 최소값/최대값 반영
         self._poly_panel.apply_requested.connect(self._monomer_panel.apply_min_max)
 
         # 중합 계산기 동기화 버튼 → 현재 모노머 목록 전달
@@ -273,7 +273,21 @@ class MainWindow(QMainWindow):
         self._status_bar: QStatusBar = self.statusBar()
         self._progress_bar = QProgressBar()
         self._progress_bar.setVisible(False)
-        self._progress_bar.setMaximumWidth(200)
+        self._progress_bar.setMinimumWidth(500)
+        self._progress_bar.setAlignment(Qt.AlignCenter)
+        self._progress_bar.setStyleSheet("""
+            QProgressBar {
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 4px;
+                color: #000000;
+                font-weight: bold;
+            }
+            QProgressBar::chunk {
+                background-color: #a5d8ff;
+                border-radius: 3px;
+            }
+        """)
         self._status_bar.addPermanentWidget(self._progress_bar)
         self._status_bar.showMessage("준비")
 
@@ -392,8 +406,17 @@ class MainWindow(QMainWindow):
 
         # Q6: 순환 제약식 사전 검증
         try:
-            monomer_names = [m.name for m in project.monomers]
-            parsed = self._engine.parse_all(project.active_constraints(), monomer_names)
+            monomer_names = []
+            mass_map = {}
+            for m in project.monomers:
+                monomer_names.append(m.name)
+                mass_map[m.name] = m.exact_mass
+                if m.monomer_type.value == "Block" and m.sub_items:
+                    for sub in m.sub_items:
+                        monomer_names.append(sub.name)
+                        mass_map[sub.name] = sub.exact_mass
+
+            parsed = self._engine.parse_all(project.active_constraints(), monomer_names, mass_map)
             self._engine.topological_sort(parsed)
         except CircularDependencyError as exc:
             QMessageBox.critical(
@@ -438,10 +461,9 @@ class MainWindow(QMainWindow):
             self._status_bar.showMessage("솔버 취소 중...")
 
     def _on_solver_progress(self, current: int, valid_total: int, all_total: int) -> None:
-        if valid_total > 0:
-            self._progress_bar.setRange(0, valid_total)
-            self._progress_bar.setValue(current)
-            self._progress_bar.setFormat(f"%p% - 계산한 개수: {current:,} / 유효 개수: {valid_total:,} (전체 조합 수: {all_total:,})")
+        self._progress_bar.setRange(0, all_total)
+        self._progress_bar.setValue(current)
+        self._progress_bar.setFormat(f"%p% - 계산한 개수: {current:,} / 찾은 유효 조합 수: {valid_total:,} (전체 조합 수: {all_total:,})")
 
     def _on_solver_finished(self, result: RankedResultSet) -> None:
         self._solver_control.set_running(False)
@@ -471,7 +493,7 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self, tr("MPCS 정보"),
             tr("MALDI Polymer Composition Solver\n"
-            "버전 1.1 (MVP)\n\n"
+            "버전 1.0\n\n"
             "SRS v1.0 기반 구현\n"
             "제작자: Jeonghun Lee (cihkill@gmail.com)\n\n"
             "Python 3.12 / PyQt5 (qtpy)")

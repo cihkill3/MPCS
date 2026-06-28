@@ -23,7 +23,7 @@ UI 구조:
     │  f_avg = 2.000 | Xn = 200.0 | Mn = 87,200 Da                 │
     │  ┌ 성분  │ 종류  │ mmol  │ 몰분율  │ 평균개수 │ 질량기여(Da) ┐ │
     │  └───────┴───────┴───────┴─────────┴──────────┴─────────────┘ │
-    │  [📋 최솟값/최댓값 반영...]                                     │
+    │  [📋 최소값/최대값 반영...]                                     │
     └────────────────────────────────────────────────────────────────┘
 
 Carothers 방정식:
@@ -286,15 +286,15 @@ class ApplyToleranceDialog(QDialog):
 
     def __init__(self, results: list[ComponentResult], parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("최솟값/최댓값 반영")
+        self.setWindowTitle("최소값/최대값 반영")
         self.setMinimumWidth(520)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("다음 평균 개수를 모노머의 최솟값/최댓값에 반영합니다:"))
+        layout.addWidget(QLabel("다음 평균 개수를 모노머의 최소값/최대값에 반영합니다:"))
 
         self._preview = QTableWidget(0, 4)
-        self._preview.setHorizontalHeaderLabels(["성분", "평균 개수", "최솟값", "최댓값"])
+        self._preview.setHorizontalHeaderLabels(["성분", "평균 개수", "최소값", "최대값"])
         self._preview.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._preview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self._preview)
@@ -312,7 +312,7 @@ class ApplyToleranceDialog(QDialog):
         layout.addLayout(tol_row)
 
         hint = QLabel(
-            "예: 평균 26.0, 오차 ±20% → 최솟값 = 20, 최댓값 = 32\n"
+            "예: 평균 26.0, 오차 ±20% → 최소값 = 20, 최대값 = 32\n"
             "(min = floor(avg × (1−tol)),  max = ceil(avg × (1+tol)))"
         )
         hint.setStyleSheet("color: gray; font-size: 11px;")
@@ -515,8 +515,8 @@ class PolymerizationPanel(QWidget):
         self._result_table.setAlternatingRowColors(True)
         result_layout.addWidget(self._result_table)
 
-        apply_btn = QPushButton("📋 최솏값/최댓값에 반영...")
-        apply_btn.setToolTip("계산된 평균 개수를 모노머 탭의 최솏값/최댓값에 자동 설정합니다")
+        apply_btn = QPushButton("📋 최소값/최대값에 반영...")
+        apply_btn.setToolTip("계산된 평균 개수를 모노머 탭의 최소값/최대값에 자동 설정합니다")
         apply_btn.clicked.connect(self._apply_to_monomers)
         result_layout.addWidget(apply_btn)
 

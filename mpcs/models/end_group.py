@@ -44,7 +44,6 @@ def parse_end_group_average_mass(formula: str) -> float:
             pass
     return mass
 
-
 @dataclass
 class EndGroup:
     """
@@ -80,3 +79,17 @@ class EndGroup:
             is_custom_mass=data.get("is_custom_mass", False),
             custom_mass=data.get("custom_mass", 0.0)
         )
+
+    def validate(self) -> list[str]:
+        errors: list[str] = []
+        if self.is_custom_mass and self.custom_mass <= 0.0:
+            errors.append(
+                "사용자 정의 말단기의 질량이 0 이하입니다. "
+                "양수 질량(Da)을 입력하십시오."
+            )
+        return errors
+
+    def __str__(self) -> str:
+        if self.is_custom_mass:
+            return f"Custom ({self.custom_mass:.6f} Da)"
+        return f"{self.formula} ({self.mass:.6f} Da)"

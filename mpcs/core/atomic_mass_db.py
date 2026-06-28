@@ -75,6 +75,28 @@ _ISOTOPE_DATA: Final[dict[str, list[tuple[float, float]]]] = {
 # Electron mass for charge state calculations (SRS §11)
 ELECTRON_MASS: Final[float] = 0.00054857990924
 
+# Average masses (calculated from isotope abundances)
+_AVERAGE_MASSES: Final[dict[str, float]] = {
+    'H': 1.007941,
+    'C': 12.010736,
+    'N': 14.006743,
+    'O': 15.999405,
+    'S': 32.064787,
+    'P': 30.973762,
+    'F': 18.998403,
+    'Cl': 35.452538,
+    'Br': 79.903528,
+    'I': 126.904473,
+    'Si': 28.085413,
+    'B': 10.811028,
+    'Na': 22.989769,
+    'K': 39.098301,
+    'Li': 6.940038,
+    'Mg': 24.305052,
+    'Ca': 40.078023,
+    'Zn': 65.329040,
+}
+
 
 class AtomicMassDB:
     """

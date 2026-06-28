@@ -91,7 +91,7 @@ _COL_MIN     = 4
 _COL_MAX     = 5
 _COL_COUNT   = 6
 
-_HEADERS = ["이름", "유형", "분자식 / 질량입력", "정밀질량 (Da)", "최솟값", "최댓값"]
+_HEADERS = ["이름", "유형", "분자식 / 질량입력", "정밀질량 (Da)", "최소값", "최대값"]
 
 # 최상위 추가 가능 유형
 _TOP_TYPES = [
@@ -226,7 +226,7 @@ class MonomerPanel(QGroupBox):
         self._formula_widget.setLayout(self._formula_row_layout)
         input_layout.addWidget(self._formula_widget)
 
-        # 행 3: 최솟값 + 최댓값 + 버튼
+        # 행 3: 최소값 + 최대값 + 버튼
         row3 = QHBoxLayout()
         self._min_label = QLabel(tr("최소값:"))
         self._min_spin = QSpinBox()
@@ -365,11 +365,11 @@ class MonomerPanel(QGroupBox):
         is_block = self._current_type() == MonomerType.BLOCK
         self._formula_widget.setVisible(not is_block)
         if is_block:
-            self._min_label.setText("최솟값 (블록 수):")
-            self._max_label.setText("최댓값 (블록 수):")
+            self._min_label.setText("최소값 (블록 수):")
+            self._max_label.setText("최대값 (블록 수):")
         else:
-            self._min_label.setText("최솟값:")
-            self._max_label.setText("최댓값:")
+            self._min_label.setText("최소값:")
+            self._max_label.setText("최대값:")
 
     def _on_formula_changed(self, text: str) -> None:
         text = text.strip()
@@ -378,7 +378,7 @@ class MonomerPanel(QGroupBox):
             self._mass_preview.setStyleSheet("")
             return
         try:
-            _, mass = parse_formula_or_mass(text, self._calc)
+            _, mass, _ = parse_formula_or_mass(text, self._calc)
             self._mass_preview.setText(f"질량: {mass:.4f} Da")
             self._mass_preview.setStyleSheet("color: #006600;")
         except Exception:
@@ -504,7 +504,7 @@ class MonomerPanel(QGroupBox):
         max_val = self._max_spin.value()
 
         if min_val > max_val:
-            QMessageBox.warning(self, "입력 오류", "최솟값이 최댓값보다 큽니다.")
+            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
             return
 
         is_block = bool(item.data(_COL_NAME, _ROLE_IS_BLOCK))
@@ -528,7 +528,7 @@ class MonomerPanel(QGroupBox):
                 QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
                 return
             try:
-                formula, exact_mass = parse_formula_or_mass(formula_text, self._calc)
+                formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
                 QMessageBox.warning(self, "분자식 오류", str(exc))
                 return
@@ -546,6 +546,7 @@ class MonomerPanel(QGroupBox):
                 sub.sub_type = monomer_type
                 sub.formula_or_mass = formula
                 sub.exact_mass = exact_mass
+                sub.average_mass = avg_mass
                 sub.count_min = min_val
                 sub.count_max = max_val
 
@@ -560,7 +561,7 @@ class MonomerPanel(QGroupBox):
                 QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
                 return
             try:
-                formula, exact_mass = parse_formula_or_mass(formula_text, self._calc)
+                formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
                 QMessageBox.warning(self, "분자식 오류", str(exc))
                 return
@@ -578,6 +579,7 @@ class MonomerPanel(QGroupBox):
                 monomer.monomer_type = monomer_type
                 monomer.formula = formula
                 monomer.exact_mass = exact_mass
+                monomer.average_mass = avg_mass
                 monomer.min_count = min_val
                 monomer.max_count = max_val
 
@@ -629,7 +631,7 @@ class MonomerPanel(QGroupBox):
         max_count = self._max_spin.value()
 
         if min_count > max_count:
-            QMessageBox.warning(self, "입력 오류", "최솟값이 최댓값보다 큽니다.")
+            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
             return
 
         if monomer_type == MonomerType.BLOCK:
@@ -647,7 +649,7 @@ class MonomerPanel(QGroupBox):
                 QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
                 return
             try:
-                formula, exact_mass = parse_formula_or_mass(formula_text, self._calc)
+                formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
                 QMessageBox.warning(self, "입력 오류", str(exc))
                 return
@@ -657,6 +659,7 @@ class MonomerPanel(QGroupBox):
                 monomer_type=monomer_type,
                 formula=formula,
                 exact_mass=exact_mass,
+                average_mass=avg_mass,
                 min_count=min_count,
                 max_count=max_count,
             )
@@ -694,11 +697,11 @@ class MonomerPanel(QGroupBox):
             QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
             return
         if count_min > count_max:
-            QMessageBox.warning(self, "입력 오류", "최솟값이 최댓값보다 큽니다.")
+            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
             return
 
         try:
-            formula, exact_mass = parse_formula_or_mass(formula_text, self._calc)
+            formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
         except Exception as exc:
             QMessageBox.warning(self, "분자식 오류", str(exc))
             return
@@ -708,6 +711,7 @@ class MonomerPanel(QGroupBox):
             sub_type=sub_type,
             formula_or_mass=formula,
             exact_mass=exact_mass,
+            average_mass=avg_mass,
             count_min=count_min,
             count_max=count_max,
         )
@@ -877,6 +881,10 @@ class MonomerPanel(QGroupBox):
                 self._refresh_block_mass(item)
 
     def apply_to_project(self, project: Project) -> None:
+        # 진행 중인 편집이 있다면 자동 저장
+        if getattr(self, "_editing_item", None) is not None:
+            self._save_edit()
+
         monomers: list[Monomer] = []
         for i in range(self._tree.topLevelItemCount()):
             top = self._tree.topLevelItem(i)

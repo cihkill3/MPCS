@@ -164,7 +164,7 @@ class _SpectrumCanvas(QWidget):
         )
 
         # ─── y축 레이블 ────────────────────────────────────────────────
-        axis_font = QFont("Segoe UI", 8)
+        axis_font = QFont("Segoe UI", 10)
         painter.setFont(axis_font)
         painter.setPen(QPen(self.COLOR_LABEL))
         for pct in (0, 20, 40, 60, 80, 100):
@@ -181,7 +181,7 @@ class _SpectrumCanvas(QWidget):
         stem_pen = QPen(self.COLOR_STEM, 2.5)
         peak100_pen = QPen(self.COLOR_100, 2.5)
 
-        label_font = QFont("Segoe UI", 7)
+        label_font = QFont("Segoe UI", 10)
         painter.setFont(label_font)
         fm_lbl = QFontMetrics(label_font)
 
@@ -292,12 +292,14 @@ class IsotopePatternDialog(QDialog):
 
         # ── 정보 헤더 ──────────────────────────────────────────────────
         header_layout = QHBoxLayout()
-        formula_label = QLabel(f"<b>분자식:</b> {self._formula}")
-        formula_label.setStyleSheet("font-size: 11pt; color: #cdd6f4;")
+        fmt_formula = format_formula_html(self._formula)
+        formula_label = QLabel(f"<b>분자식:</b> {fmt_formula}")
+        formula_label.setStyleSheet("font-size: 11pt; color: #212529;")
         header_layout.addWidget(formula_label)
 
         if self._adduct_label:
-            adduct_lbl = QLabel(f"<b>{tr('어덕트')}:</b> {self._adduct_label}")
+            fmt_adduct = format_adduct_html(self._adduct_label)
+            adduct_lbl = QLabel(f"<b>{tr('어덕트')}:</b> {fmt_adduct}")
             adduct_lbl.setStyleSheet("font-size: 11pt; color: #339af0;")
             header_layout.addWidget(adduct_lbl)
 

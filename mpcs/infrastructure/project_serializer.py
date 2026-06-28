@@ -154,10 +154,12 @@ class ProjectSerializer:
         }
 
     @staticmethod
-    def _serialize_end_group(eg: EndGroup) -> dict[str, Any]:
+    def _serialize_end_group(end_group: EndGroup) -> dict[str, Any]:
         return {
-            "preset": eg.preset.value,
-            "custom_mass": eg.custom_mass,
+            "formula": end_group.formula,
+            "is_custom_mass": end_group.is_custom_mass,
+            "custom_mass": end_group.custom_mass,
+            "custom_average_mass": end_group.custom_mass,  # Placeholder if not available
         }
 
     @staticmethod
@@ -267,16 +269,23 @@ class ProjectSerializer:
 
     @staticmethod
     def _deserialize_end_group(data: dict[str, Any]) -> EndGroup:
-        preset_str = data.get("preset", "OH/OH")
-        # preset 값으로 Enum 역변환
-        preset = next(
-            (p for p in EndGroupPreset if p.value == preset_str),
-            EndGroupPreset.OH_OH,
-        )
+        # Backward compatibility for old format
+        if "preset" in data:
+            preset_str = data.get("preset", "OH/OH")
+            if preset_str == "Custom":
+                return EndGroup(
+                    is_custom_mass=True,
+                    custom_mass=float(data.get("custom_mass", 0.0))
+                )
+            else:
+                return EndGroup(
+                    formula=preset_str,
+                    is_custom_mass=False
+                )
         return EndGroup(
-            preset=preset,
-            custom_mass=float(data.get("custom_mass", 0.0)),
-            custom_average_mass=float(data.get("custom_average_mass", data.get("custom_mass", 0.0))),
+            formula=data.get("formula", "OH/OH"),
+            is_custom_mass=bool(data.get("is_custom_mass", False)),
+            custom_mass=float(data.get("custom_mass", 0.0))
         )
 
     @staticmethod

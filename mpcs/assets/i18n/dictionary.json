@@ -18,7 +18,7 @@
   "전환율 p (0 < p ≤ 1):": {"en": "Conversion p (0 < p ≤ 1):"},
   "▶ 계산": {"en": "▶ Calculate"},
   "계산 결과": {"en": "Calculation Results"},
-  "📋 최솟값/최댓값에 반영...": {"en": "📋 Apply to Min/Max..."},
+  "📋 최소값/최대값에 반영...": {"en": "📋 Apply to Min/Max..."},
   "이론 m/z (Da)": {"en": "Calc. m/z (Da)"},
   "관측 m/z (Da)": {"en": "Obs. m/z (Da)"},
   "오차 (Da)": {"en": "Error (Da)"},

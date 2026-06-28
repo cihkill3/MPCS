@@ -60,8 +60,8 @@ class BlockSubItem:
         sub_type        유형 (MONOMER / END_GROUP / CROSSLINKER)
         formula_or_mass 원본 입력값. 숫자면 직접 질량, 분자식이면 파싱값
         exact_mass      단일동위원소 정밀질량 (Da)
-        count_min       블록 1개당 최솟값 (정수)
-        count_max       블록 1개당 최댓값 (정수)
+        count_min       블록 1개당 최소값 (정수)
+        count_max       블록 1개당 최대값 (정수)
     """
 
     name: str
@@ -94,10 +94,10 @@ class BlockSubItem:
         if self.exact_mass <= 0.0:
             errors.append(f"정밀질량이 0 이하입니다: {self.exact_mass}")
         if self.count_min < 0:
-            errors.append(f"최솟값이 음수입니다: {self.count_min}")
+            errors.append(f"최소값이 음수입니다: {self.count_min}")
         if self.count_max < self.count_min:
             errors.append(
-                f"최솟값({self.count_min})이 최댓값({self.count_max})보다 큽니다"
+                f"최소값({self.count_min})이 최대값({self.count_max})보다 큽니다"
             )
         return errors
 
@@ -150,8 +150,8 @@ class Monomer:
         monomer_type — 유형 (MonomerType enum)
         formula     — 분자식 또는 직접 입력 표시 문자열
         exact_mass  — 단일동위원소 정밀질량 (Da)
-        min_count   — 솔버 탐색 최솟값 (≥ 0)
-        max_count   — 솔버 탐색 최댓값 (> min_count)
+        min_count   — 솔버 탐색 최소값 (≥ 0)
+        max_count   — 솔버 탐색 최대값 (> min_count)
         sub_items   — Block 유형일 때 하위 성분 목록
                       Block 질량 = Σ(sub_item 평균 질량)
     """
@@ -231,8 +231,8 @@ class Monomer:
             monomer_type: 유형
             formula: 분자식 문자열
             mass_calculator: MassCalculator 인스턴스
-            min_count: 최솟값
-            max_count: 최댓값
+            min_count: 최소값
+            max_count: 최대값
 
         Returns:
             Monomer 인스턴스 (exact_mass 자동 설정)
@@ -277,8 +277,8 @@ class Monomer:
             monomer_type: 유형
             formula_or_mass: 분자식 또는 질량 문자열
             mass_calculator: MassCalculator 인스턴스
-            min_count: 최솟값 (블록 개수)
-            max_count: 최댓값 (블록 개수)
+            min_count: 최소값 (블록 개수)
+            max_count: 최대값 (블록 개수)
             sub_items: Block 하위 성분 목록 (Block 유형 시 사용)
 
         Returns:
@@ -327,14 +327,14 @@ class Monomer:
                 errors.append(f"정밀질량이 0 이하입니다: {self.exact_mass}")
 
         if self.min_count < 0:
-            errors.append(f"최솟값이 음수입니다: {self.min_count}")
+            errors.append(f"최소값이 음수입니다: {self.min_count}")
 
         if self.max_count <= 0:
-            errors.append(f"최댓값이 0 이하입니다: {self.max_count}")
+            errors.append(f"최대값이 0 이하입니다: {self.max_count}")
 
         if self.min_count > self.max_count:
             errors.append(
-                f"최솟값({self.min_count})이 최댓값({self.max_count})보다 큽니다"
+                f"최소값({self.min_count})이 최대값({self.max_count})보다 큽니다"
             )
 
         # Block 유형: 하위 성분도 검사

@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "name": "새 프로젝트",
+  "created_at": "2026-06-28T22:51:02.092185",
+  "modified_at": "2026-06-28T22:51:02.092185",
+  "average_block_mode": false,
+  "monomers": [
+    {
+      "name": "EO",
+      "monomer_type": "Monomer",
+      "formula": "C2H4O",
+      "exact_mass": 44.0,
+      "min_count": 0,
+      "max_count": 100,
+      "sub_items": []
+    }
+  ],
+  "constraints": [],
+  "end_group": {
+    "formula": "OH/OH",
+    "is_custom_mass": false,
+    "custom_mass": 0.0,
+    "custom_average_mass": 0.0
+  },
+  "adducts": [
+    {
+      "label": "[M+H]+",
+      "adduct_mass": 1.00782503223,
+      "adduct_average_mass": 1.007941,
+      "charge": 1,
+      "enabled": false
+    },
+    {
+      "label": "[M+Na]+",
+      "adduct_mass": 22.989769282,
+      "adduct_average_mass": 22.98976928,
+      "charge": 1,
+      "enabled": true
+    },
+    {
+      "label": "[M+K]+",
+      "adduct_mass": 38.9637064864,
+      "adduct_average_mass": 39.0983,
+      "charge": 1,
+      "enabled": false
+    },
+    {
+      "label": "[M+NH4]+",
+      "adduct_mass": 18.03437413335,
+      "adduct_average_mass": 18.038467,
+      "charge": 1,
+      "enabled": false
+    },
+    {
+      "label": "[M+2Na]2+",
+      "adduct_mass": 45.979538564,
+      "adduct_average_mass": 45.97953856,
+      "charge": 2,
+      "enabled": false
+    },
+    {
+      "label": "[M+3Na]3+",
+      "adduct_mass": 68.969307846,
+      "adduct_average_mass": 68.96930784,
+      "charge": 3,
+      "enabled": false
+    }
+  ],
+  "feed_ratio": {
+    "entries": [],
+    "tolerance_pct": 20.0
+  },
+  "peak_data": {
+    "mz_values": [],
+    "intensities": []
+  },
+  "sec_data": null
+}
