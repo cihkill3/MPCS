@@ -35,6 +35,8 @@ class PeakData:
 
     mz_values: list[float] = field(default_factory=list)
     intensities: list[float] = field(default_factory=list)
+    enabled: list[bool] = field(default_factory=list)   # 비어 있으면 모두 사용
+    notes: list[str] = field(default_factory=list)      # 피크별 메모 (선택)
 
     @classmethod
     def single(cls, mz: float, intensity: float = 100.0) -> "PeakData":
@@ -213,6 +215,8 @@ class SolverResult:
     probability: float | None = None  # 몬테카를로 확률 (미실행 시 None → GUI '-')
     isotope_offset: int = 0       # 0이면 모노이소토픽 매칭, N이면 N번째 동위원소 매칭
     formula: str | None = None    # 이온화된 전체 분자식 (직접 질량 입력 포함 시 None)
+    family_id: int | None = None       # 소속 조성 계열 ID (series_analysis.score_families)
+    family_support: int | None = None  # 그 계열이 설명하는 피크 수
 
     @property
     def probability_display(self) -> str:

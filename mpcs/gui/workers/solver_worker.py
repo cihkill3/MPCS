@@ -61,3 +61,52 @@ class SolverWorker(QThread):
 
     def _is_cancelled(self) -> bool:
         return self._cancelled
+
+
+class BatchSolverWorker(QThread):
+    """
+    여러 피크 일괄 솔버 + 조성 계열 점수화 QThread.
+
+    Signals:
+        progress(processed, valid, total)
+        finished(result_sets, families)
+        error(str)
+    """
+
+    progress = Signal(object, object, object)   # 32비트 int 초과 조합 수 대응
+    finished = Signal(object, object)   # list[RankedResultSet], list[CompositionFamily]
+    error = Signal(str)
+
+    def __init__(
+        self,
+        solver: SolverService,
+        peaks: list[float],
+        params: SolverParams,
+        repeat_names: list[str],
+        max_results: int = 1000,
+        parent=None,
+    ) -> None:
+        super().__init__(parent)
+        self._solver = solver
+        self._peaks = peaks
+        self._params = params
+        self._repeat_names = repeat_names
+        self._max_results = max_results
+        self._cancelled = False
+
+    def cancel(self) -> None:
+        self._cancelled = True
+
+    def run(self) -> None:
+        from mpcs.services.series_analysis import score_families
+
+        try:
+            results = self._solver.solve_batch(
+                self._peaks, self._params, self._max_results,
+                progress_callback=lambda a, b, c: self.progress.emit(a, b, c),
+                cancel_flag=lambda: self._cancelled,
+            )
+            families = score_families(results, self._repeat_names, self._params.tolerance_da)
+            self.finished.emit(results, families)
+        except Exception as exc:
+            self.error.emit(str(exc))

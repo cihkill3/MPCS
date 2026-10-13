@@ -48,6 +48,7 @@ class Project:
     adducts: list[Adduct] = field(default_factory=make_default_adducts)
     peak_data: PeakData = field(default_factory=PeakData)
     sec_data: SECData | None = None
+    spectrum_path: str | None = None     # 마지막으로 연 스펙트럼 파일 (mzXML)
     average_block_mode: bool = False
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
     modified_at: str = field(default_factory=lambda: datetime.now().isoformat())

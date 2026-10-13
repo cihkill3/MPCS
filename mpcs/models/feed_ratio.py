@@ -148,6 +148,41 @@ class FeedRatio:
 
         return True
 
+    def check_composition_array(self, counts: dict, size: int):
+        """
+        check_composition의 벡터화 버전 (배치 솔버용).
+
+        Args:
+            counts: {monomer_name: int ndarray (size,)}
+            size:   후보 수
+
+        Returns:
+            bool ndarray (size,) — 동일한 판정 규칙
+        """
+        import numpy as np
+
+        ok = np.ones(size, dtype=bool)
+        ratios = self.calc_ratios()
+        if len(ratios) < 2:
+            return ok
+
+        zeros = np.zeros(size, dtype=np.int64)
+        ref_name = min(self.entries, key=lambda e: e.mmol).component_name
+        ref = counts.get(ref_name, zeros)
+        has_ref = ref != 0
+        safe_ref = np.where(has_ref, ref, 1)
+        tol_factor = self.tolerance_pct / 100.0
+
+        for comp_name, target_ratio in ratios.items():
+            if comp_name == ref_name:
+                continue
+            actual_ratio = counts.get(comp_name, zeros) / safe_ref
+            lower = target_ratio * (1.0 - tol_factor)
+            upper = target_ratio * (1.0 + tol_factor)
+            ok &= (lower <= actual_ratio) & (actual_ratio <= upper)
+
+        return ok | ~has_ref
+
     # ------------------------------------------------------------------
     # Validation
     # ------------------------------------------------------------------

@@ -2,43 +2,47 @@
 MPCS — GUI View: Result Table View
 SRS §18 Results Module
 
-변경사항:
-    - 조성 컬럼 → 분자식 컬럼 + 각 모노머별 개수 컬럼으로 동적 분리
-    - Probability 컬럼 제거
-    - 행 더블클릭 시 분자식이 있으면 동위원소 패턴 다이얼로그 표시
+선택한 피크 1개의 후보 조성 테이블.
+
+컬럼:
+    순위 · 확률 · 분자식 · [모노머별 개수...] · 이론 m/z · 관측 m/z · 오차 · 동위원소 오프셋 · 어덕트 · 계열 피크 수
+    - 확률: 조성 계열(연속 반복수) 점수 기반 (series_analysis.score_families). 미계산 시 '-'
+    - 계열 피크 수: 이 후보와 같은 계열이 설명하는 피크 수
+
+동작:
+    - 행 선택 → candidate_selected(SolverResult) 신호 (스펙트럼에서 같은 계열 피크 강조)
+    - 행 더블클릭 → 분자식이 있으면 동위원소 패턴 다이얼로그
+    - Ctrl+C 복사, 내보내기(xlsx/csv)
 """
 
 from __future__ import annotations
 
-from qtpy.QtCore import Qt
+from qtpy.QtCore import Qt, Signal
+from qtpy.QtGui import QKeySequence
 from qtpy.QtWidgets import (
+    QAbstractItemView,
+    QAction,
+    QApplication,
+    QGroupBox,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QMessageBox,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
-    QWidget,
-    QHeaderView,
-    QAbstractItemView,
-    QGroupBox,
-    QPushButton,
-    QAction,
-    QApplication,
 )
-from qtpy.QtGui import QKeySequence
 
-from mpcs.models.result import RankedResultSet, SolverResult
+from mpcs.core.formatting import HtmlDelegate, format_adduct_html, format_formula_html
 from mpcs.core.i18n import tr
-from mpcs.core.formatting import format_formula_html, format_adduct_html, HtmlDelegate
+from mpcs.models.result import RankedResultSet, SolverResult
 
-
-# ---------------------------------------------------------------------------
-# 고정 컬럼 (동적 모노머 컬럼은 display_results에서 삽입됨)
-# ---------------------------------------------------------------------------
-
-_FIXED_LEADING = [tr("순위"), tr("분자식")]
-_FIXED_TRAILING = [tr("이론 m/z (Da)"), tr("관측 m/z (Da)"), tr("오차 (Da)"), tr("동위원소 오프셋"), tr("어덕트")]
+_FIXED_LEADING = [tr("순위"), tr("확률"), tr("분자식")]
+_FIXED_TRAILING = [tr("이론 m/z (Da)"), tr("관측 m/z (Da)"), tr("오차 (Da)"),
+                   tr("동위원소 오프셋"), tr("어덕트"), tr("계열 피크 수")]
+_ROLE_RESULT = Qt.UserRole + 1
+_DISPLAY_LIMIT = 500
 
 
 class NumericTableWidgetItem(QTableWidgetItem):
@@ -46,66 +50,47 @@ class NumericTableWidgetItem(QTableWidgetItem):
 
     def __lt__(self, other):
         try:
-            return float(self.text()) < float(other.text())
+            return float(self.text().rstrip("%")) < float(other.text().rstrip("%"))
         except ValueError:
             return super().__lt__(other)
 
 
 class ResultTableView(QGroupBox):
-    """
-    솔버 결과 테이블.
+    """선택한 피크의 솔버 후보 테이블."""
 
-    표시 규칙:
-        - 고정 앞 컬럼: 순위, 분자식
-        - 동적 중간 컬럼: 각 모노머 이름 (개수만 표시)
-        - 고정 뒤 컬럼: 이론 m/z, 관측 m/z, 오차, 동위원소 오프셋, 어덕트
-        - Probability 컬럼 없음
-        - 행 더블클릭: 분자식 있으면 동위원소 패턴 다이얼로그
-    """
+    candidate_selected = Signal(object)   # SolverResult | None
 
     def __init__(self, parent=None) -> None:
-        super().__init__(tr("결과"), parent)
+        super().__init__(tr("후보 조성"), parent)
         self._monomer_names: list[str] = []
-        self._results_cache: list[SolverResult] = []
         self._setup_ui()
 
     def _setup_ui(self) -> None:
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(4, 4, 4, 4)
 
-        title = QLabel(f"<b>{tr('결과')}</b>")
-        self._count_label = QLabel(tr("결과: 0개"))
-        self._count_label.setStyleSheet("color: gray; font-size: 11px;")
-        
         header_layout = QHBoxLayout()
+        self._count_label = QLabel(tr("피크를 선택하면 후보 조성이 표시됩니다"))
+        self._count_label.setStyleSheet("color: gray;")
         header_layout.addWidget(self._count_label)
         header_layout.addStretch()
+        self._export_btn = QPushButton(tr("이 피크 내보내기..."))
+        self._export_btn.clicked.connect(self._export_results)
+        header_layout.addWidget(self._export_btn)
         layout.addLayout(header_layout)
 
         self._table = QTableWidget(0, len(_FIXED_LEADING) + len(_FIXED_TRAILING))
-        self._table.setHorizontalHeaderLabels(
-            _FIXED_LEADING + _FIXED_TRAILING
-        )
+        self._table.setHorizontalHeaderLabels(_FIXED_LEADING + _FIXED_TRAILING)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setAlternatingRowColors(True)
-        self._table.setSortingEnabled(True)
         self._table.cellDoubleClicked.connect(self._on_cell_double_clicked)
-
-        header = self._table.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Interactive)
-        header.setStretchLastSection(False)
-
+        self._table.itemSelectionChanged.connect(self._on_selection_changed)
+        self._table.verticalHeader().setVisible(False)
+        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         layout.addWidget(self._table)
 
-        # 내보내기 버튼 영역
-        btn_layout = QHBoxLayout()
-        btn_layout.addStretch()
-        self._export_btn = QPushButton("내보내기 (Export)...")
-        self._export_btn.clicked.connect(self._export_results)
-        btn_layout.addWidget(self._export_btn)
-        layout.addLayout(btn_layout)
-
-        # 복사 (Ctrl+C) 액션 추가
         copy_action = QAction(self._table)
         copy_action.setShortcut(QKeySequence.Copy)
         copy_action.triggered.connect(self._copy_to_clipboard)
@@ -115,63 +100,55 @@ class ResultTableView(QGroupBox):
     # Public API
     # ------------------------------------------------------------------
 
-    def display_results(self, result_set: RankedResultSet) -> None:
-        """
-        결과를 테이블에 표시한다.
-        결과로부터 모노머 이름을 동적으로 추출하여 컬럼을 재구성한다.
-        """
+    def display_results(self, result_set: RankedResultSet, title: str | None = None) -> None:
+        """후보를 표시한다. 모노머 컬럼은 결과에서 동적으로 구성한다."""
+        self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
         self._table.setRowCount(0)
-        self._results_cache = list(result_set.results)
 
-        # 모든 결과에서 모노머 이름 수집 (순서 유지, 첫 등장 순)
+        results = result_set.results[:_DISPLAY_LIMIT]
         seen: dict[str, None] = {}
-        for r in result_set.results:
+        for r in results:
             for name, _ in r.composition.counts:
                 seen.setdefault(name, None)
         self._monomer_names = list(seen.keys())
 
-        # 컬럼 재구성
-        total_cols = len(_FIXED_LEADING) + len(self._monomer_names) + len(_FIXED_TRAILING)
-        self._table.setColumnCount(total_cols)
-
-        headers = (
-            _FIXED_LEADING
-            + self._monomer_names
-            + _FIXED_TRAILING
-        )
+        headers = _FIXED_LEADING + self._monomer_names + _FIXED_TRAILING
+        self._table.setColumnCount(len(headers))
         self._table.setHorizontalHeaderLabels(headers)
+        widths = [45, 65, 200] + [55] * len(self._monomer_names) + [110, 110, 75, 80, 90, 80]
+        for c, w in enumerate(widths):
+            self._table.setColumnWidth(c, w)
 
-        # 컬럼 폭 설정
-        self._table.setColumnWidth(0, 50)   # 순위
-        self._table.setColumnWidth(1, 200)  # 분자식
-        mono_start = 2
-        for i in range(len(self._monomer_names)):
-            self._table.setColumnWidth(mono_start + i, 70)
-        trail_start = mono_start + len(self._monomer_names)
-        self._table.setColumnWidth(trail_start,     130)  # 이론 m/z
-        self._table.setColumnWidth(trail_start + 1, 130)  # 관측 m/z
-        self._table.setColumnWidth(trail_start + 2, 90)   # 오차
-        self._table.setColumnWidth(trail_start + 3, 110)  # 동위원소 오프셋
-        self._table.setColumnWidth(trail_start + 4, 100)  # 어덕트
-
-        for rank, result in enumerate(result_set.results, start=1):
+        for rank, result in enumerate(results, start=1):
             self._add_row(rank, result)
 
-        self._table.setItemDelegateForColumn(1, HtmlDelegate(self._table, format_formula_html))
-        self._table.setItemDelegateForColumn(trail_start + 4, HtmlDelegate(self._table, format_adduct_html))
-
+        trail = len(_FIXED_LEADING) + len(self._monomer_names)
+        self._table.setItemDelegateForColumn(2, HtmlDelegate(self._table, format_formula_html))
+        self._table.setItemDelegateForColumn(trail + 4, HtmlDelegate(self._table, format_adduct_html))
         self._table.setSortingEnabled(True)
-        count = len(result_set.results)
-        suffix = tr(" (최대 100개 표시)") if count >= 100 else ""
-        self._count_label.setText(tr("결과: {count}개{suffix}", count=count, suffix=suffix))
+        self._table.blockSignals(False)
+
+        n = result_set.count()
+        shown = f" ({tr('상위')} {_DISPLAY_LIMIT}{tr('개 표시')})" if n > _DISPLAY_LIMIT else ""
+        head = title or f"m/z {result_set.peak_mz:.4f}"
+        self._count_label.setText(f"<b>{head}</b> — {tr('후보')} {n}{tr('개')}{shown}")
+        self._count_label.setStyleSheet("")
+        if results:
+            self._table.selectRow(0)
 
     def clear(self) -> None:
-        """결과를 초기화한다."""
         self._table.setRowCount(0)
         self._monomer_names = []
-        self._results_cache = []
-        self._count_label.setText(tr("결과: 0개"))
+        self._count_label.setText(tr("피크를 선택하면 후보 조성이 표시됩니다"))
+        self._count_label.setStyleSheet("color: gray;")
+
+    def selected_result(self) -> SolverResult | None:
+        rows = self._table.selectionModel().selectedRows()
+        if not rows:
+            return None
+        item = self._table.item(rows[0].row(), 0)
+        return item.data(_ROLE_RESULT) if item else None
 
     # ------------------------------------------------------------------
     # Internal
@@ -180,136 +157,96 @@ class ResultTableView(QGroupBox):
     def _add_row(self, rank: int, result: SolverResult) -> None:
         row = self._table.rowCount()
         self._table.insertRow(row)
-
-        comp_dict = result.composition.to_dict()
+        comp = result.composition.to_dict()
         mono_start = len(_FIXED_LEADING)
-        trail_start = mono_start + len(self._monomer_names)
+        trail = mono_start + len(self._monomer_names)
 
-        def _num_item(text: str) -> NumericTableWidgetItem:
-            item = NumericTableWidgetItem(text)
-            item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            return item
+        def num(text: str) -> NumericTableWidgetItem:
+            it = NumericTableWidgetItem(text)
+            it.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            return it
 
-        def _str_item(text: str) -> QTableWidgetItem:
-            item = QTableWidgetItem(text)
-            item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            return item
+        def txt(text: str) -> QTableWidgetItem:
+            it = QTableWidgetItem(text)
+            it.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            return it
 
-        # 순위
-        self._table.setItem(row, 0, _num_item(str(rank)))
-
-        # 분자식 (None이면 공백). HtmlDelegate가 포매팅을 담당하므로 raw 문자열 저장
-        formula_text = result.formula if result.formula else ""
-        self._table.setItem(row, 1, _str_item(formula_text))
-
-        # 모노머 개수 컬럼
+        rank_item = num(str(rank))
+        rank_item.setData(_ROLE_RESULT, result)
+        self._table.setItem(row, 0, rank_item)
+        prob = result.probability
+        self._table.setItem(row, 1, num(f"{prob * 100:.1f}%" if prob is not None else "-"))
+        self._table.setItem(row, 2, txt(result.formula or ""))
         for i, name in enumerate(self._monomer_names):
-            count = comp_dict.get(name, 0)
-            self._table.setItem(row, mono_start + i, _num_item(str(count)))
+            self._table.setItem(row, mono_start + i, num(str(comp.get(name, 0))))
+        self._table.setItem(row, trail, num(f"{result.calculated_mass:.4f}"))
+        self._table.setItem(row, trail + 1, num(f"{result.observed_mass:.4f}"))
+        self._table.setItem(row, trail + 2, num(f"{result.error_da:.4f}"))
+        self._table.setItem(row, trail + 3, num(str(result.isotope_offset)))
+        self._table.setItem(row, trail + 4, txt(result.adduct_label))
+        sup = result.family_support
+        self._table.setItem(row, trail + 5, num(str(sup) if sup and result.family_id else "-"))
 
-        # 이론 m/z
-        self._table.setItem(row, trail_start,     _num_item(f"{result.calculated_mass:.4f}"))
-        # 관측 m/z
-        self._table.setItem(row, trail_start + 1, _num_item(f"{result.observed_mass:.4f}"))
-        # 오차
-        self._table.setItem(row, trail_start + 2, _num_item(f"{result.error_da:.4f}"))
-        # 동위원소 오프셋
-        self._table.setItem(row, trail_start + 3, _num_item(str(result.isotope_offset)))
-        # 어덕트
-        self._table.setItem(row, trail_start + 4, _str_item(result.adduct_label))
+    def _on_selection_changed(self) -> None:
+        self.candidate_selected.emit(self.selected_result())
 
     def _on_cell_double_clicked(self, row: int, _col: int) -> None:
-        if row < 0 or row >= len(self._results_cache):
+        item = self._table.item(row, 0)
+        result = item.data(_ROLE_RESULT) if item else None
+        if result is None:
             return
-
-        result = self._results_cache[row]
         if not result.formula:
             QMessageBox.information(
-                self,
-                tr("동위원소 패턴"),
-                tr("이 후보에는 직접 입력 질량이 포함되어 있어\n분자식을 알 수 없으므로 동위원소 패턴을 계산할 수 없습니다.")
+                self, tr("동위원소 패턴"),
+                tr("이 후보에는 직접 입력 질량이 포함되어 있어\n분자식을 알 수 없으므로 동위원소 패턴을 계산할 수 없습니다."),
             )
             return
-
         from mpcs.gui.dialogs.isotope_pattern_dialog import IsotopePatternDialog
-        dlg = IsotopePatternDialog(result.formula, result.adduct_label, parent=self)
-        dlg.exec_()
+        IsotopePatternDialog(result.formula, result.adduct_label, parent=self).exec_()
 
-    # ------------------------------------------------------------------
-    # Export and Copy
-    # ------------------------------------------------------------------
+    def _table_rows(self, rows: list[int] | None = None) -> tuple[list[str], list[list]]:
+        cols = self._table.columnCount()
+        headers = [self._table.horizontalHeaderItem(c).text() for c in range(cols)]
+        data = []
+        for r in rows if rows is not None else range(self._table.rowCount()):
+            data.append([self._table.item(r, c).text() if self._table.item(r, c) else "" for c in range(cols)])
+        return headers, data
 
     def _copy_to_clipboard(self) -> None:
-        selected_rows = sorted(set(idx.row() for idx in self._table.selectedIndexes()))
-        if not selected_rows:
+        rows = sorted({idx.row() for idx in self._table.selectedIndexes()})
+        if not rows:
             return
-
-        total_cols = self._table.columnCount()
-        lines = []
-        
-        # Header (index행) 포함
-        headers = [self._table.horizontalHeaderItem(c).text() for c in range(total_cols)]
-        lines.append("\t".join(headers))
-
-        # 선택된 줄의 전체 데이터 복사
-        for row in selected_rows:
-            row_data = []
-            for col in range(total_cols):
-                item = self._table.item(row, col)
-                text = item.text() if item else ""
-                row_data.append(text)
-            lines.append("\t".join(row_data))
-
-        text_to_copy = "\n".join(lines)
-        QApplication.clipboard().setText(text_to_copy)
+        headers, data = self._table_rows(rows)
+        QApplication.clipboard().setText("\n".join("\t".join(r) for r in [headers] + data))
 
     def _export_results(self) -> None:
         if self._table.rowCount() == 0:
-            QMessageBox.information(self, "내보내기", "내보낼 결과가 없습니다.")
+            QMessageBox.information(self, tr("내보내기"), tr("내보낼 결과가 없습니다."))
             return
-
         from qtpy.QtWidgets import QFileDialog
         path, filt = QFileDialog.getSaveFileName(
-            self,
-            "결과 내보내기",
-            "",
-            "Excel Files (*.xlsx);;CSV Files (*.csv)"
+            self, tr("결과 내보내기"), "", "Excel Files (*.xlsx);;CSV Files (*.csv)"
         )
         if not path:
             return
-
         import pandas as pd
-        
-        total_cols = self._table.columnCount()
-        headers = [self._table.horizontalHeaderItem(c).text() for c in range(total_cols)]
-        
-        data = []
-        for r in range(self._table.rowCount()):
-            row_data = []
-            for c in range(total_cols):
-                item = self._table.item(r, c)
-                text_val = item.text() if item else ""
-                
-                # 숫자로 변환 가능한 경우 변환하여 엑셀에서 '텍스트로 저장된 숫자' 오류 방지
-                try:
-                    # 먼저 정수 변환 시도
-                    if '.' not in text_val:
-                        val = int(text_val)
-                    else:
-                        val = float(text_val)
-                except ValueError:
-                    val = text_val
-                    
-                row_data.append(val)
-            data.append(row_data)
 
-        df = pd.DataFrame(data, columns=headers)
-        
+        headers, data = self._table_rows()
+        df = pd.DataFrame([[_to_number(v) for v in row] for row in data], columns=headers)
         try:
             if path.endswith(".xlsx") or "Excel" in filt:
                 df.to_excel(path, index=False)
             else:
                 df.to_csv(path, index=False, encoding="utf-8-sig")
-            QMessageBox.information(self, "내보내기 완료", f"결과가 성공적으로 저장되었습니다:\n{path}")
+            QMessageBox.information(self, tr("내보내기 완료"), f"{tr('결과가 성공적으로 저장되었습니다')}:\n{path}")
         except Exception as e:
-            QMessageBox.critical(self, "내보내기 오류", f"파일 저장 중 오류가 발생했습니다:\n{e}")
+            QMessageBox.critical(self, tr("내보내기 오류"), f"{tr('파일 저장 중 오류가 발생했습니다')}:\n{e}")
+
+
+def _to_number(text: str):
+    """엑셀에서 '텍스트로 저장된 숫자'가 되지 않도록 변환."""
+    t = text.rstrip("%")
+    try:
+        return int(t) if "." not in t else float(t)
+    except ValueError:
+        return text

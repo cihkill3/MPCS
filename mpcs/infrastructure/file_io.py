@@ -246,3 +246,108 @@ class PeakFileIO:
             lines.append(f"{mz}\t{intensity}")
 
         path.write_text("\n".join(lines), encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# 관대한 피크 표 읽기 (엑셀 / CSV / TXT / 클립보드)
+# ---------------------------------------------------------------------------
+
+def parse_peak_rows(rows: list[list]) -> list[tuple[float, float | None, str]]:
+    """
+    셀 행 목록 → [(m/z, intensity|None, 메모)].
+
+    헤더 행(m/z·intensity 별칭)이 있으면 그 열을 쓰고, 없으면
+    첫 번째 숫자 열 = m/z, 두 번째 숫자 열 = intensity, 첫 번째 문자 열 = 메모로 본다.
+    """
+    def num(v) -> float | None:
+        if v is None:
+            return None
+        try:
+            f = float(str(v).strip().replace(",", ""))
+            return f if f == f else None   # NaN 제외
+        except ValueError:
+            return None
+
+    def norm(v) -> str:
+        return str(v).strip().lower().replace(" ", "").replace("_", "") if v is not None else ""
+
+    mz_aliases = {a.replace(" ", "").replace("_", "") for a in _MZ_COLUMN_ALIASES} | {"m/z(da)", "mass(da)", "질량"}
+    int_aliases = {a.replace(" ", "").replace("_", "") for a in _INTENSITY_COLUMN_ALIASES} | {"강도"}
+
+    mz_idx = int_idx = note_idx = None
+    start = 0
+    for i, row in enumerate(rows[:20]):
+        names = [norm(c) for c in row]
+        if any(n in mz_aliases for n in names):
+            mz_idx = next(j for j, n in enumerate(names) if n in mz_aliases)
+            int_idx = next((j for j, n in enumerate(names) if n in int_aliases), None)
+            note_idx = next((j for j, n in enumerate(names) if n and j not in (mz_idx, int_idx)), None)
+            start = i + 1
+            break
+
+    data = rows[start:]
+    if mz_idx is None:
+        width = max((len(r) for r in data), default=0)
+        numeric_cols = [j for j in range(width)
+                        if sum(num(r[j]) is not None for r in data if j < len(r)) >= max(1, len(data) // 2)]
+        if not numeric_cols:
+            return []
+        mz_idx = numeric_cols[0]
+        int_idx = numeric_cols[1] if len(numeric_cols) > 1 else None
+        note_idx = next((j for j in range(width) if j not in numeric_cols), None)
+
+    out: list[tuple[float, float | None, str]] = []
+    for r in data:
+        mz = num(r[mz_idx]) if mz_idx < len(r) else None
+        if mz is None or mz <= 0:
+            continue
+        inten = num(r[int_idx]) if int_idx is not None and int_idx < len(r) else None
+        note = str(r[note_idx]).strip() if note_idx is not None and note_idx < len(r) and r[note_idx] is not None else ""
+        out.append((mz, inten, "" if note.lower() == "nan" else note))
+    return out
+
+
+def split_text_rows(text: str) -> list[list[str]]:
+    """탭/쉼표/세미콜론/공백 구분 텍스트 → 셀 행 목록."""
+    import re
+
+    rows = []
+    for line in text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        delim = "\t" if "\t" in line else (";" if ";" in line else ("," if "," in line else None))
+        cells = line.split(delim) if delim else re.split(r"\s+", line.strip())
+        rows.append([c.strip() for c in cells])
+    return rows
+
+
+def read_peak_table(filepath: str | Path) -> list[tuple[float, float | None, str]]:
+    """엑셀(.xlsx/.xls) 또는 텍스트(.csv/.txt) 피크 표를 관대하게 읽는다."""
+    path = Path(filepath)
+    if not path.exists():
+        raise FileImportError(str(path), "파일이 존재하지 않습니다")
+    try:
+        if path.suffix.lower() in (".xlsx", ".xls"):
+            import pandas as pd
+
+            df = pd.read_excel(path, header=None, dtype=object)
+            rows = df.where(df.notna(), None).values.tolist()
+        else:
+            content = None
+            for enc in ("utf-8", "utf-8-sig", "cp949"):
+                try:
+                    content = path.read_text(encoding=enc)
+                    break
+                except UnicodeDecodeError:
+                    continue
+            if content is None:
+                raise FileImportError(str(path), "파일 인코딩을 인식할 수 없습니다")
+            rows = split_text_rows(content)
+    except FileImportError:
+        raise
+    except Exception as exc:
+        raise FileImportError(str(path), str(exc)) from exc
+    peaks = parse_peak_rows(rows)
+    if not peaks:
+        raise FileImportError(str(path), "m/z 숫자 열을 찾을 수 없습니다")
+    return peaks

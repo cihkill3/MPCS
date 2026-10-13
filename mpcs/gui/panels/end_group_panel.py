@@ -1,6 +1,6 @@
 """
-MPCS — GUI Panels: End Group, Adduct, MALDI Input, Solver Control
-SRS §10, §11, §12, §13
+MPCS — GUI Panels: End Group, Adduct, Solver Control
+SRS §10, §11, §13
 Q10: Average Block Mode 변경 시 사용자 확인 다이얼로그
 """
 
@@ -28,8 +28,8 @@ from qtpy.QtWidgets import (
 from mpcs.models.adduct import Adduct, make_default_adducts, parse_adduct_label
 from mpcs.models.end_group import EndGroup, DEFAULT_END_GROUPS, parse_end_group_formula
 from mpcs.models.project import Project
-from mpcs.models.result import PeakData
 from mpcs.core.formatting import format_adduct_html, format_formula_html
+from mpcs.core.i18n import tr
 
 
 class HtmlRadioButton(QWidget):
@@ -331,114 +331,6 @@ class AdductPanel(QGroupBox):
 
 
 # =============================================================================
-# MALDI Input Panel (SRS §12)
-# =============================================================================
-
-from mpcs.core.i18n import tr
-
-class MaldiInputPanel(QGroupBox):
-    """
-    MALDI 피크 입력 패널.
-
-    SRS §12 MALDI Data Input:
-        §12.1 단일 피크 입력 (m/z 값 직접 입력)
-        §12.3 파일에서 가져오기 (탭 구분, Q9)
-    """
-
-    def __init__(self, parent=None) -> None:
-        super().__init__(tr("MALDI 피크 입력"), parent)
-        self._setup_ui()
-
-    def _setup_ui(self) -> None:
-        layout = QVBoxLayout(self)
-
-        # 단일 m/z 입력
-        single_layout = QHBoxLayout()
-        self._single_mz_edit = QDoubleSpinBox()
-        self._single_mz_edit.setRange(0.0, 9999999.0)
-        self._single_mz_edit.setDecimals(4)
-        self._single_mz_edit.setSuffix(" Da")
-        self._single_mz_edit.setMinimumWidth(150)
-        set_btn = QPushButton(tr("단일 피크 설정"))
-        set_btn.clicked.connect(self._set_single_peak)
-
-        single_layout.addWidget(QLabel("m/z:"))
-        single_layout.addWidget(self._single_mz_edit)
-        single_layout.addWidget(set_btn)
-        single_layout.addStretch()
-        layout.addLayout(single_layout)
-
-        # 파일 가져오기 (Q9)
-        file_layout = QHBoxLayout()
-        self._file_path_edit = QLineEdit()
-        self._file_path_edit.setPlaceholderText(tr("파일 경로 (탭 구분, 헤더 포함)"))
-        self._file_path_edit.setReadOnly(True)
-
-        browse_btn = QPushButton(tr("파일 열기..."))
-        browse_btn.clicked.connect(self._browse_file)
-
-        file_layout.addWidget(QLabel(tr("피크 파일:")))
-        file_layout.addWidget(self._file_path_edit)
-        file_layout.addWidget(browse_btn)
-        layout.addLayout(file_layout)
-
-        # 현재 피크 목록 표시
-        layout.addWidget(QLabel(tr("입력된 피크 (m/z):")))
-        self._peak_display = QTextEdit()
-        self._peak_display.setReadOnly(True)
-        self._peak_display.setMaximumHeight(100)
-        self._peak_display.setPlaceholderText(tr("m/z 값이 여기에 표시됩니다"))
-        layout.addWidget(self._peak_display)
-
-        self._peak_data = PeakData()
-
-    def _set_single_peak(self) -> None:
-        mz = self._single_mz_edit.value()
-        if mz <= 0.0:
-            QMessageBox.warning(self, tr("입력 오류"), tr("m/z 값이 0 이하입니다."))
-            return
-        self._peak_data = PeakData.single(mz)
-        self._update_display()
-
-    def _browse_file(self) -> None:
-        from qtpy.QtWidgets import QFileDialog
-        from mpcs.infrastructure.file_io import FileImportError, PeakFileIO
-
-        filepath, _ = QFileDialog.getOpenFileName(
-            self, tr("피크 파일 열기"), "",
-            tr("텍스트 파일 (*.txt *.csv *.xlsx);;모든 파일 (*.*)")
-        )
-        if filepath:
-            try:
-                self._peak_data = PeakFileIO.read(filepath)
-                self._file_path_edit.setText(filepath)
-                self._update_display()
-            except FileImportError as exc:
-                QMessageBox.critical(self, tr("파일 가져오기 오류"), str(exc))
-
-    def _update_display(self) -> None:
-        if self._peak_data.is_empty():
-            self._peak_display.clear()
-            return
-        lines = [
-            f"m/z = {mz:.4f} (강도: {int_:.1f})"
-            for mz, int_ in zip(
-                self._peak_data.mz_values, self._peak_data.intensities
-            )
-        ]
-        self._peak_display.setPlainText("\n".join(lines))
-
-    def load_project(self, project: Project) -> None:
-        self._peak_data = project.peak_data
-        if not self._peak_data.is_empty():
-            self._single_mz_edit.setValue(self._peak_data.mz_values[0])
-        self._update_display()
-
-    def apply_to_project(self, project: Project) -> None:
-        project.peak_data = self._peak_data
-
-
-# =============================================================================
 # Solver Control Panel (SRS §13)
 # =============================================================================
 
@@ -482,6 +374,11 @@ class SolverControlPanel(QWidget):
         layout.addWidget(QLabel("  질량 기준:"))
         self._mass_type_combo = QComboBox()
         self._mass_type_combo.addItems(["모노이소토픽 (Exact)", "평균 질량 (Average)"])
+        self._mass_type_combo.setToolTip(
+            "Exact: 동위원소가 분리되는 Reflectron / 고분해능 LC-MS\n"
+            "Average: 동위원소가 분리되지 않는 Linear 모드 (고분자량)"
+        )
+        self._mass_type_combo.currentIndexChanged.connect(self._on_mass_type_changed)
         layout.addWidget(self._mass_type_combo)
 
         layout.addStretch()
@@ -497,9 +394,30 @@ class SolverControlPanel(QWidget):
         layout.addWidget(self._run_btn)
         layout.addWidget(self._cancel_btn)
 
+    def _on_mass_type_changed(self, index: int) -> None:
+        """평균 질량 모드: 동위원소 오프셋 비활성화, 허용 오차가 너무 작으면 Linear 모드 기본값(1 Da)으로."""
+        is_average = index == 1
+        self._isotope_spin.setEnabled(not is_average)
+        if is_average and self._tol_spin.value() < 0.5:
+            self._tol_spin.setValue(1.0)
+
     def _on_run(self) -> None:
+        self.run_requested.emit(*self.current_settings())
+
+    def current_settings(self) -> tuple[float, str, int]:
+        """(허용 오차 Da, 'EXACT'|'AVERAGE', 동위원소 오프셋 수)."""
         mass_type = "EXACT" if self._mass_type_combo.currentIndex() == 0 else "AVERAGE"
-        self.run_requested.emit(self._tol_spin.value(), mass_type, self._isotope_spin.value())
+        return self._tol_spin.value(), mass_type, self._isotope_spin.value()
+
+    def set_mass_type(self, mass_type: str, tolerance_da: float | None = None) -> None:
+        """스펙트럼 프리셋(Reflectron/Linear)에서 질량 기준과 허용 오차를 맞춘다."""
+        self._mass_type_combo.setCurrentIndex(0 if mass_type == "EXACT" else 1)
+        if tolerance_da is not None:
+            self._tol_spin.setValue(tolerance_da)
+
+    def settings_changed_signal(self):
+        """허용 오차/질량 기준 변경 신호 목록 (시리즈 재검출용)."""
+        return [self._tol_spin.valueChanged, self._mass_type_combo.currentIndexChanged]
 
     def set_running(self, running: bool) -> None:
         self._run_btn.setEnabled(not running)

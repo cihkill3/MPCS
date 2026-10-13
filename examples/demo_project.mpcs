@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.1",
+  "name": "PEG-PLA demo",
+  "created_at": "2026-10-03T14:35:01.857024",
+  "modified_at": "2026-10-03T14:35:01.858054",
+  "average_block_mode": false,
+  "monomers": [
+    {
+      "name": "EO",
+      "monomer_type": "Monomer",
+      "formula": "C2H4O",
+      "exact_mass": 44.02621474784,
+      "average_mass": 44.052640999999994,
+      "min_count": 0,
+      "max_count": 80,
+      "sub_items": []
+    },
+    {
+      "name": "LA",
+      "monomer_type": "Monomer",
+      "formula": "C3H4O2",
+      "exact_mass": 72.0211293674,
+      "average_mass": 72.062782,
+      "min_count": 0,
+      "max_count": 20,
+      "sub_items": []
+    }
+  ],
+  "constraints": [],
+  "end_group": {
+    "formula": "H/OH",
+    "is_custom_mass": false,
+    "custom_mass": 0.0,
+    "custom_average_mass": 0.0
+  },
+  "adducts": [
+    {
+      "label": "[M+H]+",
+      "adduct_mass": 1.00727645232076,
+      "adduct_average_mass": 1.00739242009076,
+      "charge": 1,
+      "enabled": true
+    },
+    {
+      "label": "[M+Na]+",
+      "adduct_mass": 22.989220702090762,
+      "adduct_average_mass": 22.989220700090762,
+      "charge": 1,
+      "enabled": true
+    },
+    {
+      "label": "[M+K]+",
+      "adduct_mass": 38.96315790649076,
+      "adduct_average_mass": 39.09775142009076,
+      "charge": 1,
+      "enabled": true
+    }
+  ],
+  "feed_ratio": {
+    "entries": [],
+    "tolerance_pct": 20.0
+  },
+  "peak_data": {
+    "mz_values": [
+      1721.8919,
+      1765.9181,
+      1809.9443,
+      1853.9705,
+      1897.9967,
+      1942.0229,
+      1986.0492,
+      2030.0754,
+      2074.1016,
+      2118.1278
+    ],
+    "intensities": [
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0,
+      100.0
+    ],
+    "enabled": [],
+    "notes": [
+      "sample A #1",
+      "sample A #2",
+      "sample A #3",
+      "sample A #4",
+      "sample A #5",
+      "sample A #6",
+      "sample A #7",
+      "sample A #8",
+      "sample A #9",
+      "sample A #10"
+    ]
+  },
+  "sec_data": null,
+  "spectrum_path": null
+}

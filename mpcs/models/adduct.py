@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import re
 import molmass
 
+from mpcs.core.atomic_mass_db import ELECTRON_MASS
+
 
 # ---------------------------------------------------------------------------
 # 어덕트 파서
@@ -56,7 +58,11 @@ def parse_adduct_label(label: str) -> tuple[float, float, int]:
                 avg_mass -= f.mass
         except Exception:
             raise ValueError(f"올바르지 않은 분자식입니다: {part_formula}")
-            
+
+    # 이온 질량 = 원자 질량 합 − z × 전자 질량 (양이온은 전자를 잃고, 음이온은 얻는다)
+    exact_mass -= charge_val * ELECTRON_MASS
+    avg_mass -= charge_val * ELECTRON_MASS
+
     return exact_mass, avg_mass, abs(charge_val)
 
 

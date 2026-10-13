@@ -91,6 +91,15 @@ class SolverParams:
             errors.append("활성화된 어덕트가 없습니다")
         if self.tolerance_da < 0.0:
             errors.append(f"허용 오차가 음수입니다: {self.tolerance_da}")
+        # 질량이 0인 성분은 해당 질량 기준으로 계산할 수 없음 (평균 질량 누락 버그 방지)
+        use_average = self.mass_type == "AVERAGE"
+        label = "평균 질량" if use_average else "정밀질량"
+        for m in self.monomers:
+            items = m.sub_items if m.monomer_type == MonomerType.BLOCK and m.sub_items else [m]
+            for it in items:
+                mass = it.average_mass if use_average else it.exact_mass
+                if mass <= 0.0:
+                    errors.append(f"'{it.name}'의 {label}이 0 이하입니다")
         return errors
 
 
@@ -241,6 +250,9 @@ class SolverService:
         for r in ranges:
             total_candidates *= len(r)
 
+        # 평균 질량은 이미 동위원소 분포의 중심값이므로 동위원소 오프셋은 정밀질량 모드에서만 적용
+        isotope_offsets = params.isotope_offset_count if params.mass_type == "EXACT" else 0
+
         # 결과 수집
         results: list[SolverResult] = []
         processed = 0
@@ -331,7 +343,7 @@ class SolverService:
                 else:
                     theoretical_mz = adduct.calc_mz(neutral_mw)
 
-                for n in range(params.isotope_offset_count + 1):
+                for n in range(isotope_offsets + 1):
                     offset = 1.00335 * n / adduct.charge
                     matched_mz = theoretical_mz + offset
                     error_da = abs(params.peak_mz - matched_mz)
@@ -364,6 +376,39 @@ class SolverService:
 
         return RankedResultSet(peak_mz=params.peak_mz, results=results)
 
+    def solve_batch(
+        self,
+        peak_mz_list: list[float],
+        base_params: SolverParams,
+        max_results: int = 2000,
+        progress_callback: Callable[[int, int, int], None] | None = None,
+        cancel_flag: Callable[[], bool] | None = None,
+        workers: int | None = None,
+    ) -> list[RankedResultSet]:
+        """
+        여러 피크를 벡터화된 1회 전수탐색으로 동시에 푼다 (mpcs.services.batch_solver).
+
+        조합 생성·제약식·질량 계산은 한 번만 수행하고 모든 피크를 searchsorted로 매칭하므로
+        피크 수가 늘어도 비용이 거의 늘지 않는다. 청크는 스레드 병렬 처리된다.
+
+        Args:
+            peak_mz_list:      m/z 값 목록
+            base_params:       기본 솔버 파라미터 (peak_mz는 무시됨)
+            max_results:       피크당 보관 후보 수 (오차 오름차순)
+            progress_callback: (처리 조합 수, 유효 조합 수, 전체 조합 수)
+            cancel_flag:       True 반환 시 중단
+            workers:           스레드 수 (None → 자동)
+
+        Returns:
+            RankedResultSet 리스트 (입력 피크 순서와 동일)
+        """
+        from mpcs.services.batch_solver import solve_batch
+
+        return solve_batch(
+            self._engine, peak_mz_list, base_params, max_results,
+            progress_callback, cancel_flag, workers,
+        )
+
     def solve_multi_peak(
         self,
         peak_mz_list: list[float],
@@ -371,37 +416,10 @@ class SolverService:
         progress_callback: Callable[[int, int, int], None] | None = None,
         cancel_flag: Callable[[], bool] | None = None,
     ) -> list[RankedResultSet]:
-        """
-        다중 피크에 대해 순차적으로 솔버를 실행한다.
-
-        SRS §21: 100 피크 < 10초 목표.
-
-        Args:
-            peak_mz_list:      m/z 값 목록
-            base_params:       기본 솔버 파라미터 (peak_mz는 무시됨)
-            progress_callback: (현재_피크, 전체_피크) 콜백
-            cancel_flag:       True 반환 시 즉시 중단
-
-        Returns:
-            RankedResultSet 리스트 (입력 피크 순서와 동일)
-        """
-        results: list[RankedResultSet] = []
-        total = len(peak_mz_list)
-
-        for i, mz in enumerate(peak_mz_list):
-            if cancel_flag is not None and cancel_flag():
-                break
-
-            # 각 피크에 대해 별도 SolverParams 생성
-            import dataclasses
-            peak_params = dataclasses.replace(base_params, peak_mz=mz)
-            result_set = self.solve(peak_params, cancel_flag=cancel_flag)
-            results.append(result_set)
-
-            if progress_callback is not None:
-                progress_callback(i + 1, total)
-
-        return results
+        """다중 피크 솔버 (하위 호환). solve()와 같은 MAX_RESULTS 상한으로 solve_batch를 호출한다."""
+        return self.solve_batch(
+            peak_mz_list, base_params, MAX_RESULTS, progress_callback, cancel_flag
+        )
 
     # ------------------------------------------------------------------
     # Internal helpers

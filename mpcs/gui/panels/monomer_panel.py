@@ -792,7 +792,12 @@ class MonomerPanel(QGroupBox):
 
         monomer = block_item.data(_COL_NAME, _ROLE_DATA)
         if isinstance(monomer, Monomer):
-            monomer.exact_mass = total
+            monomer.sub_items = [
+                block_item.child(i).data(_COL_NAME, _ROLE_DATA)
+                for i in range(block_item.childCount())
+                if isinstance(block_item.child(i).data(_COL_NAME, _ROLE_DATA), BlockSubItem)
+            ]
+            monomer.refresh_block_mass()
 
     # ------------------------------------------------------------------
     # 삭제
@@ -909,17 +914,18 @@ class MonomerPanel(QGroupBox):
                     if sub:
                         sub_items.append(sub)
                 exact_mass = sum(s.mass_contribution_avg for s in sub_items) if sub_items else 0.0
+                average_mass = sum(s.mass_contribution_average_mass for s in sub_items) if sub_items else 0.0
             else:
-                try:
-                    exact_mass = float(item.text(_COL_MASS))
-                except ValueError:
-                    exact_mass = 0.0
+                # 질량은 아이템에 저장된 원본 객체에서 가져온다.
+                # (표시 텍스트는 소수 4자리로 반올림되어 있고 평균 질량 정보가 없음)
+                exact_mass, average_mass = self._stored_masses(item)
 
             return Monomer(
                 name=name,
                 monomer_type=monomer_type,
                 formula=formula,
                 exact_mass=exact_mass,
+                average_mass=average_mass,
                 min_count=min_count,
                 max_count=max_count,
                 sub_items=sub_items,
@@ -932,7 +938,7 @@ class MonomerPanel(QGroupBox):
             name = item.text(_COL_NAME).strip()
             sub_type = MonomerType(item.text(_COL_TYPE).strip())
             formula = item.text(_COL_FORMULA).strip()
-            exact_mass = float(item.text(_COL_MASS))
+            exact_mass, average_mass = self._stored_masses(item)
             count_min = int(item.text(_COL_MIN))
             count_max = int(item.text(_COL_MAX))
             return BlockSubItem(
@@ -940,11 +946,29 @@ class MonomerPanel(QGroupBox):
                 sub_type=sub_type,
                 formula_or_mass=formula,
                 exact_mass=exact_mass,
+                average_mass=average_mass,
                 count_min=count_min,
                 count_max=count_max,
             )
         except Exception:
             return None
+
+    def _stored_masses(self, item: QTreeWidgetItem) -> tuple[float, float]:
+        """
+        트리 아이템의 (정밀질량, 평균질량)을 반환한다.
+
+        우선순위: 아이템에 저장된 Monomer/BlockSubItem 객체
+                 → 분자식 재계산 → 질량 열 텍스트 (평균 = 정밀).
+        """
+        data = item.data(_COL_NAME, _ROLE_DATA)
+        if isinstance(data, (Monomer, BlockSubItem)) and data.exact_mass > 0 and data.average_mass > 0:
+            return data.exact_mass, data.average_mass
+        try:
+            _, exact_mass, average_mass = parse_formula_or_mass(item.text(_COL_FORMULA), self._calc)
+            return exact_mass, average_mass
+        except Exception:
+            exact_mass = float(item.text(_COL_MASS))
+            return exact_mass, exact_mass
 
     # ------------------------------------------------------------------
     # 현재 모노머 목록 조회 (중합 계산기용)

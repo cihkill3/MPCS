@@ -131,38 +131,6 @@ class MassCalculator:
 
         return self._sum_elements(elements)
 
-    def calc_average_mass(self, formula: str) -> float:
-        """분자식 문자열로부터 평균 질량을 계산한다."""
-        formula = formula.strip()
-        if not formula:
-            raise MassCalculationError("빈 분자식은 허용되지 않습니다")
-        return self._calc_average_mass_cached(formula)
-
-    @lru_cache(maxsize=1024)
-    def _calc_average_mass_cached(self, formula: str) -> float:
-        elements = self._parser.parse(formula)
-        return self._sum_average_elements(elements)
-
-    def calc_average_from_elements(self, elements: dict[str, int]) -> float:
-        """원소 카운트 딕셔너리로부터 평균 질량을 계산한다."""
-        if not elements:
-            raise MassCalculationError("원소가 없습니다")
-        for elem, count in elements.items():
-            if count < 0:
-                raise MassCalculationError(f"원소 '{elem}'의 원자 수가 음수입니다: {count}")
-        return self._sum_average_elements(elements)
-
-    def _sum_average_elements(self, elements: dict[str, int]) -> float:
-        """원소 딕셔너리의 평균 질량을 합산한다."""
-        total_mass = 0.0
-        for elem, count in elements.items():
-            try:
-                mass = self._db.get_average_mass(elem)
-                total_mass += mass * count
-            except KeyError as e:
-                raise MassCalculationError(str(e)) from e
-        return total_mass
-
     def _sum_elements(self, elements: dict[str, int]) -> float:
         """원소별 질량 합산."""
         total = 0.0

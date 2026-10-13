@@ -14,11 +14,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from mpcs.core.mass_calculator import MassCalculator
 from mpcs.models.adduct import Adduct
 from mpcs.models.constraint import Constraint
 from mpcs.models.end_group import EndGroup
 from mpcs.models.feed_ratio import FeedRatio, FeedRatioEntry
-from mpcs.models.monomer import Monomer, MonomerType
+from mpcs.models.monomer import Monomer, MonomerType, parse_formula_or_mass
 from mpcs.models.project import Project
 from mpcs.models.result import PeakData, SECData
 
@@ -26,7 +27,27 @@ from mpcs.models.result import PeakData, SECData
 # 프로젝트 파일 확장자
 PROJECT_FILE_EXTENSION = ".mpcs"
 # 현재 직렬화 스키마 버전
-SCHEMA_VERSION = "1.0"
+#   1.1: 모노머/하위 성분 average_mass, 피크 사용여부/메모, 스펙트럼 경로 저장
+SCHEMA_VERSION = "1.1"
+
+_mass_calculator = MassCalculator()
+
+
+def _resolve_masses(formula: str, stored_exact: float, stored_average: float | None) -> tuple[float, float]:
+    """
+    저장된 분자식에서 (정밀질량, 평균질량)을 재계산한다.
+
+    분자식이 소스 오브 트루스이다. 직접 질량 입력("~44.0260Da")처럼
+    분자식이 아니면 저장값을 사용하고, 평균 질량이 없으면(스키마 1.0) 정밀질량으로 대체한다.
+    """
+    if formula and not formula.startswith("~"):
+        try:
+            _, exact, average = parse_formula_or_mass(formula, _mass_calculator)
+            return exact, average
+        except Exception:
+            pass
+    average = stored_average if stored_average else stored_exact
+    return stored_exact, average
 
 
 class ProjectSerializeError(IOError):
@@ -122,6 +143,7 @@ class ProjectSerializer:
             "feed_ratio": self._serialize_feed_ratio(project.feed_ratio),
             "peak_data": self._serialize_peak_data(project.peak_data),
             "sec_data": self._serialize_sec_data(project.sec_data),
+            "spectrum_path": project.spectrum_path,
         }
 
     @staticmethod
@@ -131,6 +153,7 @@ class ProjectSerializer:
             "monomer_type": m.monomer_type.value,
             "formula": m.formula,
             "exact_mass": m.exact_mass,
+            "average_mass": m.average_mass,
             "min_count": m.min_count,
             "max_count": m.max_count,
             "sub_items": [
@@ -139,6 +162,7 @@ class ProjectSerializer:
                     "sub_type": s.sub_type.value,
                     "formula_or_mass": s.formula_or_mass,
                     "exact_mass": s.exact_mass,
+                    "average_mass": s.average_mass,
                     "count_min": s.count_min,
                     "count_max": s.count_max,
                 }
@@ -187,6 +211,8 @@ class ProjectSerializer:
         return {
             "mz_values": pd.mz_values,
             "intensities": pd.intensities,
+            "enabled": pd.enabled,
+            "notes": pd.notes,
         }
 
     @staticmethod
@@ -225,6 +251,7 @@ class ProjectSerializer:
                 feed_ratio=feed_ratio,
                 peak_data=peak_data,
                 sec_data=sec_data,
+                spectrum_path=data.get("spectrum_path"),
                 average_block_mode=data.get("average_block_mode", False),
                 created_at=data.get("created_at", datetime.now().isoformat()),
                 modified_at=data.get("modified_at", datetime.now().isoformat()),
@@ -239,25 +266,37 @@ class ProjectSerializer:
         from mpcs.models.monomer import BlockSubItem
         sub_items = []
         for s in data.get("sub_items", []):
+            sub_exact, sub_average = _resolve_masses(
+                s["formula_or_mass"], float(s["exact_mass"]), s.get("average_mass")
+            )
             sub_items.append(
                 BlockSubItem(
                     name=s["name"],
                     sub_type=MonomerType(s["sub_type"]),
                     formula_or_mass=s["formula_or_mass"],
-                    exact_mass=float(s["exact_mass"]),
+                    exact_mass=sub_exact,
+                    average_mass=sub_average,
                     count_min=int(s["count_min"]),
                     count_max=int(s["count_max"]),
                 )
             )
-        return Monomer(
+        monomer_type = MonomerType(data["monomer_type"])
+        exact, average = _resolve_masses(
+            data["formula"], float(data["exact_mass"]), data.get("average_mass")
+        )
+        monomer = Monomer(
             name=data["name"],
-            monomer_type=MonomerType(data["monomer_type"]),
+            monomer_type=monomer_type,
             formula=data["formula"],
-            exact_mass=float(data["exact_mass"]),
+            exact_mass=exact,
+            average_mass=average,
             min_count=int(data["min_count"]),
             max_count=int(data["max_count"]),
             sub_items=sub_items,
         )
+        if monomer_type == MonomerType.BLOCK:
+            monomer.refresh_block_mass()
+        return monomer
 
 
     @staticmethod
@@ -290,6 +329,13 @@ class ProjectSerializer:
 
     @staticmethod
     def _deserialize_adduct(data: dict[str, Any]) -> Adduct:
+        # 레이블이 소스 오브 트루스: 질량 계산 방식이 바뀌어도(예: 전자 질량 보정) 최신 값으로 재계산
+        try:
+            adduct = Adduct(label=data["label"], enabled=bool(data.get("enabled", False)))
+            adduct.recalculate()
+            return adduct
+        except ValueError:
+            pass
         return Adduct(
             label=data["label"],
             adduct_mass=float(data["adduct_mass"]),
@@ -317,6 +363,8 @@ class ProjectSerializer:
         return PeakData(
             mz_values=[float(v) for v in data.get("mz_values", [])],
             intensities=[float(v) for v in data.get("intensities", [])],
+            enabled=[bool(v) for v in data.get("enabled", [])],
+            notes=[str(v) for v in data.get("notes", [])],
         )
 
     @staticmethod

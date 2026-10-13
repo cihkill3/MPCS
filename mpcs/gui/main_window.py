@@ -9,6 +9,11 @@ SRS §4 GUI Layout:
 v1.1 변경:
     - 중합 계산기 탭 추가
     - MonomerPanel ↔ PolymerizationPanel 신호 연결
+
+v1.2 변경:
+    - 우측: AnalysisView (스펙트럼 ↔ 피크 목록 ↔ 후보/조성 계열/KMD 연동)
+    - 좌측 '스펙트럼' 탭: mzXML 열기, 피크 검출, 주기 시리즈 옵션
+    - 여러 피크 일괄 솔버(벡터화) + 연속 반복수 기반 조성 계열 확률
 """
 
 from __future__ import annotations
@@ -35,12 +40,12 @@ from mpcs.core.mass_calculator import MassCalculator
 from mpcs.gui.panels.adduct_panel import AdductPanel
 from mpcs.gui.panels.constraint_panel import ConstraintPanel
 from mpcs.gui.panels.end_group_panel import EndGroupPanel
-from mpcs.gui.panels.maldi_input_panel import MaldiInputPanel
 from mpcs.gui.panels.monomer_panel import MonomerPanel
 from mpcs.gui.panels.polymerization_panel import PolymerizationPanel
 from mpcs.gui.panels.solver_control_panel import SolverControlPanel
-from mpcs.gui.views.result_table_view import ResultTableView
-from mpcs.gui.workers.solver_worker import SolverWorker
+from mpcs.gui.panels.spectrum_panel import SpectrumPanel, peaks_to_rows
+from mpcs.gui.views.analysis_view import AnalysisView
+from mpcs.gui.workers.solver_worker import BatchSolverWorker
 from mpcs.infrastructure.config_manager import RecentProjectsManager, AppConfigManager
 from mpcs.core.i18n import tr
 from mpcs.gui.dialogs.guide_dialog import GuideDialog
@@ -50,8 +55,9 @@ from mpcs.infrastructure.project_serializer import (
     ProjectSerializer,
     ProjectSerializeError,
 )
+from mpcs.models.monomer import MonomerType
 from mpcs.models.project import Project
-from mpcs.models.result import RankedResultSet
+from mpcs.models.result import PeakData
 from mpcs.services.constraint_engine import CircularDependencyError, ConstraintEngine
 from mpcs.services.solver_service import SolverParams, SolverService
 
@@ -79,7 +85,8 @@ class MainWindow(QMainWindow):
         self._recent_manager = recent_manager or RecentProjectsManager()
         self._app_config = AppConfigManager()
         self._current_filepath: str | None = None
-        self._worker: SolverWorker | None = None
+        self._worker: BatchSolverWorker | None = None
+        self._solve_rows: list[int] = []
 
         # 현재 프로젝트
         self._project = project or Project()
@@ -132,9 +139,9 @@ class MainWindow(QMainWindow):
         eg_adduct_layout.addStretch()
         left_tabs.addTab(eg_adduct_widget, "말단기 / 어덕트")
 
-        # 탭 4: MALDI 입력
-        self._maldi_panel = MaldiInputPanel()
-        left_tabs.addTab(self._maldi_panel, "MALDI 입력")
+        # 탭 4: 스펙트럼 (mzXML → 피크 검출 → 주기 시리즈)
+        self._spectrum_panel = SpectrumPanel()
+        left_tabs.addTab(self._spectrum_panel, tr("스펙트럼"))
 
         # 탭 5: 중합 계산기 (신규)
         self._poly_panel = PolymerizationPanel()
@@ -151,11 +158,11 @@ class MainWindow(QMainWindow):
         left_layout.addWidget(left_tabs)
         left_layout.addWidget(self._solver_control)
 
-        # ── 우측 결과 패널 ─────────────────────────────────────────────
-        self._result_table = ResultTableView()
+        # ── 우측 분석 패널 (피크 목록 ↔ 스펙트럼 ↔ 후보/계열) ───────────
+        self._analysis = AnalysisView()
 
         main_splitter.addWidget(left_widget)
-        main_splitter.addWidget(self._result_table)
+        main_splitter.addWidget(self._analysis)
         main_splitter.setStretchFactor(0, 2)
         main_splitter.setStretchFactor(1, 3)
         main_splitter.setSizes([520, 730])
@@ -173,10 +180,59 @@ class MainWindow(QMainWindow):
         # 모노머 변경 시 중합 계산기에 자동 알림 (선택 사항)
         self._monomer_panel.monomers_changed.connect(self._on_monomers_changed)
 
+        # 스펙트럼 → 분석 뷰
+        self._spectrum_panel.spectrum_loaded.connect(self._analysis.set_spectrum)
+        self._spectrum_panel.peaks_picked.connect(self._on_peaks_picked)
+        self._spectrum_panel.preset_applied.connect(self._solver_control.set_mass_type)
+        self._spectrum_panel.series_options_changed.connect(self._update_series)
+        self._analysis.peaks_changed.connect(self._update_series)
+        for sig in self._solver_control.settings_changed_signal():
+            sig.connect(self._update_series)
+
     def _on_monomers_changed(self) -> None:
-        """모노머 목록 변경 시 중합 계산기 탭에 알림."""
-        # 성분 테이블은 사용자가 수동으로 동기화하도록 설계
-        pass
+        """모노머 목록 변경 시 시리즈(반복단위 간격) 재검출."""
+        self._update_series()
+
+    def _on_peaks_picked(self, peaks) -> None:
+        self._analysis.set_peaks(peaks_to_rows(peaks))
+        self._status_bar.showMessage(tr("피크 {n}개 검출", n=len(peaks)))
+
+    def _repeat_units(self, mass_type: str) -> dict[str, float]:
+        """시리즈 축이 될 반복단위 {이름: 질량} (Block 제외)."""
+        units = {}
+        for m in self._monomer_panel.get_monomers():
+            if m.monomer_type == MonomerType.BLOCK:
+                continue
+            mass = m.average_mass if mass_type == "AVERAGE" else m.exact_mass
+            if mass > 0:
+                units[m.name] = mass
+        return units
+
+    def _update_series(self) -> None:
+        """피크 목록에서 반복단위 간격 시리즈를 검출하고 우세 간격 정보를 표시한다."""
+        from mpcs.services.series_analysis import find_spacings
+        import numpy as np
+
+        tol, mass_type, _ = self._solver_control.current_settings()
+        repeats = self._repeat_units(mass_type)
+        min_len, max_gap = self._spectrum_panel.series_options()
+        series = self._analysis.update_series(repeats, tol * 1.5, min_len, max_gap)
+
+        pd = self._analysis.to_peak_data()
+        if len(pd.mz_values) < 3:
+            self._spectrum_panel.set_info("")
+            return
+        spacings = find_spacings(np.array(sorted(pd.mz_values)), None, bin_da=max(0.02, tol / 2))
+        parts = []
+        for d, n in spacings[:3]:
+            match = next((k for k, v in repeats.items() if abs(v - d) <= tol * 1.5), None)
+            parts.append(f"{d:.3f}" + (f" (= {match})" if match else ""))
+        info = tr("피크 {n}개 · 시리즈 {s}개", n=len(pd.mz_values), s=len(series))
+        if series:
+            info += " — " + ", ".join(x.label() for x in series[:4])
+        if parts:
+            info += "\n" + tr("우세 간격: ") + ", ".join(parts)
+        self._spectrum_panel.set_info(info)
 
     def _sync_poly_from_monomers(self) -> None:
         """중합 계산기 탭에 현재 모노머 목록을 동기화한다."""
@@ -300,7 +356,11 @@ class MainWindow(QMainWindow):
         self._constraint_panel.load_project(self._project)
         self._end_group_panel.load_project(self._project)
         self._adduct_panel.load_project(self._project)
-        self._maldi_panel.load_project(self._project)
+        self._spectrum_panel.close_spectrum()
+        if self._project.spectrum_path and Path(self._project.spectrum_path).exists():
+            self._spectrum_panel.open_file(self._project.spectrum_path)
+        self._analysis.load_peak_data(self._project.peak_data)
+        self._update_series()
 
     def _collect_project_from_ui(self) -> Project:
         project = self._project
@@ -308,7 +368,8 @@ class MainWindow(QMainWindow):
         self._constraint_panel.apply_to_project(project)
         self._end_group_panel.apply_to_project(project)
         self._adduct_panel.apply_to_project(project)
-        self._maldi_panel.apply_to_project(project)
+        project.peak_data = self._analysis.to_peak_data()
+        project.spectrum_path = self._spectrum_panel.file_path()
         return project
 
     # ------------------------------------------------------------------
@@ -325,7 +386,6 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             self._project = Project()
             self._current_filepath = None
-            self._result_table.clear()
             self._load_project_to_ui()
             self._update_title()
 
@@ -344,7 +404,6 @@ class MainWindow(QMainWindow):
             project = self._serializer.load(filepath)
             self._project = project
             self._current_filepath = filepath
-            self._result_table.clear()
             self._load_project_to_ui()
             self._update_title()
             self._recent_manager.add(filepath)
@@ -397,11 +456,14 @@ class MainWindow(QMainWindow):
             )
             return
 
-        if project.peak_data.is_empty():
-            QMessageBox.warning(self, "피크 없음", "m/z 피크 값을 입력하십시오.")
+        rows, peaks = self._analysis.solve_targets()
+        if not peaks:
+            QMessageBox.warning(
+                self, tr("피크 없음"),
+                tr("오른쪽 피크 목록에 m/z 값을 입력하거나(붙여넣기/가져오기),\n스펙트럼 탭에서 피크를 검출하십시오."),
+            )
             return
 
-        peak_mz = project.peak_data.mz_values[0]
         enabled_adducts = project.enabled_adducts()
 
         # Q6: 순환 제약식 사전 검증
@@ -431,7 +493,7 @@ class MainWindow(QMainWindow):
             return
 
         params = SolverParams(
-            peak_mz=peak_mz,
+            peak_mz=peaks[0],
             monomers=project.monomers,
             constraints=project.active_constraints(),
             end_group=project.end_group,
@@ -443,13 +505,15 @@ class MainWindow(QMainWindow):
             isotope_offset_count=isotope_offset_count,
         )
 
-        self._result_table.clear()
         self._solver_control.set_running(True)
         self._progress_bar.setVisible(True)
         self._progress_bar.setRange(0, 0)
-        self._status_bar.showMessage(f"솔버 실행 중... (m/z = {peak_mz})")
+        self._status_bar.showMessage(tr("솔버 실행 중... (피크 {n}개)", n=len(peaks)))
+        self._analysis.clear_results()
+        self._solve_rows = rows
 
-        self._worker = SolverWorker(self._solver, params)
+        repeat_names = list(self._repeat_units(mass_type))
+        self._worker = BatchSolverWorker(self._solver, peaks, params, repeat_names)
         self._worker.progress.connect(self._on_solver_progress)
         self._worker.finished.connect(self._on_solver_finished)
         self._worker.error.connect(self._on_solver_error)
@@ -458,28 +522,30 @@ class MainWindow(QMainWindow):
     def _on_cancel_solver(self) -> None:
         if self._worker and self._worker.isRunning():
             self._worker.cancel()
-            self._status_bar.showMessage("솔버 취소 중...")
+            self._status_bar.showMessage(tr("솔버 취소 중..."))
 
-    def _on_solver_progress(self, current: int, valid_total: int, all_total: int) -> None:
-        self._progress_bar.setRange(0, all_total)
-        self._progress_bar.setValue(current)
-        self._progress_bar.setFormat(f"%p% - 계산한 개수: {current:,} / 찾은 유효 조합 수: {valid_total:,} (전체 조합 수: {all_total:,})")
+    def _on_solver_progress(self, current, valid_total, all_total) -> None:
+        self._progress_bar.setRange(0, 1000)
+        self._progress_bar.setValue(int(1000 * current / max(all_total, 1)))
+        self._progress_bar.setFormat(
+            f"%p% - {tr('계산한 조합')}: {current:,} / {all_total:,} ({tr('유효')}: {valid_total:,})"
+        )
 
-    def _on_solver_finished(self, result: RankedResultSet) -> None:
+    def _on_solver_finished(self, results, families) -> None:
         self._solver_control.set_running(False)
         self._progress_bar.setVisible(False)
-        self._result_table.display_results(result)
-        count = result.count()
-        self._status_bar.showMessage(
-            f"완료: {count}개 후보 발견 (m/z = {result.peak_mz:.4f})"
-            + ("" if count < 100 else " [최대 100개 표시]")
-        )
+        self._analysis.set_results(self._solve_rows, results, families)
+        n_hit = sum(1 for r in results if r.count())
+        msg = tr("완료: 피크 {n}개 중 {h}개에서 후보 발견 · 조성 계열 {f}개", n=len(results), h=n_hit, f=len(families))
+        if families:
+            msg += f" — {tr('최상위')}: {families[0].label()} ({families[0].support} {tr('피크')})"
+        self._status_bar.showMessage(msg)
 
     def _on_solver_error(self, error_msg: str) -> None:
         self._solver_control.set_running(False)
         self._progress_bar.setVisible(False)
-        QMessageBox.critical(self, "솔버 오류", error_msg)
-        self._status_bar.showMessage("솔버 오류 발생")
+        QMessageBox.critical(self, tr("솔버 오류"), error_msg)
+        self._status_bar.showMessage(tr("솔버 오류 발생"))
 
     # ------------------------------------------------------------------
     # 기타
