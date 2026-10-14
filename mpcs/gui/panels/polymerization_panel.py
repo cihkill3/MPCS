@@ -66,6 +66,9 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from mpcs.core.i18n import tr
+from mpcs.gui import theme
+from mpcs.gui.widgets import caption, set_header_tooltips
 from mpcs.models.monomer import Monomer
 
 
@@ -107,7 +110,10 @@ _CT_NAME  = 0
 _CT_MMOL  = 1
 _CT_MW    = 2
 _CT_COLS  = 3
-_CT_HDRS  = ["성분 이름", "mmol", "정밀질량 (Da)"]
+
+
+def _ct_headers() -> list[str]:
+    return [tr("성분 이름"), "mmol", tr("정밀질량 (Da)")]
 
 
 class ComponentTypeGroup(QGroupBox):
@@ -130,39 +136,50 @@ class ComponentTypeGroup(QGroupBox):
 
         # 종류 헤더 행: 이름 + 그룹 + 관능기수
         header_row = QHBoxLayout()
-        header_row.addWidget(QLabel(f"종류 {self._index}  이름:"))
+        header_row.addWidget(QLabel(tr("종류 {i}  이름:", i=self._index)))
 
         self._name_edit = QLineEdit()
-        self._name_edit.setPlaceholderText("예: Diol, Diisocyanate")
-        self._name_edit.setMaximumWidth(120)
+        self._name_edit.setPlaceholderText(tr("예: Diol, Diisocyanate"))
+        self._name_edit.setToolTip(tr("이 성분 종류의 이름 (결과 표와 대상 종류 목록에 표시)."))
+        self._name_edit.setMinimumWidth(120)
         self._name_edit.textChanged.connect(self._refresh_title)
         header_row.addWidget(self._name_edit)
 
-        header_row.addWidget(QLabel(" 반응 그룹:"))
+        header_row.addWidget(QLabel(tr(" 반응 그룹:")))
         self._group_combo = QComboBox()
         self._group_combo.addItems(["A", "B"])
         # 종류 인덱스에 따라 기본값 A/B 번갈아 설정
         self._group_combo.setCurrentIndex(0 if self._index % 2 != 0 else 1)
         self._group_combo.currentIndexChanged.connect(lambda _: self.data_changed.emit())
+        self._group_combo.setToolTip(tr(
+            "서로 반응하는 관능기 짝 중 어느 쪽인지 (예: Diol의 OH = A, Diisocyanate의 NCO = B).\n"
+            "A와 B의 관능기 당량 중 작은 쪽이 반응을 제한합니다 (당량비 r)."))
         header_row.addWidget(self._group_combo)
 
-        header_row.addWidget(QLabel(" 관능기수 f:"))
+        header_row.addWidget(QLabel(tr(" 관능기수 f:")))
         self._func_spin = QSpinBox()
         self._func_spin.setRange(1, 10)
         self._func_spin.setValue(2)
         self._func_spin.setMaximumWidth(60)
         self._func_spin.valueChanged.connect(lambda _: self.data_changed.emit())
+        self._func_spin.setToolTip(tr("분자 1개당 반응 가능한 관능기 수 (선형 사슬 = 2, 가교제 ≥ 3)."))
         header_row.addWidget(self._func_spin)
         header_row.addStretch()
-
-        self._subtotal_label = QLabel("소계: -")
-        self._subtotal_label.setStyleSheet("color: #0055aa; font-style: italic;")
-        header_row.addWidget(self._subtotal_label)
         layout.addLayout(header_row)
+
+        self._subtotal_label = QLabel(tr("소계: -"))
+        self._subtotal_label.setStyleSheet(f"color: {theme.ACCENT};")
+        self._subtotal_label.setToolTip(tr("이 종류의 mmol 합계와 수평균 분자량 Mn = Σ(mmol·MW) / Σmmol"))
+        layout.addWidget(self._subtotal_label)
 
         # 성분 테이블
         self._table = QTableWidget(0, _CT_COLS)
-        self._table.setHorizontalHeaderLabels(_CT_HDRS)
+        self._table.setHorizontalHeaderLabels(_ct_headers())
+        set_header_tooltips(self._table, [
+            tr("성분 이름 (모노머 탭의 이름과 같으면 [최소값/최대값에 반영]이 그 모노머에 적용됩니다)."),
+            tr("투입량 (mmol). 비율만 중요하므로 단위가 같으면 됩니다."),
+            tr("성분 1개의 분자량 (Da)."),
+        ])
         self._table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self._table.setMaximumHeight(140)
         self._table.setMinimumHeight(80)
@@ -171,11 +188,11 @@ class ComponentTypeGroup(QGroupBox):
 
         # 버튼 행
         btn_row = QHBoxLayout()
-        add_btn = QPushButton("＋ 성분 추가")
-        add_btn.setMaximumWidth(100)
+        add_btn = QPushButton(tr("＋ 성분 추가"))
+        add_btn.setToolTip(tr("이 종류에 성분 행을 추가합니다."))
         add_btn.clicked.connect(self._add_row)
-        del_btn = QPushButton("－ 삭제")
-        del_btn.setMaximumWidth(80)
+        del_btn = QPushButton(tr("－ 삭제"))
+        del_btn.setToolTip(tr("선택한 성분 행을 지웁니다."))
         del_btn.clicked.connect(self._del_row)
         btn_row.addWidget(add_btn)
         btn_row.addWidget(del_btn)
@@ -185,7 +202,7 @@ class ComponentTypeGroup(QGroupBox):
         self._refresh_title()
 
     def _refresh_title(self) -> None:
-        name = self._name_edit.text().strip() or f"종류 {self._index}"
+        name = self._name_edit.text().strip() or tr("종류 {i}", i=self._index)
         self.setTitle(name)
         self.data_changed.emit()
 
@@ -197,7 +214,7 @@ class ComponentTypeGroup(QGroupBox):
         row = self._table.rowCount()
         self._table.blockSignals(True)
         self._table.insertRow(row)
-        self._table.setItem(row, _CT_NAME, QTableWidgetItem("성분명"))
+        self._table.setItem(row, _CT_NAME, QTableWidgetItem(tr("성분명")))
         self._table.setItem(row, _CT_MMOL, QTableWidgetItem("1.0"))
         self._table.setItem(row, _CT_MW,   QTableWidgetItem("100.0"))
         self._table.blockSignals(False)
@@ -216,7 +233,7 @@ class ComponentTypeGroup(QGroupBox):
     def _update_subtotal(self) -> None:
         entries = self.get_entries()
         if not entries:
-            self._subtotal_label.setText("소계: -")
+            self._subtotal_label.setText(tr("소계: -"))
             return
         total_mmol = sum(e.mmol for e in entries)
         mn_type = (
@@ -224,7 +241,7 @@ class ComponentTypeGroup(QGroupBox):
             if total_mmol > 0 else 0.0
         )
         self._subtotal_label.setText(
-            f"소계: {total_mmol:.3f} mmol  |  Mn = {mn_type:,.1f} Da"
+            tr("소계: {mmol:.3f} mmol  |  Mn = {mn:,.1f} Da", mmol=total_mmol, mn=mn_type)
         )
 
     # ------------------------------------------------------------------
@@ -232,7 +249,7 @@ class ComponentTypeGroup(QGroupBox):
     # ------------------------------------------------------------------
 
     def get_type_name(self) -> str:
-        return self._name_edit.text().strip() or f"종류 {self._index}"
+        return self._name_edit.text().strip() or tr("종류 {i}", i=self._index)
 
     def get_reaction_group(self) -> str:
         return self._group_combo.currentText()
@@ -286,36 +303,36 @@ class ApplyToleranceDialog(QDialog):
 
     def __init__(self, results: list[ComponentResult], parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle("최소값/최대값 반영")
+        self.setWindowTitle(tr("최소값/최대값 반영"))
         self.setMinimumWidth(520)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel("다음 평균 개수를 모노머의 최소값/최대값에 반영합니다:"))
+        layout.addWidget(QLabel(tr("다음 평균 개수를 모노머의 최소값/최대값에 반영합니다:")))
 
         self._preview = QTableWidget(0, 4)
-        self._preview.setHorizontalHeaderLabels(["성분", "평균 개수", "최소값", "최대값"])
+        self._preview.setHorizontalHeaderLabels([tr("성분"), tr("평균 개수"), tr("최소값"), tr("최대값")])
         self._preview.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._preview.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self._preview)
 
         tol_row = QHBoxLayout()
-        tol_row.addWidget(QLabel("오차 범위 (±%):"))
+        tol_row.addWidget(QLabel(tr("오차 범위 (±%):")))
         self._tol_spin = QDoubleSpinBox()
         self._tol_spin.setRange(0.0, 100.0)
         self._tol_spin.setValue(20.0)
         self._tol_spin.setSuffix(" %")
         self._tol_spin.setDecimals(1)
         self._tol_spin.valueChanged.connect(self._update_preview)
+        self._tol_spin.setToolTip(tr("평균 개수에서 위아래로 몇 %까지를 솔버 탐색 범위로 둘지 정합니다."))
         tol_row.addWidget(self._tol_spin)
         tol_row.addStretch()
         layout.addLayout(tol_row)
 
-        hint = QLabel(
+        hint = caption(tr(
             "예: 평균 26.0, 오차 ±20% → 최소값 = 20, 최대값 = 32\n"
             "(min = floor(avg × (1−tol)),  max = ceil(avg × (1+tol)))"
-        )
-        hint.setStyleSheet("color: gray; font-size: 11px;")
+        ))
         layout.addWidget(hint)
 
         btns = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -366,7 +383,10 @@ _RC_COUNT  = 4
 _RC_MW     = 5
 _RC_MASS   = 6
 _RC_COLS   = 7
-_RC_HDRS   = ["성분", "종류", "mmol", "몰분율 (%)", "평균 개수/체인", "MW (Da)", "질량 기여 (Da)"]
+
+
+def _rc_headers() -> list[str]:
+    return [tr("성분"), tr("종류"), "mmol", tr("몰분율 (%)"), tr("평균 개수/체인"), "MW (Da)", tr("질량 기여 (Da)")]
 
 
 # ---------------------------------------------------------------------------
@@ -400,32 +420,43 @@ class PolymerizationPanel(QWidget):
         root.setSpacing(6)
 
         # ── 성분 종류 수 설정 ──────────────────────────────────────────
-        ntype_group = QGroupBox("성분 종류 설정")
-        ntype_layout = QHBoxLayout(ntype_group)
+        root.addWidget(caption(tr(
+            "합성 레시피(성분별 mmol, 관능기수)와 전환율 p로 Carothers 식에 따라 사슬당 평균 반복 수를 예측합니다. "
+            "결과를 모노머 탭의 최소값/최대값에 반영하면 솔버 탐색 범위를 빠르게 정할 수 있습니다."
+        )))
+        ntype_group = QGroupBox(tr("성분 종류 설정"))
+        ntype_box = QVBoxLayout(ntype_group)
+        ntype_layout = QHBoxLayout()
+        ntype_box.addLayout(ntype_layout)
 
-        ntype_layout.addWidget(QLabel("성분 종류 수:"))
+        ntype_layout.addWidget(QLabel(tr("성분 종류 수:")))
         self._ntype_spin = QSpinBox()
         self._ntype_spin.setRange(1, 8)
         self._ntype_spin.setValue(2)
         self._ntype_spin.setMaximumWidth(70)
+        self._ntype_spin.setToolTip(tr("단량체 종류 수 (예: Diol + Diisocyanate = 2). 바꾼 뒤 [구성 갱신]을 누르세요."))
         ntype_layout.addWidget(self._ntype_spin)
 
-        refresh_btn = QPushButton("⟳ 구성 갱신")
-        refresh_btn.setToolTip(
-            "종류 수를 바괶 후 이 버튼을 누르면 입력 영역이 재구성됩니다.\n"
+        refresh_btn = QPushButton(tr("⟳ 구성 갱신"))
+        refresh_btn.setToolTip(tr(
+            "종류 수를 바꾼 뒤 이 버튼을 누르면 입력 영역이 재구성됩니다.\n"
             "(기존 입력은 유지됩니다)"
-        )
+        ))
         refresh_btn.clicked.connect(self._rebuild_type_groups)
         ntype_layout.addWidget(refresh_btn)
+        ntype_layout.addStretch()
+        ntype_layout = QHBoxLayout()
+        ntype_box.addLayout(ntype_layout)
 
         # 모노머 탭에서 가져오기 + 대상 그룹 선택
-        sync_btn = QPushButton("⟳ 모노머 탭에서 가져오기")
-        sync_btn.setToolTip("모노머 정의 탭의 성분을 선택한 종류로 가져옵니다")
+        sync_btn = QPushButton(tr("⟳ 모노머 탭에서 가져오기"))
+        sync_btn.setToolTip(tr("모노머 정의 탭의 성분(이름·질량)을 '대상 종류'로 가져옵니다. mmol은 1.0으로 채워집니다."))
         sync_btn.clicked.connect(self._on_sync_clicked)
         ntype_layout.addWidget(sync_btn)
 
-        ntype_layout.addWidget(QLabel("대상 종류:"))
+        ntype_layout.addWidget(QLabel(tr("대상 종류:")))
         self._sync_target_combo = QComboBox()
+        self._sync_target_combo.setToolTip(tr("[모노머 탭에서 가져오기]로 채울 종류"))
         self._sync_target_combo.setMinimumWidth(120)
         ntype_layout.addWidget(self._sync_target_combo)
         ntype_layout.addStretch()
@@ -452,10 +483,10 @@ class PolymerizationPanel(QWidget):
         top_layout.addWidget(scroll)
 
         # 계산 설정 (p 값)
-        calc_group = QGroupBox("계산 설정")
+        calc_group = QGroupBox(tr("계산 설정"))
         calc_row = QHBoxLayout(calc_group)
 
-        calc_row.addWidget(QLabel("전환율 p (0 < p ≤ 1):"))
+        calc_row.addWidget(QLabel(tr("전환율 p (0 < p ≤ 1):")))
         self._p_spin = QDoubleSpinBox()
         self._p_spin.setRange(0.001, 1.000)
         self._p_spin.setValue(0.990)
@@ -463,16 +494,21 @@ class PolymerizationPanel(QWidget):
         self._p_spin.setDecimals(3)
         self._p_spin.setMaximumWidth(90)
         self._p_spin.valueChanged.connect(self._update_gel_hint)
+        self._p_spin.setToolTip(tr("반응한 관능기의 비율 (0–1). 1에 가까울수록 사슬이 길어집니다. 겔화점 이상이면 계산하지 않습니다."))
         calc_row.addWidget(self._p_spin)
 
         self._gel_hint = QLabel("")
-        self._gel_hint.setStyleSheet("color: #aa4400; font-style: italic;")
+        self._gel_hint.setStyleSheet(f"color: {theme.WARN};")
+        self._gel_hint.setToolTip(tr(
+            "r: 관능기 당량비 (작은 쪽/큰 쪽), f_eff: 유효 관능기수, p_gel: 겔화점 (= 2/f_eff).\n"
+            "p ≥ p_gel이면 무한 망상(겔)이 생겨 평균 사슬 길이를 정의할 수 없습니다."))
         calc_row.addWidget(self._gel_hint)
         calc_row.addStretch()
 
-        calc_btn = QPushButton("▶ 계산")
+        calc_btn = QPushButton(tr("▶ 계산"))
+        calc_btn.setObjectName("primaryButton")
         calc_btn.setMinimumWidth(90)
-        calc_btn.setStyleSheet("font-weight: bold;")
+        calc_btn.setToolTip(tr("Xn = 2 / (2 − p·f_eff) 로 수평균 중합도와 성분별 평균 개수를 계산합니다."))
         calc_btn.clicked.connect(self._calculate)
         calc_row.addWidget(calc_btn)
 
@@ -485,38 +521,42 @@ class PolymerizationPanel(QWidget):
         bottom_layout.setContentsMargins(0, 0, 0, 0)
         bottom_layout.setSpacing(4)
 
-        result_group = QGroupBox("계산 결과")
+        result_group = QGroupBox(tr("계산 결과"))
         result_layout = QVBoxLayout(result_group)
 
         # 요약
-        self._summary_label = QLabel("계산 결과가 없습니다.")
-        font = self._summary_label.font()
-        font.setBold(True)
-        font.setPointSize(font.pointSize() + 1)
-        self._summary_label.setFont(font)
+        self._summary_label = QLabel(tr("계산 결과가 없습니다."))
         self._summary_label.setStyleSheet(
-            "background: #eef4ff; border: 1px solid #aac; "
-            "padding: 4px; border-radius: 3px;"
+            f"background: {theme.ACCENT_SOFT}; border: 1px solid {theme.BORDER}; color: {theme.TEXT};"
+            f"padding: 6px 8px; border-radius: {theme.RADIUS}px; font-weight: 600;"
         )
+        self._summary_label.setToolTip(tr(
+            "f_avg: 유효 평균 관능기수, Xn: 수평균 중합도(사슬당 단량체 수), Mn: 예상 수평균 분자량"))
         result_layout.addWidget(self._summary_label)
 
         # 종류별 소계 요약
         self._type_summary_label = QLabel()
-        self._type_summary_label.setStyleSheet("color: #555; font-size: 11px;")
+        self._type_summary_label.setObjectName("caption")
         self._type_summary_label.setWordWrap(True)
         result_layout.addWidget(self._type_summary_label)
 
         # 성분별 결과 테이블
         self._result_table = QTableWidget(0, _RC_COLS)
-        self._result_table.setHorizontalHeaderLabels(_RC_HDRS)
+        self._result_table.setHorizontalHeaderLabels(_rc_headers())
+        set_header_tooltips(self._result_table, [
+            tr("성분 이름"), tr("성분이 속한 종류"), tr("투입량 (mmol)"),
+            tr("전체 성분 중 몰분율"),
+            tr("사슬 1개에 들어 있는 평균 개수 = 몰분율 × Xn. 솔버 최소값/최대값의 기준이 됩니다."),
+            tr("성분 1개의 분자량 (Da)"), tr("사슬 1개 질량에 대한 기여 = 평균 개수 × MW"),
+        ])
         self._result_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self._result_table.horizontalHeader().setStretchLastSection(True)
         self._result_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._result_table.setAlternatingRowColors(True)
         result_layout.addWidget(self._result_table)
 
-        apply_btn = QPushButton("📋 최소값/최대값에 반영...")
-        apply_btn.setToolTip("계산된 평균 개수를 모노머 탭의 최소값/최대값에 자동 설정합니다")
+        apply_btn = QPushButton(tr("최소값/최대값에 반영..."))
+        apply_btn.setToolTip(tr("계산된 평균 개수 ± 오차 범위를 모노머 탭의 최소값/최대값에 설정합니다 (이름이 같은 모노머)."))
         apply_btn.clicked.connect(self._apply_to_monomers)
         result_layout.addWidget(apply_btn)
 
@@ -573,15 +613,15 @@ class PolymerizationPanel(QWidget):
         for i in range(n_old, len(self._type_groups)):
             g = self._type_groups[i]
             if i == 0:
-                g.set_name("A형 (예: Diol)")
+                g.set_name(tr("A형 (예: Diol)"))
                 g.set_reaction_group("A")
                 g.set_functionality(2)
             elif i == 1:
-                g.set_name("B형 (예: Diisocyanate)")
+                g.set_name(tr("B형 (예: Diisocyanate)"))
                 g.set_reaction_group("B")
                 g.set_functionality(2)
             else:
-                g.set_name(f"종류 {i + 1}")
+                g.set_name(tr("종류 {i}", i=i + 1))
                 g.set_functionality(2)
 
         # 동기화 대상 콤보박스 갱신
@@ -640,10 +680,10 @@ class PolymerizationPanel(QWidget):
             ]
 
             if p_gel >= 1.0:
-                text_parts.append("겔화 없음 (선형)")
+                text_parts.append(tr("겔화 없음 (선형)"))
             else:
-                warn = "  ⚠ 겔화 초과!" if p >= p_gel else ""
-                text_parts.append(f"겔화점 p_gel = {p_gel:.4f}{warn}")
+                warn = "  ⚠ " + tr("겔화 초과!") if p >= p_gel else ""
+                text_parts.append(tr("겔화점 p_gel = {p:.4f}", p=p_gel) + warn)
                 
             self._gel_hint.setText("  |  ".join(text_parts))
         except Exception:
@@ -661,9 +701,9 @@ class PolymerizationPanel(QWidget):
             entries = g.get_entries()
             if not entries:
                 QMessageBox.warning(
-                    self, "입력 없음",
-                    f"종류 '{g.get_type_name()}'에 성분이 없습니다.\n"
-                    "성분을 추가하거나 종류 수를 줄이십시오."
+                    self, tr("입력 없음"),
+                    tr("종류 '{name}'에 성분이 없습니다.\n성분을 추가하거나 종류 수를 줄이십시오.",
+                       name=g.get_type_name())
                 )
                 return
             for e in entries:
@@ -671,7 +711,7 @@ class PolymerizationPanel(QWidget):
 
         e_a, e_b, n_0, f_eff = self._get_system_params()
         if n_0 <= 0:
-            QMessageBox.warning(self, "입력 오류", "mmol 합계가 0입니다.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("mmol 합계가 0입니다."))
             return
 
         # 3) Xn 계산 (Carothers equation for non-stoichiometric mixtures)
@@ -681,10 +721,10 @@ class PolymerizationPanel(QWidget):
         p_gel = 2.0 / f_eff if f_eff > 0 else float('inf')
         if p >= p_gel:
             QMessageBox.warning(
-                self, "겔화",
-                f"현재 조건에서 겔화가 발생합니다.\n"
-                f"유효 f_eff = {f_eff:.3f}, 겔화점 p_gel = {p_gel:.4f}\n"
-                f"전환율을 낮추거나 당량비(r)를 조절하십시오."
+                self, tr("겔화"),
+                tr("현재 조건에서 겔화가 발생합니다.\n"
+                   "유효 f_eff = {f:.3f}, 겔화점 p_gel = {p:.4f}\n"
+                   "전환율을 낮추거나 당량비(r)를 조절하십시오.", f=f_eff, p=p_gel)
             )
             return
             
@@ -742,10 +782,10 @@ class PolymerizationPanel(QWidget):
 
         # 종류별 소계
         parts = []
-        for tr in type_results:
+        for t in type_results:
             parts.append(
-                f"[{tr.type_name}] f={tr.functionality}, "
-                f"{tr.total_mmol:.3f} mmol, Mn_type={tr.number_avg_mw:,.1f} Da"
+                f"[{t.type_name}] f={t.functionality}, "
+                f"{t.total_mmol:.3f} mmol, Mn_type={t.number_avg_mw:,.1f} Da"
             )
         self._type_summary_label.setText("  |  ".join(parts))
 
@@ -776,7 +816,7 @@ class PolymerizationPanel(QWidget):
 
     def _apply_to_monomers(self) -> None:
         if not self._calc_results:
-            QMessageBox.information(self, "결과 없음", "먼저 [▶ 계산]을 실행하십시오.")
+            QMessageBox.information(self, tr("결과 없음"), tr("먼저 [▶ 계산]을 실행하십시오."))
             return
 
         dlg = ApplyToleranceDialog(self._calc_results, self)
@@ -793,7 +833,7 @@ class PolymerizationPanel(QWidget):
         self._sync_target_combo.blockSignals(True)
         self._sync_target_combo.clear()
         for i, g in enumerate(self._type_groups):
-            self._sync_target_combo.addItem(f"종류 {i + 1}: {g.get_type_name()}")
+            self._sync_target_combo.addItem(tr("종류 {i}", i=i + 1) + f": {g.get_type_name()}")
         # 이전 선택 인덱스 복원 (범위 내에서)
         if 0 <= current_idx < self._sync_target_combo.count():
             self._sync_target_combo.setCurrentIndex(current_idx)

@@ -17,6 +17,7 @@ SRS §6.3 Supported Elements:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import re
 from typing import Final
 
@@ -34,7 +35,7 @@ class FormulaParseError(ValueError):
     def __init__(self, formula: str, reason: str) -> None:
         self.formula = formula
         self.reason = reason
-        super().__init__(f"분자식 파싱 오류 '{formula}': {reason}")
+        super().__init__(tr("분자식 파싱 오류 '{formula}': {reason}", formula=formula, reason=reason))
 
 
 class FormulaParser:
@@ -73,19 +74,19 @@ class FormulaParser:
         """
         formula = formula.strip()
         if not formula:
-            raise FormulaParseError(formula, "빈 문자열은 허용되지 않습니다")
+            raise FormulaParseError(formula, tr("빈 문자열은 허용되지 않습니다"))
 
         try:
             counts, remaining = self._parse_segment(formula, 0)
         except FormulaParseError:
             raise
         except Exception as exc:
-            raise FormulaParseError(formula, f"파싱 중 예외 발생: {exc}") from exc
+            raise FormulaParseError(formula, tr('파싱 중 예외 발생: {exc}', exc=exc)) from exc
 
         if remaining != len(formula):
             raise FormulaParseError(
                 formula,
-                f"파싱 실패: 위치 {remaining}부터 인식 불가 ({formula[remaining:]!r})"
+                tr('파싱 실패: 위치 {remaining}부터 인식 불가 ({formula})', remaining=remaining, formula=repr(formula[remaining:]))
             )
 
         # 지원 원소 검증
@@ -94,7 +95,7 @@ class FormulaParser:
                 supported = ", ".join(AtomicMassDB.supported_elements())
                 raise FormulaParseError(
                     formula,
-                    f"지원하지 않는 원소 '{element}'. 지원 원소: {supported}"
+                    tr("지원하지 않는 원소 '{element}'. 지원 원소: {supported}", element=element, supported=supported)
                 )
 
         return {elem: cnt for elem, cnt in counts.items() if cnt > 0}
@@ -122,7 +123,7 @@ class FormulaParser:
                 # 괄호 블록 시작
                 inner_counts, pos = self._parse_segment(formula, pos + 1)
                 if pos >= length or formula[pos] != ")":
-                    raise FormulaParseError(formula, "괄호가 닫히지 않았습니다")
+                    raise FormulaParseError(formula, tr("괄호가 닫히지 않았습니다"))
                 pos += 1  # ')' 소비
 
                 # ')' 뒤 숫자 읽기
@@ -148,7 +149,7 @@ class FormulaParser:
             else:
                 raise FormulaParseError(
                     formula,
-                    f"위치 {pos}: 예상치 못한 문자 {ch!r}"
+                    tr('위치 {pos}: 예상치 못한 문자 {ch}', pos=pos, ch=repr(ch))
                 )
 
         return counts, pos

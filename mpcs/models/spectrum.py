@@ -7,6 +7,7 @@ Models Layer: Spectrum / Picked Peak
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -74,7 +75,7 @@ class SpectrumFile:
         센트로이드: 막대를 모두 모은 뒤 m/z 정렬
         """
         if not scans:
-            raise ValueError("합산할 스캔이 없습니다")
+            raise ValueError(tr("합산할 스캔이 없습니다"))
         if len(scans) == 1:
             return scans[0]
         if all(s.centroided for s in scans):

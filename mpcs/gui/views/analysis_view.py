@@ -40,7 +40,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from mpcs.core.formatting import ion_text
 from mpcs.core.i18n import tr
+from mpcs.gui import theme
+from mpcs.gui.widgets import caption, fit_header, role_label, set_header_tooltips
 from mpcs.gui.views.result_table_view import NumericTableWidgetItem, ResultTableView
 from mpcs.models.result import PeakData, RankedResultSet, SolverResult
 from mpcs.models.spectrum import Spectrum
@@ -51,17 +54,34 @@ from mpcs.services.series_analysis import (
     kendrick_mass_defect,
 )
 
-pg.setConfigOptions(antialias=True, background="w", foreground="#333")
+pg.setConfigOptions(antialias=True, background=theme.SURFACE, foreground=theme.TEXT_2)
 
-SERIES_COLORS = ["#1f77b4", "#2ca02c", "#9467bd", "#8c564b", "#e377c2", "#17becf", "#bcbd22", "#3f51b5"]
-NO_SERIES_COLOR = "#9aa0a6"
-HIGHLIGHT_COLOR = "#ff7f0e"
-SELECT_COLOR = "#d62728"
-_HIGHLIGHT_BG = QColor(255, 236, 214)
+HIGHLIGHT_COLOR = theme.FAMILY_HL
+SELECT_COLOR = theme.ACCENT
 
 # 피크 목록 컬럼
 C_USE, C_MZ, C_INT, C_SNR, C_SERIES, C_NCAND, C_BEST, C_PROB, C_ADDUCT, C_FAM, C_NOTE = range(11)
-_PEAK_HEADERS = ["사용", "m/z", "강도", "S/N", "시리즈", "후보 수", "최상위 조성", "확률", "어덕트", "계열 피크", "메모"]
+
+
+def _peak_headers() -> list[str]:
+    return [tr("사용"), "m/z", tr("강도"), "S/N", tr("시리즈"), tr("후보 수"), tr("최상위 조성"), tr("확률"),
+            tr("어덕트"), tr("계열 피크"), tr("메모")]
+
+
+def _peak_header_tips() -> list[str]:
+    return [
+        tr("체크한 피크만 솔버에 넣습니다."),
+        tr("관측 m/z. 질량 목록 모드에서는 셀을 두 번 눌러 고칠 수 있습니다."),
+        tr("피크 강도 (스펙트럼에서 검출한 경우 스무딩 후 높이)."),
+        tr("신호 대 잡음비 (스펙트럼에서 검출한 경우)."),
+        tr("이 피크가 속한 주기 시리즈 (반복단위 간격으로 이어진 피크 묶음)."),
+        tr("허용 오차 안에 든 후보 조성 수."),
+        tr("확률이 가장 높은 후보 조성."),
+        tr("최상위 후보의 확률. 같은 계열이 많은 피크를 연속으로 설명할수록 높습니다."),
+        tr("최상위 후보의 어덕트."),
+        tr("최상위 후보와 같은 조성 계열이 설명하는 피크 수."),
+        tr("메모 (가져온 파일의 설명 열, 동위원소 묶음 크기 등). 두 번 눌러 고칠 수 있습니다."),
+    ]
 
 
 @dataclass
@@ -91,11 +111,11 @@ class SpectrumPlot(pg.PlotWidget):
         self.showGrid(x=True, y=True, alpha=0.15)
         self.setMouseEnabled(x=True, y=False)
         self.getPlotItem().getViewBox().setLimits(yMin=0)
-        self._curve = self.plot(pen=pg.mkPen("#5c6670", width=1))
+        self._curve = self.plot(pen=pg.mkPen(theme.SPECTRUM_LINE, width=1))
         self._curve.setDownsampling(auto=True, method="peak")
         self._curve.setClipToView(True)
         self._peaks = pg.ScatterPlotItem(size=7, pen=None)
-        self._family = pg.ScatterPlotItem(size=13, symbol="t1", pen=pg.mkPen("w"), brush=pg.mkBrush(HIGHLIGHT_COLOR))
+        self._family = pg.ScatterPlotItem(size=13, symbol="t1", pen=pg.mkPen(theme.SURFACE), brush=pg.mkBrush(HIGHLIGHT_COLOR))
         self._selected = pg.ScatterPlotItem(size=16, symbol="o", pen=pg.mkPen(SELECT_COLOR, width=2), brush=None)
         self._sel_line = pg.InfiniteLine(angle=90, pen=pg.mkPen(SELECT_COLOR, width=1, style=Qt.DashLine))
         self._sel_line.setVisible(False)
@@ -186,10 +206,14 @@ class KmdPanel(QWidget):
         lay.setContentsMargins(4, 4, 4, 4)
         top = QHBoxLayout()
         top.addWidget(QLabel(tr("기준 반복단위:")))
+        top.addSpacing(4)
         self._combo = QComboBox()
         self._combo.currentIndexChanged.connect(self._redraw)
+        self._combo.setToolTip(tr("KMD 계산에 쓸 반복단위. 이 단위의 정수배만큼 떨어진 피크는 같은 KMD를 갖습니다."))
         top.addWidget(self._combo)
-        top.addWidget(QLabel(tr("  같은 계열은 수평선 위에 정렬됩니다. 점을 클릭하면 피크가 선택됩니다.")))
+        top.addWidget(caption(tr(
+            "Kendrick mass defect: KMD = round(KM) − KM, KM = m/z × round(M)/M. 같은 계열은 수평선 위에 정렬됩니다. "
+            "점을 클릭하면 피크가 선택됩니다.")), 1)
         top.addStretch()
         lay.addLayout(top)
         self._plot = pg.PlotWidget()
@@ -263,11 +287,14 @@ class AnalysisView(QWidget):
         self._spec_box = QWidget()
         sb = QVBoxLayout(self._spec_box)
         sb.setContentsMargins(0, 0, 0, 0)
-        self._spec_title = QLabel()
-        self._spec_title.setStyleSheet("color: #555; padding: 2px 4px;")
+        self._spec_title = caption("", wrap=False)
+        self._spec_title.setContentsMargins(4, 2, 4, 2)
         sb.addWidget(self._spec_title)
         self._plot = SpectrumPlot()
         self._plot.peak_clicked.connect(self.select_peak)
+        self._plot.setToolTip(tr(
+            "피크(●)를 누르면 선택됩니다. 색 = 주기 시리즈, ▲와 숫자 = 선택한 후보와 같은 조성 계열의 피크와 반복 수.\n"
+            "마우스 휠: 확대/축소 · 드래그: 이동 · 오른쪽 버튼: 보기 메뉴"))
         sb.addWidget(self._plot)
         self._spec_box.setVisible(False)
         self._splitter.addWidget(self._spec_box)
@@ -277,13 +304,13 @@ class AnalysisView(QWidget):
         pb = QVBoxLayout(peak_box)
         pb.setContentsMargins(0, 0, 0, 0)
         bar = QHBoxLayout()
-        bar.addWidget(QLabel(f"<b>{tr('피크 목록')}</b>"))
+        bar.addWidget(role_label(tr("피크 목록"), "panelTitle"))
         for text, slot, tip in [
             (tr("가져오기..."), self._import_file, tr("엑셀/CSV/TXT의 m/z(, 강도, 메모) 열을 읽습니다")),
             (tr("붙여넣기"), self._paste, tr("엑셀에서 복사한 셀을 붙여넣습니다 (Ctrl+V)")),
-            (tr("행 추가"), self._add_row, ""),
-            (tr("선택 삭제"), self._delete_selected, ""),
-            (tr("모두 지우기"), self._clear_rows, ""),
+            (tr("행 추가"), self._add_row, tr("빈 행을 추가하고 m/z를 바로 입력합니다.")),
+            (tr("선택 삭제"), self._delete_selected, tr("선택한 피크 행을 지웁니다.")),
+            (tr("모두 지우기"), self._clear_rows, tr("피크 목록을 모두 지웁니다.")),
         ]:
             b = QPushButton(text)
             b.clicked.connect(slot)
@@ -297,24 +324,26 @@ class AnalysisView(QWidget):
         self._series_only.setToolTip(tr("반복단위 간격으로 이어지는 시리즈에 속한 피크만 표시하고 솔버에 사용합니다"))
         self._series_only.toggled.connect(self._apply_filter)
         bar.addWidget(self._series_only)
-        self._peak_count = QLabel()
-        self._peak_count.setStyleSheet("color: gray;")
+        self._peak_count = caption("", wrap=False)
+        self._peak_count.setToolTip(tr("전체 피크 수 · 솔버에 들어갈 피크 수 · 주기 시리즈 수"))
         bar.addWidget(self._peak_count)
         bar.addStretch()
         self._export_all_btn = QPushButton(tr("전체 결과 내보내기..."))
+        self._export_all_btn.setToolTip(tr("피크 요약 · 전체 후보 · 조성 계열을 엑셀(.xlsx) 시트 3개로 저장합니다."))
         self._export_all_btn.clicked.connect(self.export_all)
         bar.addWidget(self._export_all_btn)
         pb.addLayout(bar)
 
-        self._table = QTableWidget(0, len(_PEAK_HEADERS))
-        self._table.setHorizontalHeaderLabels([tr(h) for h in _PEAK_HEADERS])
+        self._table = QTableWidget(0, len(_peak_headers()))
+        self._table.setHorizontalHeaderLabels(_peak_headers())
+        set_header_tooltips(self._table, _peak_header_tips())
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setAlternatingRowColors(True)
-        self._table.verticalHeader().setDefaultSectionSize(22)
         self._table.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         self._table.horizontalHeader().setStretchLastSection(True)
-        for c, w in zip(range(11), [40, 95, 80, 55, 70, 60, 220, 60, 80, 70, 120]):
+        for c, w in zip(range(11), [48, 95, 80, 55, 70, 64, 220, 60, 90, 76, 120]):
             self._table.setColumnWidth(c, w)
+        fit_header(self._table)
         self._table.itemSelectionChanged.connect(self._on_table_selection)
         self._table.itemChanged.connect(self._on_item_changed)
         pb.addWidget(self._table)
@@ -329,21 +358,31 @@ class AnalysisView(QWidget):
         fam_box = QWidget()
         fb = QVBoxLayout(fam_box)
         fb.setContentsMargins(4, 4, 4, 4)
-        hint = QLabel(tr("같은 계열 = 반복단위 하나만 연속으로 증가하고 나머지 조성·어덕트가 같은 후보들. "
-                         "많은 피크를 연속적으로, 작은 오차로 설명할수록 점수가 높습니다."))
-        hint.setWordWrap(True)
-        hint.setStyleSheet("color: #555;")
-        fb.addWidget(hint)
+        fb.addWidget(caption(tr(
+            "같은 계열 = 반복단위 하나만 연속으로 증가하고 나머지 조성·어덕트가 같은 후보들. "
+            "많은 피크를 연속적으로, 작은 오차로 설명할수록 점수가 높습니다. 행을 고르면 그 계열의 피크가 강조됩니다.")))
         self._fam_table = QTableWidget(0, 8)
-        self._fam_table.setHorizontalHeaderLabels([tr(h) for h in [
-            "순위", "조성 계열", "설명 피크 수", "최장 연속", "n 범위", "평균 |오차| (Da)", "점수", "평균 확률"]])
+        self._fam_table.setHorizontalHeaderLabels([
+            tr("순위"), tr("조성 계열"), tr("설명 피크 수"), tr("최장 연속"), tr("n 범위"),
+            tr("평균 |오차| (Da)"), tr("점수"), tr("평균 확률")])
+        set_header_tooltips(self._fam_table, [
+            tr("점수 순위"),
+            tr("반복단위 n=범위 · 고정 조성 · 어덕트 (동위원소 오프셋이 있으면 +N iso)"),
+            tr("이 계열의 후보가 있는 피크 수"),
+            tr("반복 수 n이 끊김 없이 이어지는 가장 긴 구간의 피크 수"),
+            tr("설명한 피크들의 반복 수 범위"),
+            tr("설명한 피크들의 평균 질량 오차"),
+            tr("Σ 가중치(오차가 작을수록 1에 가까움) × (최장 연속 구간이면 1, 아니면 0.5)"),
+            tr("이 계열 후보들이 각 피크에서 받은 확률의 평균"),
+        ])
         self._fam_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._fam_table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._fam_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._fam_table.setAlternatingRowColors(True)
         self._fam_table.verticalHeader().setVisible(False)
-        for c, w in enumerate([45, 330, 90, 80, 80, 110, 70, 80]):
+        for c, w in enumerate([52, 330, 96, 84, 80, 118, 70, 84]):
             self._fam_table.setColumnWidth(c, w)
+        fit_header(self._fam_table)
         self._fam_table.itemSelectionChanged.connect(self._on_family_selected)
         fb.addWidget(self._fam_table)
         self._tabs.addTab(fam_box, tr("조성 계열"))
@@ -351,6 +390,9 @@ class AnalysisView(QWidget):
         self._kmd = KmdPanel()
         self._kmd.peak_clicked.connect(self.select_peak)
         self._tabs.addTab(self._kmd, "KMD")
+        self._tabs.setTabToolTip(0, tr("선택한 피크의 후보 조성 (확률 순)"))
+        self._tabs.setTabToolTip(1, tr("연속 반복 수로 묶은 조성 계열 순위"))
+        self._tabs.setTabToolTip(2, tr("Kendrick mass defect 플롯"))
         self._splitter.addWidget(self._tabs)
 
         self._splitter.setStretchFactor(0, 3)
@@ -454,6 +496,60 @@ class AnalysisView(QWidget):
         if families:
             self._tabs.setCurrentIndex(0)
 
+    def add_detail_tab(self, widget: QWidget, title: str, tooltip: str = "") -> int:
+        """상세 탭에 위젯을 추가한다 (예: 메시지 로그)."""
+        idx = self._tabs.addTab(widget, title)
+        if tooltip:
+            self._tabs.setTabToolTip(idx, tooltip)
+        return idx
+
+    def families(self) -> list[CompositionFamily]:
+        return list(self._families)
+
+    def result_summary(self) -> dict:
+        """결과 요약 띠용 숫자: 할당된 피크 수, 솔버 대상 수, 시리즈 수."""
+        assigned = sum(1 for i in self._solved_rows if self._rows[i].result and self._rows[i].result.results)
+        return {"assigned": assigned, "solved": len(self._solved_rows), "peaks": len(self._rows),
+                "series": len(self._series)}
+
+    def select_family(self, family_id: int) -> None:
+        """조성 계열 탭으로 가서 그 계열을 고른다 (피크 강조)."""
+        for r in range(self._fam_table.rowCount()):
+            if self._fam_table.item(r, 0).data(Qt.UserRole) == family_id:
+                self._tabs.setCurrentIndex(1)
+                self._fam_table.selectRow(r)
+                return
+
+    def get_state(self) -> dict:
+        """언어 전환 때 새 창으로 옮길 상태 (데이터 객체는 공유)."""
+        return {
+            "rows": self._rows, "series": self._series, "families": self._families,
+            "solved_rows": self._solved_rows, "repeats": self._repeats, "spectrum": self._spectrum,
+            "spec_title": self._spec_title.text(), "series_only": self._series_only.isChecked(),
+            "selected": self._current_row(), "tab": self._tabs.currentIndex(),
+            "splitter": self._splitter.sizes(), "view_range": self._plot.getPlotItem().getViewBox().viewRange(),
+        }
+
+    def set_state(self, st: dict) -> None:
+        self.set_spectrum(st.get("spectrum"), st.get("spec_title", ""))
+        self._rows = st.get("rows", [])
+        self._series = st.get("series", [])
+        self._repeats = st.get("repeats", {})
+        self._solved_rows = st.get("solved_rows", [])
+        self._families = st.get("families", [])
+        self._family_by_id = {f.family_id: f for f in self._families}
+        self._series_only.setChecked(bool(st.get("series_only")))
+        self._fill_family_table()
+        self._refresh_table()
+        if st.get("splitter"):
+            self._splitter.setSizes(st["splitter"])
+        if st.get("spectrum") is not None and st.get("view_range"):
+            (x0, x1), _ = st["view_range"]
+            self._plot.setXRange(x0, x1, padding=0)
+        if st.get("selected") is not None:
+            self.select_peak(st["selected"])
+        self._tabs.setCurrentIndex(int(st.get("tab", 0)))
+
     def clear_results(self) -> None:
         for r in self._rows:
             r.result = None
@@ -525,7 +621,7 @@ class AnalysisView(QWidget):
                 for c in range(self._table.columnCount()):
                     it = self._table.item(r, c)
                     if it is not None:
-                        it.setBackground(QBrush(_HIGHLIGHT_BG) if r in self._highlight_rows else QBrush())
+                        it.setBackground(QBrush(QColor(theme.FAMILY_HL_BG)) if r in self._highlight_rows else QBrush())
         self._table.blockSignals(False)
 
     # ------------------------------------------------------------------
@@ -533,9 +629,7 @@ class AnalysisView(QWidget):
     # ------------------------------------------------------------------
 
     def _series_color(self, row: PeakRow) -> str:
-        if not row.series_ids:
-            return NO_SERIES_COLOR
-        return SERIES_COLORS[(row.series_ids[0] - 1) % len(SERIES_COLORS)]
+        return theme.series_color(row.series_ids[0] if row.series_ids else None)
 
     def _refresh_table(self) -> None:
         sel = self._current_row()
@@ -567,11 +661,11 @@ class AnalysisView(QWidget):
             cell(C_NCAND, str(r.result.count()) if r.result else "")
             cell(C_BEST, best.composition.to_string() if best else ("—" if r.result else ""))
             cell(C_PROB, f"{best.probability * 100:.0f}%" if best and best.probability is not None else "")
-            cell(C_ADDUCT, best.adduct_label if best else "")
+            cell(C_ADDUCT, ion_text(best.adduct_label) if best else "")
             cell(C_FAM, str(best.family_support) if best and best.family_id else "")
             cell(C_NOTE, r.note, editable)
             if best and best.probability is not None and best.probability >= 0.8:
-                self._table.item(i, C_PROB).setForeground(QBrush(QColor("#2e7d32")))
+                self._table.item(i, C_PROB).setForeground(QBrush(QColor(theme.GOOD)))
         self._table.blockSignals(False)
         self._apply_filter()
         self._update_plot_peaks()
@@ -585,9 +679,9 @@ class AnalysisView(QWidget):
             self._table.setRowHidden(i, only and not r.series_ids)
         n_use = len(self.solve_targets()[0])
         n_series = sum(1 for r in self._rows if r.series_ids)
-        txt = f"{tr('피크')} {len(self._rows)}{tr('개')} · {tr('솔버 대상')} {n_use}{tr('개')}"
+        txt = tr("피크 {n}개 · 솔버 대상 {m}개", n=len(self._rows), m=n_use)
         if self._series:
-            txt += f" · {tr('시리즈')} {len(self._series)}{tr('개')} ({n_series} {tr('피크')})"
+            txt += " · " + tr("시리즈 {s}개 ({p}개 피크)", s=len(self._series), p=n_series)
         self._peak_count.setText(txt)
 
     def _update_plot_peaks(self) -> None:
@@ -608,7 +702,7 @@ class AnalysisView(QWidget):
             row = self._fam_table.rowCount()
             self._fam_table.insertRow(row)
             lo, hi = f.n_range
-            vals = [str(f.family_id), f.label(), str(f.support), str(f.run_length), f"{lo}–{hi}",
+            vals = [str(f.family_id), ion_text(f.label()), str(f.support), str(f.run_length), f"{lo}–{hi}",
                     f"{f.mean_abs_error:.4f}", f"{f.score:.1f}", f"{f.mean_probability * 100:.0f}%"]
             for c, v in enumerate(vals):
                 it = QTableWidgetItem(v) if c == 1 else NumericTableWidgetItem(v)
@@ -679,7 +773,7 @@ class AnalysisView(QWidget):
         if self._rows:
             box = QMessageBox(self)
             box.setWindowTitle(tr("피크 추가"))
-            box.setText(f"{len(peaks)}{tr('개 피크를 가져왔습니다. 기존 목록을 어떻게 할까요?')}")
+            box.setText(tr("{n}개 피크를 가져왔습니다. 기존 목록을 어떻게 할까요?", n=len(peaks)))
             add = box.addButton(tr("뒤에 추가"), QMessageBox.AcceptRole)
             rep = box.addButton(tr("교체"), QMessageBox.DestructiveRole)
             box.addButton(QMessageBox.Cancel)

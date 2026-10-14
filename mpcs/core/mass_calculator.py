@@ -11,6 +11,7 @@ SRS §6.4:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from functools import lru_cache
 
 from mpcs.core.atomic_mass_db import AtomicMassDB
@@ -63,7 +64,7 @@ class MassCalculator:
         """
         formula = formula.strip()
         if not formula:
-            raise MassCalculationError("빈 분자식은 허용되지 않습니다")
+            raise MassCalculationError(tr("빈 분자식은 허용되지 않습니다"))
 
         return self._calc_exact_mass_cached(formula)
 
@@ -77,7 +78,7 @@ class MassCalculator:
         """분자식 문자열로부터 평균 질량을 계산한다."""
         formula = formula.strip()
         if not formula:
-            raise MassCalculationError("빈 분자식은 허용되지 않습니다")
+            raise MassCalculationError(tr("빈 분자식은 허용되지 않습니다"))
         return self._calc_average_mass_cached(formula)
 
     @lru_cache(maxsize=1024)
@@ -88,10 +89,10 @@ class MassCalculator:
     def calc_average_from_elements(self, elements: dict[str, int]) -> float:
         """원소 카운트 딕셔너리로부터 평균 질량을 계산한다."""
         if not elements:
-            raise MassCalculationError("원소가 없습니다")
+            raise MassCalculationError(tr("원소가 없습니다"))
         for elem, count in elements.items():
             if count < 0:
-                raise MassCalculationError(f"원소 '{elem}'의 원자 수가 음수입니다: {count}")
+                raise MassCalculationError(tr("원소 '{elem}'의 원자 수가 음수입니다: {count}", elem=elem, count=count))
         return self._sum_average_elements(elements)
 
     def _sum_average_elements(self, elements: dict[str, int]) -> float:
@@ -121,12 +122,12 @@ class MassCalculator:
             KeyError: 지원하지 않는 원소
         """
         if not elements:
-            raise MassCalculationError("원소가 없습니다")
+            raise MassCalculationError(tr("원소가 없습니다"))
 
         for elem, count in elements.items():
             if count < 0:
                 raise MassCalculationError(
-                    f"원소 '{elem}'의 원자 수가 음수입니다: {count}"
+                    tr("원소 '{elem}'의 원자 수가 음수입니다: {count}", elem=elem, count=count)
                 )
 
         return self._sum_elements(elements)
@@ -152,13 +153,13 @@ class MassCalculator:
         formula = formula.strip()
 
         if not formula:
-            errors.append("분자식이 비어 있습니다")
+            errors.append(tr("분자식이 비어 있습니다"))
             return errors
 
         try:
             elements = self._parser.parse(formula)
             if not elements:
-                errors.append("유효한 원소를 찾을 수 없습니다")
+                errors.append(tr("유효한 원소를 찾을 수 없습니다"))
         except FormulaParseError as exc:
             errors.append(str(exc.reason))
 

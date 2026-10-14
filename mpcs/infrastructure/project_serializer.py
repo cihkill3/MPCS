@@ -9,6 +9,7 @@ Q12 사용자 확인:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import json
 from datetime import datetime
 from pathlib import Path
@@ -90,7 +91,7 @@ class ProjectSerializer:
             path.write_text(json_str, encoding="utf-8")
         except Exception as exc:
             raise ProjectSerializeError(
-                f"프로젝트 저장 실패 '{filepath}': {exc}"
+                tr("프로젝트 저장 실패 '{filepath}': {exc}", filepath=filepath, exc=exc)
             ) from exc
 
     def load(self, filepath: str | Path) -> Project:
@@ -109,7 +110,7 @@ class ProjectSerializer:
         path = Path(filepath)
         if not path.exists():
             raise ProjectDeserializeError(
-                f"파일이 존재하지 않습니다: '{filepath}'"
+                tr("파일이 존재하지 않습니다: '{filepath}'", filepath=filepath)
             )
 
         try:
@@ -120,7 +121,7 @@ class ProjectSerializer:
             raise
         except Exception as exc:
             raise ProjectDeserializeError(
-                f"프로젝트 불러오기 실패 '{filepath}': {exc}"
+                tr("프로젝트 불러오기 실패 '{filepath}': {exc}", filepath=filepath, exc=exc)
             ) from exc
 
     # ------------------------------------------------------------------
@@ -243,7 +244,7 @@ class ProjectSerializer:
             sec_data = self._deserialize_sec_data(data.get("sec_data"))
 
             return Project(
-                name=data.get("name", "불러온 프로젝트"),
+                name=data.get("name", tr("불러온 프로젝트")),
                 monomers=monomers,
                 constraints=constraints,
                 end_group=end_group,
@@ -258,7 +259,7 @@ class ProjectSerializer:
             )
         except (KeyError, TypeError, ValueError) as exc:
             raise ProjectDeserializeError(
-                f"'{filepath}' 파일 구조 오류: {exc}"
+                tr("'{filepath}' 파일 구조 오류: {exc}", filepath=filepath, exc=exc)
             ) from exc
 
     @staticmethod

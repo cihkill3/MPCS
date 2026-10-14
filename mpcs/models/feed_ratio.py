@@ -18,6 +18,7 @@ SRS §9 Feed Ratio Module:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 from typing import Final
 
@@ -41,9 +42,9 @@ class FeedRatioEntry:
     def validate(self) -> list[str]:
         errors: list[str] = []
         if not self.component_name or not self.component_name.strip():
-            errors.append("성분 이름이 비어 있습니다")
+            errors.append(tr("성분 이름이 비어 있습니다"))
         if self.mmol <= 0.0:
-            errors.append(f"mmol 값이 0 이하입니다: {self.mmol}")
+            errors.append(tr('mmol 값이 0 이하입니다: {mmol}', mmol=self.mmol))
         return errors
 
 
@@ -192,22 +193,22 @@ class FeedRatio:
         errors: list[str] = []
 
         if not self.entries:
-            errors.append("공급비 항목이 없습니다")
+            errors.append(tr("공급비 항목이 없습니다"))
             return errors
 
         for i, entry in enumerate(self.entries):
             for msg in entry.validate():
-                errors.append(f"항목 {i+1}: {msg}")
+                errors.append(tr('항목 {v}: {msg}', v=i+1, msg=msg))
 
         # 중복 성분 이름 검사
         names = [e.component_name for e in self.entries]
         duplicates = {n for n in names if names.count(n) > 1}
         if duplicates:
-            errors.append(f"중복된 성분 이름: {', '.join(sorted(duplicates))}")
+            errors.append(tr('중복된 성분 이름: {v}', v=', '.join(sorted(duplicates))))
 
         if self.tolerance_pct < 0.0 or self.tolerance_pct > 100.0:
             errors.append(
-                f"허용 오차가 유효 범위(0~100%)를 벗어났습니다: {self.tolerance_pct}%"
+                tr('허용 오차가 유효 범위(0~100%)를 벗어났습니다: {tolerance_pct}%', tolerance_pct=self.tolerance_pct)
             )
 
         return errors

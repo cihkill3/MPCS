@@ -8,6 +8,7 @@ SRS §4.2 Project Section:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -40,7 +41,7 @@ class Project:
         modified_at:        수정 시각 (ISO 8601)
     """
 
-    name: str = "새 프로젝트"
+    name: str = field(default_factory=lambda: tr("새 프로젝트"))
     monomers: list[Monomer] = field(default_factory=list)
     constraints: list[Constraint] = field(default_factory=list)
     feed_ratio: FeedRatio = field(default_factory=FeedRatio)
@@ -82,45 +83,42 @@ class Project:
         errors: list[str] = []
 
         if not self.name or not self.name.strip():
-            errors.append("프로젝트 이름이 비어 있습니다")
+            errors.append(tr("프로젝트 이름이 비어 있습니다"))
 
         if not self.monomers:
-            errors.append("모노머가 하나도 정의되지 않았습니다")
+            errors.append(tr("모노머가 하나도 정의되지 않았습니다"))
 
         # 모노머 중복 이름 검사
         names = [m.name for m in self.monomers]
         duplicates = {n for n in names if names.count(n) > 1}
         if duplicates:
-            errors.append(f"중복된 모노머 이름: {', '.join(sorted(duplicates))}")
+            errors.append(tr('중복된 모노머 이름: {v}', v=', '.join(sorted(duplicates))))
 
         for monomer in self.monomers:
             for msg in monomer.validate():
-                errors.append(f"모노머 '{monomer.name}': {msg}")
+                errors.append(tr("모노머 '{name}': {msg}", name=monomer.name, msg=msg))
 
         for i, constraint in enumerate(self.constraints):
             for msg in constraint.validate():
-                errors.append(f"제약식 {i+1}: {msg}")
+                errors.append(tr('제약식 {v}: {msg}', v=i+1, msg=msg))
 
         for msg in self.end_group.validate():
-            errors.append(f"말단기: {msg}")
+            errors.append(tr('말단기: {msg}', msg=msg))
 
         if not self.enabled_adducts():
-            errors.append("활성화된 어덕트가 없습니다. 최소 하나 이상 선택하십시오.")
+            errors.append(tr("활성화된 어덕트가 없습니다. 최소 하나 이상 선택하십시오."))
 
         if not self.peak_data.is_empty():
             for msg in self.peak_data.validate():
-                errors.append(f"MALDI 데이터: {msg}")
+                errors.append(tr('MALDI 데이터: {msg}', msg=msg))
 
         if self.sec_data is not None:
             for msg in self.sec_data.validate():
-                errors.append(f"SEC 데이터: {msg}")
+                errors.append(tr('SEC 데이터: {msg}', msg=msg))
 
         return errors
 
     def __str__(self) -> str:
         return (
-            f"Project '{self.name}': "
-            f"{len(self.monomers)}개 모노머, "
-            f"{len(self.constraints)}개 제약식, "
-            f"{self.peak_data.peak_count()}개 피크"
+            tr("Project '{name}': {v}개 모노머, {v2}개 제약식, {v3}개 피크", name=self.name, v=len(self.monomers), v2=len(self.constraints), v3=self.peak_data.peak_count())
         )

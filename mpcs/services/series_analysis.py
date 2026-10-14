@@ -13,6 +13,7 @@ Services Layer: Periodic Series Detection & Composition Family Scoring
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import math
 from dataclasses import dataclass, field
 
@@ -33,7 +34,7 @@ class PeakSeries:
     peak_indices: list[int]          # m/z 오름차순 피크 인덱스
 
     def label(self) -> str:
-        return f"S{self.series_id} ({self.repeat_name}, {len(self.peak_indices)}개)"
+        return tr('S{series_id} ({repeat_name}, {v}개)', series_id=self.series_id, repeat_name=self.repeat_name, v=len(self.peak_indices))
 
 
 def detect_series(

@@ -24,6 +24,7 @@ from qtpy.QtWidgets import (
 
 from mpcs.core.formatting import format_formula_html, format_adduct_html
 from mpcs.core.i18n import tr
+from mpcs.gui import theme
 
 
 # ---------------------------------------------------------------------------
@@ -51,7 +52,7 @@ def _compute_isotope_peaks(
         import molmass
         spec = molmass.Formula(formula).spectrum()
     except Exception as exc:
-        raise ValueError(f"스펙트럼 계산 실패: {exc}") from exc
+        raise ValueError(tr("스펙트럼 계산 실패: {e}", e=exc)) from exc
 
     entries = list(spec.values())
     if not entries:
@@ -89,14 +90,14 @@ class _SpectrumCanvas(QWidget):
     MARGIN_TOP    = 40
     MARGIN_BOTTOM = 55
 
-    # 색상 팔레트 (모던 라이트 테마 고대비)
-    COLOR_BG      = QColor("#ffffff")
-    COLOR_AXIS    = QColor("#495057")
-    COLOR_STEM    = QColor("#339af0")
-    COLOR_PEAK    = QColor("#f03e3e")
-    COLOR_LABEL   = QColor("#212529")
-    COLOR_GRID    = QColor("#e9ecef")
-    COLOR_100     = QColor("#e03131")   # 100% 피크 강조
+    # 색상 (theme 토큰)
+    COLOR_BG      = QColor(theme.SURFACE)
+    COLOR_AXIS    = QColor(theme.TEXT_2)
+    COLOR_STEM    = QColor(theme.ACCENT)
+    COLOR_PEAK    = QColor(theme.FAMILY_HL)
+    COLOR_LABEL   = QColor(theme.TEXT)
+    COLOR_GRID    = QColor(theme.BORDER)
+    COLOR_100     = QColor(theme.FAMILY_HL)   # 100% 피크 강조
 
     def __init__(self, peaks: list[tuple[float, float]], formula: str, parent=None):
         super().__init__(parent)
@@ -164,7 +165,7 @@ class _SpectrumCanvas(QWidget):
         )
 
         # ─── y축 레이블 ────────────────────────────────────────────────
-        axis_font = QFont("Segoe UI", 10)
+        axis_font = theme.app_font(theme.FS_CAPTION)
         painter.setFont(axis_font)
         painter.setPen(QPen(self.COLOR_LABEL))
         for pct in (0, 20, 40, 60, 80, 100):
@@ -181,7 +182,7 @@ class _SpectrumCanvas(QWidget):
         stem_pen = QPen(self.COLOR_STEM, 2.5)
         peak100_pen = QPen(self.COLOR_100, 2.5)
 
-        label_font = QFont("Segoe UI", 10)
+        label_font = theme.app_font(theme.FS_CAPTION)
         painter.setFont(label_font)
         fm_lbl = QFontMetrics(label_font)
 
@@ -236,7 +237,7 @@ class _SpectrumCanvas(QWidget):
             )
 
         # ─── 축 제목 ───────────────────────────────────────────────────
-        title_font = QFont("Segoe UI", 9, QFont.Bold)
+        title_font = theme.app_font(theme.FS_CAPTION, bold=True)
         painter.setFont(title_font)
         painter.setPen(QPen(self.COLOR_LABEL))
         # x축 제목
@@ -250,7 +251,7 @@ class _SpectrumCanvas(QWidget):
         painter.save()
         painter.translate(14, h / 2)
         painter.rotate(-90)
-        y_title = "Relative Intensity (%)"
+        y_title = tr("상대 강도 (%)")
         tw = QFontMetrics(title_font).horizontalAdvance(y_title)
         painter.drawText(QPointF(-tw / 2, 0), y_title)
         painter.restore()
@@ -259,7 +260,7 @@ class _SpectrumCanvas(QWidget):
         # QPainter는 단순 문자열을 그리므로, 캔버스에서는 HTML이 아닌 기본 문자열을 출력하거나
         # 또는 HTML 렌더링이 필요하다면 QTextDocument를 써야 함.
         # 여기서는 단순히 문자열만 표시 (캔버스 렌더링 부분). 
-        formula_font = QFont("Segoe UI", 10, QFont.Bold)
+        formula_font = theme.app_font(theme.FS_BODY, bold=True)
         painter.setFont(formula_font)
         painter.setPen(QPen(self.COLOR_LABEL))
         formula_txt = f"{tr('분자식 (Formula)')}: {self._formula}"
@@ -281,7 +282,7 @@ class IsotopePatternDialog(QDialog):
         super().__init__(parent)
         self._formula = formula
         self._adduct_label = adduct_label
-        self.setWindowTitle(f"동위원소 패턴 — {formula}")
+        self.setWindowTitle(tr("동위원소 패턴") + f" — {formula}")
         self.setMinimumSize(720, 480)
         self.resize(820, 520)
         self._setup_ui()
@@ -293,14 +294,14 @@ class IsotopePatternDialog(QDialog):
         # ── 정보 헤더 ──────────────────────────────────────────────────
         header_layout = QHBoxLayout()
         fmt_formula = format_formula_html(self._formula)
-        formula_label = QLabel(f"<b>분자식:</b> {fmt_formula}")
-        formula_label.setStyleSheet("font-size: 11pt; color: #212529;")
+        formula_label = QLabel(f"<b>{tr('분자식')}:</b> {fmt_formula}")
+        formula_label.setToolTip(tr("어덕트 원자를 포함한 이온 전체의 분자식"))
         header_layout.addWidget(formula_label)
 
         if self._adduct_label:
             fmt_adduct = format_adduct_html(self._adduct_label)
             adduct_lbl = QLabel(f"<b>{tr('어덕트')}:</b> {fmt_adduct}")
-            adduct_lbl.setStyleSheet("font-size: 11pt; color: #339af0;")
+            adduct_lbl.setStyleSheet(f"color: {theme.ACCENT};")
             header_layout.addWidget(adduct_lbl)
 
         header_layout.addStretch()
@@ -310,7 +311,7 @@ class IsotopePatternDialog(QDialog):
         try:
             peaks = _compute_isotope_peaks(self._formula)
         except ValueError as exc:
-            err_label = QLabel(f"<span style='color:#f38ba8'>오류: {exc}</span>")
+            err_label = QLabel(f"<span style='color:{theme.BAD}'>{tr('오류')}: {exc}</span>")
             layout.addWidget(err_label)
             peaks = []
 
@@ -318,7 +319,8 @@ class IsotopePatternDialog(QDialog):
             # ── 피크 테이블 (요약) ─────────────────────────────────────
             from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView, QAbstractItemView
             table = QTableWidget(len(peaks), 2)
-            table.setHorizontalHeaderLabels(["m/z", "상대 Intensity (%)"])
+            table.setHorizontalHeaderLabels(["m/z", tr("상대 강도 (%)")])
+            table.horizontalHeaderItem(1).setToolTip(tr("가장 강한 동위원소 피크 = 100%. 10% 미만은 생략합니다."))
             table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             table.setEditTriggers(QAbstractItemView.NoEditTriggers)
             table.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -332,8 +334,8 @@ class IsotopePatternDialog(QDialog):
                 int_item = QTableWidgetItem(f"{intensity:.2f}%")
                 int_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 if abs(intensity - 100.0) < 0.5:
-                    mz_item.setForeground(QColor("#e03131"))
-                    int_item.setForeground(QColor("#e03131"))
+                    mz_item.setForeground(QColor(theme.FAMILY_HL))
+                    int_item.setForeground(QColor(theme.FAMILY_HL))
                     font = mz_item.font()
                     font.setBold(True)
                     mz_item.setFont(font)
@@ -347,7 +349,7 @@ class IsotopePatternDialog(QDialog):
             canvas = _SpectrumCanvas(peaks, self._formula)
             layout.addWidget(canvas)
         else:
-            layout.addWidget(QLabel("표시할 피크가 없습니다."))
+            layout.addWidget(QLabel(tr("표시할 피크가 없습니다.")))
 
         # ── 닫기 버튼 ─────────────────────────────────────────────────
         btn_box = QDialogButtonBox(QDialogButtonBox.Close)

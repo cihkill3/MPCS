@@ -59,6 +59,27 @@ def to_unicode_subsup(text: str) -> str:
     
     return text
 
+_SUPERSCRIPT = str.maketrans("0123456789+-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻")
+_SUBSCRIPT = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+_ION_RE = re.compile(r"\[([^\[\]]*)\](\d*[+-])")
+
+
+def ion_text(text: str) -> str:
+    """
+    문장 속 모든 이온 표기 '[M+Na]+', '[M+2H]2+', '[M+NH4]+'의 전하를 유니코드 위첨자로,
+    괄호 안 원소 뒤 숫자를 아래첨자로 바꾼다 (괄호 밖 'LA5' 같은 글자는 그대로).
+    예: 'EO n=15–59 · LA5 · [M+Na]+' → 'EO n=15–59 · LA5 · [M+Na]⁺'
+    """
+    if not text:
+        return text
+
+    def repl(m: re.Match) -> str:
+        inner = re.sub(r"(?<=[A-Za-z])(\d+)", lambda d: d.group(1).translate(_SUBSCRIPT), m.group(1))
+        return f"[{inner}]{m.group(2).translate(_SUPERSCRIPT)}"
+
+    return _ION_RE.sub(repl, text)
+
+
 class HtmlDelegate(QStyledItemDelegate):
     """
     QTableWidget/QTreeWidget 등에서 HTML 텍스트를 렌더링하는 델리게이트.

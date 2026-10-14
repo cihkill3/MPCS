@@ -16,6 +16,7 @@ Q9 사용자 확인:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import csv
 from pathlib import Path
 from typing import Final
@@ -41,7 +42,7 @@ class FileImportError(IOError):
     def __init__(self, filepath: str, reason: str) -> None:
         self.filepath = filepath
         self.reason = reason
-        super().__init__(f"파일 가져오기 실패 '{filepath}': {reason}")
+        super().__init__(tr("파일 가져오기 실패 '{filepath}': {reason}", filepath=filepath, reason=reason))
 
 
 class PeakFileIO:
@@ -71,7 +72,7 @@ class PeakFileIO:
         """
         path = Path(filepath)
         if not path.exists():
-            raise FileImportError(str(filepath), f"파일이 존재하지 않습니다: {path}")
+            raise FileImportError(str(filepath), tr('파일이 존재하지 않습니다: {path}', path=path))
 
         suffix = path.suffix.lower()
         try:
@@ -82,8 +83,7 @@ class PeakFileIO:
             else:
                 raise FileImportError(
                     str(filepath),
-                    f"지원하지 않는 파일 형식: {suffix}. "
-                    f"지원 형식: .csv, .txt, .xlsx"
+                    tr('지원하지 않는 파일 형식: {suffix}. 지원 형식: .csv, .txt, .xlsx', suffix=suffix)
                 )
         except FileImportError:
             raise
@@ -111,18 +111,18 @@ class PeakFileIO:
                 continue
 
         if content is None:
-            raise FileImportError(str(path), "파일 인코딩을 인식할 수 없습니다")
+            raise FileImportError(str(path), tr("파일 인코딩을 인식할 수 없습니다"))
 
         lines = content.splitlines()
         if not lines:
-            raise FileImportError(str(path), "파일이 비어 있습니다")
+            raise FileImportError(str(path), tr("파일이 비어 있습니다"))
 
         # 헤더 행 파싱
         reader = csv.reader(lines, delimiter=_DEFAULT_DELIMITER)
         rows = list(reader)
 
         if not rows:
-            raise FileImportError(str(path), "데이터가 없습니다")
+            raise FileImportError(str(path), tr("데이터가 없습니다"))
 
         header = [col.strip().lower() for col in rows[0]]
         mz_idx, int_idx = cls._find_column_indices(header, str(path))
@@ -140,11 +140,11 @@ class PeakFileIO:
             except (ValueError, IndexError) as exc:
                 raise FileImportError(
                     str(path),
-                    f"행 {line_num}: 숫자 변환 실패 ({exc})"
+                    tr('행 {line_num}: 숫자 변환 실패 ({exc})', line_num=line_num, exc=exc)
                 ) from exc
 
         if not mz_values:
-            raise FileImportError(str(path), "유효한 피크 데이터가 없습니다")
+            raise FileImportError(str(path), tr("유효한 피크 데이터가 없습니다"))
 
         return PeakData(mz_values=mz_values, intensities=intensities)
 
@@ -155,7 +155,7 @@ class PeakFileIO:
             import openpyxl
         except ImportError as exc:
             raise FileImportError(
-                str(path), "openpyxl 라이브러리가 필요합니다"
+                str(path), tr("openpyxl 라이브러리가 필요합니다")
             ) from exc
 
         wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -163,7 +163,7 @@ class PeakFileIO:
 
         rows = list(ws.iter_rows(values_only=True))
         if not rows:
-            raise FileImportError(str(path), "시트가 비어 있습니다")
+            raise FileImportError(str(path), tr("시트가 비어 있습니다"))
 
         # 헤더
         header = [str(cell).strip().lower() if cell is not None else "" for cell in rows[0]]
@@ -182,13 +182,13 @@ class PeakFileIO:
                 intensities.append(intensity)
             except (TypeError, ValueError) as exc:
                 raise FileImportError(
-                    str(path), f"행 {line_num}: 숫자 변환 실패 ({exc})"
+                    str(path), tr('행 {line_num}: 숫자 변환 실패 ({exc})', line_num=line_num, exc=exc)
                 ) from exc
 
         wb.close()
 
         if not mz_values:
-            raise FileImportError(str(path), "유효한 피크 데이터가 없습니다")
+            raise FileImportError(str(path), tr("유효한 피크 데이터가 없습니다"))
 
         return PeakData(mz_values=mz_values, intensities=intensities)
 
@@ -215,16 +215,12 @@ class PeakFileIO:
         if mz_idx is None:
             raise FileImportError(
                 filepath,
-                f"m/z 컬럼을 찾을 수 없습니다. "
-                f"헤더: {header}. "
-                f"허용 이름: {sorted(_MZ_COLUMN_ALIASES)}"
+                tr('m/z 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}', header=header, v=sorted(_MZ_COLUMN_ALIASES))
             )
         if int_idx is None:
             raise FileImportError(
                 filepath,
-                f"Intensity 컬럼을 찾을 수 없습니다. "
-                f"헤더: {header}. "
-                f"허용 이름: {sorted(_INTENSITY_COLUMN_ALIASES)}"
+                tr('Intensity 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}', header=header, v=sorted(_INTENSITY_COLUMN_ALIASES))
             )
 
         return mz_idx, int_idx
@@ -325,7 +321,7 @@ def read_peak_table(filepath: str | Path) -> list[tuple[float, float | None, str
     """엑셀(.xlsx/.xls) 또는 텍스트(.csv/.txt) 피크 표를 관대하게 읽는다."""
     path = Path(filepath)
     if not path.exists():
-        raise FileImportError(str(path), "파일이 존재하지 않습니다")
+        raise FileImportError(str(path), tr("파일이 존재하지 않습니다"))
     try:
         if path.suffix.lower() in (".xlsx", ".xls"):
             import pandas as pd
@@ -341,7 +337,7 @@ def read_peak_table(filepath: str | Path) -> list[tuple[float, float | None, str
                 except UnicodeDecodeError:
                     continue
             if content is None:
-                raise FileImportError(str(path), "파일 인코딩을 인식할 수 없습니다")
+                raise FileImportError(str(path), tr("파일 인코딩을 인식할 수 없습니다"))
             rows = split_text_rows(content)
     except FileImportError:
         raise
@@ -349,5 +345,5 @@ def read_peak_table(filepath: str | Path) -> list[tuple[float, float | None, str
         raise FileImportError(str(path), str(exc)) from exc
     peaks = parse_peak_rows(rows)
     if not peaks:
-        raise FileImportError(str(path), "m/z 숫자 열을 찾을 수 없습니다")
+        raise FileImportError(str(path), tr("m/z 숫자 열을 찾을 수 없습니다"))
     return peaks

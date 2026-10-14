@@ -17,6 +17,7 @@ SolverService.solve()(스칼라 루프)는 기준 구현(reference)으로 유지
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import itertools
 import os
 import re
@@ -443,7 +444,7 @@ def solve_batch(
         return []
     errors = dataclasses.replace(params, peak_mz=max(peak_mz_list[0], 1e-9)).validate()
     if errors:
-        raise ValueError(f"솔버 파라미터 오류: {'; '.join(errors)}")
+        raise ValueError(tr('솔버 파라미터 오류: {v}', v='; '.join(errors)))
 
     prep = _prepare(params, engine)
     peaks = np.asarray(peak_mz_list, dtype=float)

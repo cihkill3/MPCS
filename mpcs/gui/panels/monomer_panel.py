@@ -44,6 +44,8 @@ from mpcs.models.monomer import (
     parse_formula_or_mass,
 )
 from mpcs.models.project import Project
+from mpcs.core.i18n import tr
+from mpcs.gui import theme
 
 
 # ---- 이름 검증 유틸리티 --------------------------------------------------
@@ -74,10 +76,10 @@ def _validate_name(name: str) -> str | None:
     forbidden = sorted(set(_FORBIDDEN_NAME_RE.findall(name)))
     if forbidden:
         chars = ', '.join(f"'{c}'" for c in forbidden)
-        return (
-            f"이름에 연산자 문자가 포함되어 있습니다: {chars}\n"
-            f"사용 불가 문자: + * / ^ ( ) = < > . (공백)\n"
-            f"하이픈(-)은 밑줄(_)로 자동 변환됩니다."
+        return tr(
+            "이름에 연산자 문자가 포함되어 있습니다: {chars}\n"
+            "사용 불가 문자: + * / ^ ( ) = < > . (공백)\n"
+            "하이픈(-)은 밑줄(_)로 자동 변환됩니다.", chars=chars
         )
     return None
 
@@ -91,7 +93,34 @@ _COL_MIN     = 4
 _COL_MAX     = 5
 _COL_COUNT   = 6
 
-_HEADERS = ["이름", "유형", "분자식 / 질량입력", "정밀질량 (Da)", "최소값", "최대값"]
+def _headers() -> list[str]:
+    return [tr("이름"), tr("유형"), tr("분자식 / 질량입력"), tr("정밀질량 (Da)"), tr("최소값"), tr("최대값")]
+
+
+def _header_tips() -> list[str]:
+    return [
+        tr("성분 이름. 제약식의 변수 이름으로도 쓰입니다 (영문·한글·숫자·밑줄)."),
+        tr("성분 유형. Block은 여러 하위 성분을 묶은 반복 단위입니다."),
+        tr("분자식(예: C2H4O) 또는 직접 입력한 질량(~44.0262Da)."),
+        tr("반복 단위 1개의 모노이소토픽 정밀질량. Block은 하위 성분 평균 개수로 계산한 참고값입니다."),
+        tr("솔버가 탐색할 최소 개수 (Block은 블록 수)."),
+        tr("솔버가 탐색할 최대 개수. 범위가 좁을수록 계산이 빠릅니다."),
+    ]
+
+
+def type_label(t: MonomerType) -> str:
+    """유형 표시 이름 (번역). 데이터에는 MonomerType 값을 따로 저장한다."""
+    from mpcs.core.i18n import current_language
+
+    if current_language() == "en":
+        return t.value
+    return {
+        MonomerType.MONOMER: tr("모노머"),
+        MonomerType.BLOCK: tr("블록"),
+        MonomerType.CROSSLINKER: tr("가교제"),
+        MonomerType.END_GROUP: tr("말단기"),
+        MonomerType.ADDUCT: tr("어덕트"),
+    }.get(t, t.value)
 
 # 최상위 추가 가능 유형
 _TOP_TYPES = [
@@ -112,14 +141,13 @@ _SUB_TYPES = [
 _ROLE_DATA     = Qt.UserRole
 _ROLE_IS_BLOCK = Qt.UserRole + 1
 _ROLE_IS_SUB   = Qt.UserRole + 2
+_ROLE_TYPE     = Qt.UserRole + 3   # MonomerType (표시 글자는 번역되므로 데이터로 보관)
 
-# 색상
-_BLOCK_BG = QColor(230, 240, 255)
-_SUB_BG   = QColor(245, 248, 255)
-_EDIT_BG  = QColor(255, 255, 200)   # 편집 중 강조색
+# 색상 (theme 토큰)
+_BLOCK_BG = QColor(theme.ACCENT_TINT_2)
+_SUB_BG   = QColor(theme.ZEBRA)
+_EDIT_BG  = QColor(theme.WARN_SOFT)   # 편집 중 강조색
 
-
-from mpcs.core.i18n import tr
 
 class MonomerPanel(QGroupBox):
     """
@@ -155,7 +183,9 @@ class MonomerPanel(QGroupBox):
         # ── 트리 위젯 ─────────────────────────────────────────────────
         self._tree = QTreeWidget()
         self._tree.setColumnCount(_COL_COUNT)
-        self._tree.setHeaderLabels(_HEADERS)
+        self._tree.setHeaderLabels(_headers())
+        for c, tip in enumerate(_header_tips()):
+            self._tree.headerItem().setToolTip(c, tip)
         self._tree.setAlternatingRowColors(True)
         self._tree.setSelectionMode(QAbstractItemView.SingleSelection)
         self._tree.currentItemChanged.connect(self._on_selection_changed)
@@ -168,11 +198,12 @@ class MonomerPanel(QGroupBox):
         header.setSectionResizeMode(QHeaderView.Interactive)
         header.setStretchLastSection(False)
         header.setSectionResizeMode(_COL_NAME, QHeaderView.Stretch)
-        self._tree.setColumnWidth(_COL_TYPE,    90)
-        self._tree.setColumnWidth(_COL_FORMULA, 130)
-        self._tree.setColumnWidth(_COL_MASS,    130)
-        self._tree.setColumnWidth(_COL_MIN,     60)
-        self._tree.setColumnWidth(_COL_MAX,     60)
+        self._tree.setColumnWidth(_COL_TYPE,    84)
+        self._tree.setColumnWidth(_COL_FORMULA, 142)
+        self._tree.setColumnWidth(_COL_MASS,    100)
+        self._tree.setColumnWidth(_COL_MIN,     56)
+        self._tree.setColumnWidth(_COL_MAX,     56)
+        header.setMinimumSectionSize(48)
         layout.addWidget(self._tree, stretch=3)
 
         # ── 구분선 ────────────────────────────────────────────────────
@@ -183,10 +214,7 @@ class MonomerPanel(QGroupBox):
 
         # ── 컨텍스트 레이블 ────────────────────────────────────────────
         self._ctx_label = QLabel()
-        self._ctx_label.setStyleSheet(
-            "background:#e8f4e8; border:1px solid #9cba9c; "
-            "padding:3px; border-radius:3px;"
-        )
+        self._ctx_label.setWordWrap(True)
         self._update_context_label(None)
         layout.addWidget(self._ctx_label)
 
@@ -200,10 +228,14 @@ class MonomerPanel(QGroupBox):
         self._name_edit = QLineEdit()
         self._name_edit.setPlaceholderText(tr("이름 (예: EO, PLA_PEG_PLA)"))
         self._name_edit.setMinimumWidth(100)
+        self._name_edit.setToolTip(tr("성분 이름. 제약식에서 이 이름을 변수로 씁니다. '-'는 '_'로 자동 변환됩니다."))
         self._name_edit.textChanged.connect(self._on_name_changed)
 
         self._type_combo = QComboBox()
         self._type_combo.currentIndexChanged.connect(self._on_type_changed)
+        self._type_combo.setToolTip(tr(
+            "모노머: 반복 단위 / 블록: 하위 성분 묶음(예: PLA-PEG-PLA) / 가교제·말단기·어덕트: 개수 범위를 갖는 기타 성분.\n"
+            "Block을 선택한 상태에서 추가하면 그 Block의 하위 성분이 됩니다."))
         row1.addWidget(QLabel(tr("이름:")))
         row1.addWidget(self._name_edit, stretch=2)
         row1.addWidget(QLabel(tr("유형:")))
@@ -217,8 +249,12 @@ class MonomerPanel(QGroupBox):
             tr("분자식 (예: C2H4O) 또는 정밀질량 (예: 44.026)")
         )
         self._formula_edit.textChanged.connect(self._on_formula_changed)
+        self._formula_edit.setToolTip(tr(
+            "분자식을 넣으면 정밀질량·평균질량을 자동 계산합니다 (예: C2H4O, C3H4O2).\n"
+            "분자식을 모르면 질량을 숫자로 넣습니다 (이때 후보의 분자식은 표시되지 않음)."))
         self._mass_preview = QLabel(tr("질량: -"))
-        self._mass_preview.setMinimumWidth(140)
+        self._mass_preview.setMinimumWidth(160)
+        self._mass_preview.setToolTip(tr("입력한 분자식의 모노이소토픽 정밀질량 미리보기"))
         self._formula_row_layout.addWidget(QLabel(tr("분자식/질량:")))
         self._formula_row_layout.addWidget(self._formula_edit, stretch=3)
         self._formula_row_layout.addWidget(self._mass_preview)
@@ -232,19 +268,23 @@ class MonomerPanel(QGroupBox):
         self._min_spin = QSpinBox()
         self._min_spin.setRange(0, 99999)
         self._min_spin.setValue(0)
-        self._min_spin.setMaximumWidth(80)
+        self._min_spin.setMaximumWidth(90)
+        self._min_spin.setToolTip(tr("솔버가 탐색할 최소 개수 (Block은 블록 수, 하위 성분은 블록 1개당 개수)."))
 
         self._max_label = QLabel(tr("최대값:"))
         self._max_spin = QSpinBox()
         self._max_spin.setRange(0, 99999)
         self._max_spin.setValue(100)
-        self._max_spin.setMaximumWidth(80)
+        self._max_spin.setMaximumWidth(90)
+        self._max_spin.setToolTip(tr("솔버가 탐색할 최대 개수. 중합 계산기 탭에서 예상 범위를 자동으로 채울 수 있습니다."))
 
         self._add_btn = QPushButton(tr("＋ 추가"))
         self._add_btn.clicked.connect(self._on_add_or_save)
+        self._add_btn.setToolTip(tr("입력한 성분을 목록에 추가합니다 (편집 중이면 저장)."))
 
         self._edit_btn = QPushButton(tr("✏ 수정"))
         self._edit_btn.clicked.connect(self._start_edit)
+        self._edit_btn.setToolTip(tr("선택한 항목을 입력 폼으로 불러와 고칩니다 (항목을 두 번 눌러도 됩니다)."))
         self._edit_btn.setEnabled(False)
 
         self._cancel_btn = QPushButton(tr("✖ 취소"))
@@ -253,6 +293,7 @@ class MonomerPanel(QGroupBox):
 
         self._del_btn = QPushButton(tr("－ 삭제"))
         self._del_btn.clicked.connect(self._delete_selected)
+        self._del_btn.setToolTip(tr("선택한 항목을 지웁니다."))
 
         row3.addWidget(self._min_label)
         row3.addWidget(self._min_spin)
@@ -279,7 +320,7 @@ class MonomerPanel(QGroupBox):
         self._type_combo.clear()
         types = _SUB_TYPES if sub_mode else _TOP_TYPES
         for t in types:
-            self._type_combo.addItem(t.value, t)
+            self._type_combo.addItem(type_label(t), t)
         self._type_combo.blockSignals(False)
         self._on_type_changed()
 
@@ -323,32 +364,32 @@ class MonomerPanel(QGroupBox):
     def _update_context_label(self, item: QTreeWidgetItem | None) -> None:
         if self._editing_item is not None:
             name = self._editing_item.text(_COL_NAME).strip()
-            self._ctx_label.setText(f"✏️  편집 중: [{name}] — 수정 후 [저장]을 누르세요")
+            self._ctx_label.setText("✏  " + tr("편집 중: [{name}] — 수정 후 [저장]을 누르세요", name=name))
             self._ctx_label.setStyleSheet(
-                "background:#fff8c5; border:1px solid #c8a000; "
-                "padding:3px; border-radius:3px; font-weight:bold;"
+                f"background:{theme.WARN_SOFT}; border:1px solid {theme.WARN}; color:{theme.TEXT};"
+                f"padding:4px 6px; border-radius:{theme.RADIUS}px; font-weight:600;"
             )
             return
 
         self._ctx_label.setStyleSheet(
-            "background:#e8f4e8; border:1px solid #9cba9c; "
-            "padding:3px; border-radius:3px;"
+            f"background:{theme.ACCENT_SOFT}; border:1px solid {theme.BORDER}; color:{theme.TEXT_2};"
+            f"padding:4px 6px; border-radius:{theme.RADIUS}px;"
         )
         if item is None:
-            self._ctx_label.setText("ℹ️  선택 없음: 새 항목을 최상위로 추가합니다")
+            self._ctx_label.setText("ℹ  " + tr("선택 없음: 새 항목을 최상위로 추가합니다"))
         elif item.data(_COL_NAME, _ROLE_IS_BLOCK):
             name = item.text(_COL_NAME)
             self._ctx_label.setText(
-                f"📦  Block 선택됨 [{name}]: 추가 시 이 Block의 하위 성분으로 들어갑니다"
+                "▣  " + tr("Block 선택됨 [{name}]: 추가 시 이 Block의 하위 성분으로 들어갑니다", name=name)
             )
         elif item.data(_COL_NAME, _ROLE_IS_SUB):
             parent_name = item.parent().text(_COL_NAME) if item.parent() else "?"
             self._ctx_label.setText(
-                f"🔸  Block 하위 성분 선택됨 (상위: {parent_name})"
+                "▸  " + tr("Block 하위 성분 선택됨 (상위: {parent}) — 추가 시 같은 Block에 들어갑니다", parent=parent_name)
             )
         else:
             self._ctx_label.setText(
-                "ℹ️  일반 항목 선택됨: 추가 시 최상위로 추가됩니다"
+                "ℹ  " + tr("일반 항목 선택됨: 추가 시 최상위로 추가됩니다")
             )
 
     def _on_name_changed(self, text: str) -> None:
@@ -365,25 +406,25 @@ class MonomerPanel(QGroupBox):
         is_block = self._current_type() == MonomerType.BLOCK
         self._formula_widget.setVisible(not is_block)
         if is_block:
-            self._min_label.setText("최소값 (블록 수):")
-            self._max_label.setText("최대값 (블록 수):")
+            self._min_label.setText(tr("최소값 (블록 수):"))
+            self._max_label.setText(tr("최대값 (블록 수):"))
         else:
-            self._min_label.setText("최소값:")
-            self._max_label.setText("최대값:")
+            self._min_label.setText(tr("최소값:"))
+            self._max_label.setText(tr("최대값:"))
 
     def _on_formula_changed(self, text: str) -> None:
         text = text.strip()
         if not text:
-            self._mass_preview.setText("질량: -")
+            self._mass_preview.setText(tr("질량: -"))
             self._mass_preview.setStyleSheet("")
             return
         try:
             _, mass, _ = parse_formula_or_mass(text, self._calc)
-            self._mass_preview.setText(f"질량: {mass:.4f} Da")
-            self._mass_preview.setStyleSheet("color: #006600;")
+            self._mass_preview.setText(tr("질량: {m:.4f} Da", m=mass))
+            self._mass_preview.setStyleSheet(f"color: {theme.GOOD};")
         except Exception:
-            self._mass_preview.setText("질량: 오류")
-            self._mass_preview.setStyleSheet("color: #cc0000;")
+            self._mass_preview.setText(tr("질량: 오류"))
+            self._mass_preview.setStyleSheet(f"color: {theme.BAD};")
 
     # ------------------------------------------------------------------
     # 편집 모드
@@ -393,7 +434,7 @@ class MonomerPanel(QGroupBox):
         """선택된 아이템의 값을 입력 폼에 불러와 편집 모드로 진입한다."""
         item = self._tree.currentItem()
         if item is None:
-            QMessageBox.information(self, "선택 없음", "수정할 항목을 먼저 선택하십시오.")
+            QMessageBox.information(self, tr("선택 없음"), tr("수정할 항목을 먼저 선택하십시오."))
             return
 
         self._editing_item = item
@@ -410,17 +451,14 @@ class MonomerPanel(QGroupBox):
 
         # 폼 채우기
         name = item.text(_COL_NAME).strip()
-        type_str = item.text(_COL_TYPE).strip()
+        item_type = item.data(_COL_NAME, _ROLE_TYPE)
         formula = item.text(_COL_FORMULA).strip()
         min_val = int(item.text(_COL_MIN)) if item.text(_COL_MIN).strip().isdigit() else 0
         max_val = int(item.text(_COL_MAX)) if item.text(_COL_MAX).strip().isdigit() else 100
 
         self._name_edit.setText(name)
-        try:
-            monomer_type = MonomerType(type_str)
-            self._set_type_combo(monomer_type)
-        except ValueError:
-            pass
+        if isinstance(item_type, MonomerType):
+            self._set_type_combo(item_type)
 
         if not is_block:
             self._formula_edit.setText(formula)
@@ -429,7 +467,7 @@ class MonomerPanel(QGroupBox):
         self._max_spin.setValue(max_val)
 
         # UI 상태 전환
-        self._add_btn.setText("💾 저장")
+        self._add_btn.setText(tr("저장"))
         self._edit_btn.setVisible(False)
         self._cancel_btn.setVisible(True)
         self._del_btn.setEnabled(False)
@@ -450,7 +488,7 @@ class MonomerPanel(QGroupBox):
 
     def _exit_edit_mode(self) -> None:
         """편집 모드 UI를 종료한다."""
-        self._add_btn.setText("＋ 추가")
+        self._add_btn.setText(tr("＋ 추가"))
         self._edit_btn.setVisible(True)
         self._cancel_btn.setVisible(False)
         self._del_btn.setEnabled(True)
@@ -469,7 +507,7 @@ class MonomerPanel(QGroupBox):
         elif is_sub:
             color = _SUB_BG
         else:
-            color = QColor(255, 255, 255)  # 기본 흰색
+            color = QColor(theme.SURFACE)
         for col in range(_COL_COUNT):
             item.setBackground(col, QBrush(color))
 
@@ -491,12 +529,12 @@ class MonomerPanel(QGroupBox):
 
         name = _sanitize_name(self._name_edit.text().strip())
         if not name:
-            QMessageBox.warning(self, "입력 오류", "이름을 입력하십시오.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("이름을 입력하십시오."))
             return
 
         err = _validate_name(name)
         if err:
-            QMessageBox.warning(self, "이름 오류", err)
+            QMessageBox.warning(self, tr("이름 오류"), err)
             return
 
         monomer_type = self._current_type()
@@ -504,7 +542,7 @@ class MonomerPanel(QGroupBox):
         max_val = self._max_spin.value()
 
         if min_val > max_val:
-            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("최소값이 최대값보다 큽니다."))
             return
 
         is_block = bool(item.data(_COL_NAME, _ROLE_IS_BLOCK))
@@ -525,16 +563,16 @@ class MonomerPanel(QGroupBox):
             # 하위 성분 수정
             formula_text = self._formula_edit.text().strip()
             if not formula_text:
-                QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
+                QMessageBox.warning(self, tr("입력 오류"), tr("분자식 또는 정밀질량을 입력하십시오."))
                 return
             try:
                 formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
-                QMessageBox.warning(self, "분자식 오류", str(exc))
+                QMessageBox.warning(self, tr("분자식 오류"), str(exc))
                 return
 
             item.setText(_COL_NAME,    f"  {name}")
-            item.setText(_COL_TYPE,    monomer_type.value)
+            self._set_item_type(item, monomer_type)
             item.setText(_COL_FORMULA, formula)
             item.setText(_COL_MASS,    f"{exact_mass:.4f}")
             item.setText(_COL_MIN,     str(min_val))
@@ -558,16 +596,16 @@ class MonomerPanel(QGroupBox):
             # 일반 최상위 모노머 수정
             formula_text = self._formula_edit.text().strip()
             if not formula_text:
-                QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
+                QMessageBox.warning(self, tr("입력 오류"), tr("분자식 또는 정밀질량을 입력하십시오."))
                 return
             try:
                 formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
-                QMessageBox.warning(self, "분자식 오류", str(exc))
+                QMessageBox.warning(self, tr("분자식 오류"), str(exc))
                 return
 
             item.setText(_COL_NAME,    name)
-            item.setText(_COL_TYPE,    monomer_type.value)
+            self._set_item_type(item, monomer_type)
             item.setText(_COL_FORMULA, formula)
             item.setText(_COL_MASS,    f"{exact_mass:.4f}")
             item.setText(_COL_MIN,     str(min_val))
@@ -596,7 +634,7 @@ class MonomerPanel(QGroupBox):
     def _add_item(self) -> None:
         name = self._name_edit.text().strip()
         if not name:
-            QMessageBox.warning(self, "입력 오류", "이름을 입력하십시오.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("이름을 입력하십시오."))
             return
 
         current = self._tree.currentItem()
@@ -623,7 +661,7 @@ class MonomerPanel(QGroupBox):
         name = _sanitize_name(name)  # - → _ 재확인
         err = _validate_name(name)
         if err:
-            QMessageBox.warning(self, "이름 오류", err)
+            QMessageBox.warning(self, tr("이름 오류"), err)
             return
 
         formula_text = self._formula_edit.text().strip()
@@ -631,7 +669,7 @@ class MonomerPanel(QGroupBox):
         max_count = self._max_spin.value()
 
         if min_count > max_count:
-            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("최소값이 최대값보다 큽니다."))
             return
 
         if monomer_type == MonomerType.BLOCK:
@@ -646,12 +684,12 @@ class MonomerPanel(QGroupBox):
             )
         else:
             if not formula_text:
-                QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
+                QMessageBox.warning(self, tr("입력 오류"), tr("분자식 또는 정밀질량을 입력하십시오."))
                 return
             try:
                 formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
             except Exception as exc:
-                QMessageBox.warning(self, "입력 오류", str(exc))
+                QMessageBox.warning(self, tr("입력 오류"), str(exc))
                 return
 
             monomer = Monomer(
@@ -666,7 +704,7 @@ class MonomerPanel(QGroupBox):
 
         errors = monomer.validate()
         if errors and monomer_type != MonomerType.BLOCK:
-            QMessageBox.warning(self, "입력 오류", "\n".join(errors))
+            QMessageBox.warning(self, tr("입력 오류"), "\n".join(errors))
             return
 
         tree_item = self._make_top_level_item(monomer)
@@ -686,7 +724,7 @@ class MonomerPanel(QGroupBox):
         name = _sanitize_name(name)  # - → _ 재확인
         err = _validate_name(name)
         if err:
-            QMessageBox.warning(self, "이름 오류", err)
+            QMessageBox.warning(self, tr("이름 오류"), err)
             return
 
         formula_text = self._formula_edit.text().strip()
@@ -694,16 +732,16 @@ class MonomerPanel(QGroupBox):
         count_max = self._max_spin.value()
 
         if not formula_text:
-            QMessageBox.warning(self, "입력 오류", "분자식 또는 정밀질량을 입력하십시오.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("분자식 또는 정밀질량을 입력하십시오."))
             return
         if count_min > count_max:
-            QMessageBox.warning(self, "입력 오류", "최소값이 최대값보다 큽니다.")
+            QMessageBox.warning(self, tr("입력 오류"), tr("최소값이 최대값보다 큽니다."))
             return
 
         try:
             formula, exact_mass, avg_mass = parse_formula_or_mass(formula_text, self._calc)
         except Exception as exc:
-            QMessageBox.warning(self, "분자식 오류", str(exc))
+            QMessageBox.warning(self, tr("분자식 오류"), str(exc))
             return
 
         sub_item = BlockSubItem(
@@ -718,7 +756,7 @@ class MonomerPanel(QGroupBox):
 
         sub_errors = sub_item.validate()
         if sub_errors:
-            QMessageBox.warning(self, "입력 오류", "\n".join(sub_errors))
+            QMessageBox.warning(self, tr("입력 오류"), "\n".join(sub_errors))
             return
 
         child = self._make_sub_item(sub_item)
@@ -737,9 +775,9 @@ class MonomerPanel(QGroupBox):
         item = QTreeWidgetItem()
         is_block = monomer.monomer_type == MonomerType.BLOCK
 
-        mass_str = f"{monomer.effective_mass():.4f}" if not is_block else "→ 하위에서 계산"
+        mass_str = f"{monomer.effective_mass():.4f}" if not is_block else tr("→ 하위에서 계산")
         item.setText(_COL_NAME,    monomer.name)
-        item.setText(_COL_TYPE,    monomer.monomer_type.value)
+        self._set_item_type(item, monomer.monomer_type)
         item.setText(_COL_FORMULA, monomer.formula if not is_block else "")
         item.setText(_COL_MASS,    mass_str)
         item.setText(_COL_MIN,     str(monomer.min_count))
@@ -765,7 +803,7 @@ class MonomerPanel(QGroupBox):
     def _make_sub_item(self, sub: BlockSubItem) -> QTreeWidgetItem:
         item = QTreeWidgetItem()
         item.setText(_COL_NAME,    f"  {sub.name}")
-        item.setText(_COL_TYPE,    sub.sub_type.value)
+        self._set_item_type(item, sub.sub_type)
         item.setText(_COL_FORMULA, sub.formula_or_mass)
         item.setText(_COL_MASS,    f"{sub.exact_mass:.4f}")
         item.setText(_COL_MIN,     str(sub.count_min))
@@ -780,6 +818,17 @@ class MonomerPanel(QGroupBox):
 
         return item
 
+    @staticmethod
+    def _set_item_type(item: QTreeWidgetItem, t: MonomerType) -> None:
+        """유형: 표시 글자(번역)와 데이터(MonomerType)를 함께 설정."""
+        item.setText(_COL_TYPE, type_label(t))
+        item.setData(_COL_NAME, _ROLE_TYPE, t)
+
+    @staticmethod
+    def _item_type(item: QTreeWidgetItem) -> MonomerType:
+        t = item.data(_COL_NAME, _ROLE_TYPE)
+        return t if isinstance(t, MonomerType) else MonomerType(item.text(_COL_TYPE).strip())
+
     def _refresh_block_mass(self, block_item: QTreeWidgetItem) -> None:
         total = 0.0
         for i in range(block_item.childCount()):
@@ -788,7 +837,7 @@ class MonomerPanel(QGroupBox):
             if isinstance(sub, BlockSubItem):
                 total += sub.mass_contribution_avg
 
-        block_item.setText(_COL_MASS, f"{total:.4f} Da (블록)")
+        block_item.setText(_COL_MASS, tr("{m:.4f} Da (블록)", m=total))
 
         monomer = block_item.data(_COL_NAME, _ROLE_DATA)
         if isinstance(monomer, Monomer):
@@ -810,8 +859,8 @@ class MonomerPanel(QGroupBox):
 
         name = item.text(_COL_NAME).strip()
         reply = QMessageBox.question(
-            self, "삭제 확인",
-            f"'{name}' 항목을 삭제하시겠습니까?",
+            self, tr("삭제 확인"),
+            tr("'{name}' 항목을 삭제하시겠습니까?", name=name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )
@@ -835,7 +884,7 @@ class MonomerPanel(QGroupBox):
     def _clear_inputs(self) -> None:
         self._name_edit.clear()
         self._formula_edit.clear()
-        self._mass_preview.setText("질량: -")
+        self._mass_preview.setText(tr("질량: -"))
         self._mass_preview.setStyleSheet("")
         self._min_spin.setValue(0)
         self._max_spin.setValue(100)
@@ -901,7 +950,7 @@ class MonomerPanel(QGroupBox):
     def _extract_monomer(self, item: QTreeWidgetItem) -> Monomer | None:
         try:
             name = item.text(_COL_NAME).strip()
-            monomer_type = MonomerType(item.text(_COL_TYPE).strip())
+            monomer_type = self._item_type(item)
             formula = item.text(_COL_FORMULA).strip()
             min_count = int(item.text(_COL_MIN))
             max_count = int(item.text(_COL_MAX))
@@ -936,7 +985,7 @@ class MonomerPanel(QGroupBox):
     def _extract_sub_item(self, item: QTreeWidgetItem) -> BlockSubItem | None:
         try:
             name = item.text(_COL_NAME).strip()
-            sub_type = MonomerType(item.text(_COL_TYPE).strip())
+            sub_type = self._item_type(item)
             formula = item.text(_COL_FORMULA).strip()
             exact_mass, average_mass = self._stored_masses(item)
             count_min = int(item.text(_COL_MIN))

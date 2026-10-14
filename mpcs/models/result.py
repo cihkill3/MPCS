@@ -5,6 +5,7 @@ Models Layer: Peak Data, SEC Data, Result
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 
 
@@ -57,13 +58,12 @@ class PeakData:
 
         if len(self.mz_values) != len(self.intensities):
             errors.append(
-                f"m/z 수({len(self.mz_values)})와 "
-                f"강도 수({len(self.intensities)})가 일치하지 않습니다"
+                tr('m/z 수({v})와 강도 수({v2})가 일치하지 않습니다', v=len(self.mz_values), v2=len(self.intensities))
             )
 
         for i, mz in enumerate(self.mz_values):
             if mz <= 0.0:
-                errors.append(f"피크 {i+1}: m/z 값이 0 이하입니다 ({mz})")
+                errors.append(tr('피크 {v}: m/z 값이 0 이하입니다 ({mz})', v=i+1, mz=mz))
 
         return errors
 
@@ -110,19 +110,18 @@ class SECData:
         errors: list[str] = []
 
         if self.mn <= 0.0:
-            errors.append(f"Mn이 0 이하입니다: {self.mn}")
+            errors.append(tr('Mn이 0 이하입니다: {mn}', mn=self.mn))
         if self.mw <= 0.0:
-            errors.append(f"Mw가 0 이하입니다: {self.mw}")
+            errors.append(tr('Mw가 0 이하입니다: {mw}', mw=self.mw))
         if self.mn > self.mw:
-            errors.append(f"Mn({self.mn})이 Mw({self.mw})보다 큽니다")
+            errors.append(tr('Mn({mn})이 Mw({mw})보다 큽니다', mn=self.mn, mw=self.mw))
         if self.pdi < 1.0:
-            errors.append(f"PDI가 1.0 미만입니다: {self.pdi}")
+            errors.append(tr('PDI가 1.0 미만입니다: {pdi}', pdi=self.pdi))
 
         # PDI 일관성 검사 (허용 오차 1%)
         if self.mn > 0 and abs(self.pdi - self.mw / self.mn) > 0.01:
             errors.append(
-                f"PDI({self.pdi:.4f})가 Mw/Mn({self.mw/self.mn:.4f})과 "
-                f"일치하지 않습니다 (허용오차 1%)"
+                tr('PDI({pdi:.4f})가 Mw/Mn({v:.4f})과 일치하지 않습니다 (허용오차 1%)', pdi=self.pdi, v=self.mw/self.mn)
             )
 
         return errors

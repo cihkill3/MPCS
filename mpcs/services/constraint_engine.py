@@ -37,6 +37,7 @@ SRS §8 Constraint Module:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import re
 from dataclasses import dataclass, field
 from typing import Callable, Iterator
@@ -58,7 +59,7 @@ class ConstraintParseError(ValueError):
     def __init__(self, expression: str, reason: str) -> None:
         self.expression = expression
         self.reason = reason
-        super().__init__(f"제약식 파싱 오류 '{expression}': {reason}")
+        super().__init__(tr("제약식 파싱 오류 '{expression}': {reason}", expression=expression, reason=reason))
 
 
 class ConstraintEvalError(RuntimeError):
@@ -67,7 +68,7 @@ class ConstraintEvalError(RuntimeError):
     def __init__(self, expression: str, reason: str) -> None:
         self.expression = expression
         self.reason = reason
-        super().__init__(f"제약식 평가 오류 '{expression}': {reason}")
+        super().__init__(tr("제약식 평가 오류 '{expression}': {reason}", expression=expression, reason=reason))
 
 
 class CircularDependencyError(ConstraintParseError):
@@ -76,8 +77,8 @@ class CircularDependencyError(ConstraintParseError):
     def __init__(self, cycle: list[str]) -> None:
         self.cycle = cycle
         super().__init__(
-            "순환 참조",
-            f"제약식 간 순환 의존성 발견: {' → '.join(cycle)}"
+            tr("순환 참조"),
+            tr('제약식 간 순환 의존성 발견: {v}', v=' → '.join(cycle))
         )
 
 
@@ -158,8 +159,7 @@ def _substitute_mw_tokens(expr: str, mass_map: dict[str, float]) -> str:
         if name not in mass_map:
             raise ConstraintParseError(
                 expr,
-                f"'{name}.mw'에서 '{name}'은 정의되지 않은 성분입니다. "
-                f"사용 가능한 성분: {', '.join(sorted(mass_map.keys()))}"
+                tr("'{name}.mw'에서 '{name}'은 정의되지 않은 성분입니다. 사용 가능한 성분: {v}", name=name, v=', '.join(sorted(mass_map.keys())))
             )
         return repr(mass_map[name])   # float → 정밀한 문자열 표현
 
@@ -222,7 +222,7 @@ def _split_comparison(expression: str) -> tuple[str, str, str]:
 
     raise ConstraintParseError(
         expression,
-        f"비교 연산자({', '.join(_COMPARISON_OPS_ORDERED)})가 없습니다"
+        tr('비교 연산자({v})가 없습니다', v=', '.join(_COMPARISON_OPS_ORDERED))
     )
 
 
@@ -388,7 +388,7 @@ class ConstraintEngine:
         except Exception as exc:
             raise ConstraintEvalError(
                 parsed.original,
-                f"우변 계산 실패: {exc}"
+                tr('우변 계산 실패: {exc}', exc=exc)
             ) from exc
 
         # Q3: 비정수 결과는 None 반환
@@ -426,7 +426,7 @@ class ConstraintEngine:
         except Exception as exc:
             raise ConstraintEvalError(
                 parsed.original,
-                f"수식 평가 실패: {exc}"
+                tr('수식 평가 실패: {exc}', exc=exc)
             ) from exc
 
         op = parsed.comparison
@@ -441,7 +441,7 @@ class ConstraintEngine:
         elif op == ">=":
             return lhs_val >= rhs_val
         else:
-            raise ConstraintEvalError(parsed.original, f"알 수 없는 연산자: {op}")
+            raise ConstraintEvalError(parsed.original, tr('알 수 없는 연산자: {op}', op=op))
 
     def validate_expression(
         self,
@@ -482,7 +482,7 @@ class ConstraintEngine:
             mass_map = {}
         expr = expression.strip()
         if not expr:
-            raise ConstraintParseError(expression, "빈 제약식")
+            raise ConstraintParseError(expression, tr("빈 제약식"))
 
         # 비교 연산자 분리 (name.mw 치환 전에 수행)
         try:
@@ -506,7 +506,7 @@ class ConstraintEngine:
             rhs_sympy = sympify(rhs_str, locals=local_dict, evaluate=True)
         except Exception as exc:
             raise ConstraintParseError(
-                expression, f"SymPy 파싱 실패: {exc}"
+                expression, tr('SymPy 파싱 실패: {exc}', exc=exc)
             ) from exc
 
         # 미지 변수 검사 (monomer_names에 없는 변수 사용 금지)
@@ -516,9 +516,7 @@ class ConstraintEngine:
         if unknown:
             raise ConstraintParseError(
                 expression,
-                f"정의되지 않은 변수: {', '.join(sorted(unknown))}. "
-                f"사용 가능한 변수: {', '.join(monomer_names)}\n"
-                f"💡 정밀질량 참조는 '이름.mw' 형식을 사용하세요 (예: EO.mw)"
+                tr("정의되지 않은 변수: {v}. 사용 가능한 변수: {v2}\n💡 정밀질량 참조는 '이름.mw' 형식을 사용하세요 (예: EO.mw)", v=', '.join(sorted(unknown)), v2=', '.join(monomer_names))
             )
 
         # 등식 좌변 단일 변수 판별
@@ -583,7 +581,7 @@ class ConstraintEngine:
 
         cycle_names = []
         for idx in path:
-            var = parsed[idx].equality_lhs or f"식[{idx}]"
+            var = parsed[idx].equality_lhs or tr('식[{idx}]', idx=idx)
             cycle_names.append(var)
         if cycle_names:
             cycle_names.append(cycle_names[0])  # 사이클 완성

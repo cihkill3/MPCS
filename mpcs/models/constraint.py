@@ -12,6 +12,7 @@ SRS §8 Constraint Module:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 
 
@@ -48,7 +49,7 @@ class Constraint:
         errors: list[str] = []
 
         if not self.expression or not self.expression.strip():
-            errors.append("제약식이 비어 있습니다")
+            errors.append(tr("제약식이 비어 있습니다"))
             return errors
 
         expr = self.expression.strip()
@@ -58,7 +59,7 @@ class Constraint:
         has_comparison = any(op in expr for op in _COMPARISON_OPS)
         if not has_comparison:
             errors.append(
-                f"제약식에 비교 연산자(= < <= > >=)가 없습니다: '{expr}'"
+                tr("제약식에 비교 연산자(= < <= > >=)가 없습니다: '{expr}'", expr=expr)
             )
 
         # 괄호 균형 검사
@@ -69,13 +70,13 @@ class Constraint:
             elif ch == ")":
                 depth -= 1
             if depth < 0:
-                errors.append("괄호가 올바르게 닫히지 않았습니다 (닫힘이 먼저)")
+                errors.append(tr("괄호가 올바르게 닫히지 않았습니다 (닫힘이 먼저)"))
                 break
         if depth != 0:
-            errors.append(f"괄호 불균형: 열림 {depth}개 초과")
+            errors.append(tr('괄호 불균형: 열림 {depth}개 초과', depth=depth))
 
         return errors
 
     def __str__(self) -> str:
-        status = "활성" if self.is_active else "비활성"
+        status = tr("활성") if self.is_active else tr("비활성")
         return f"[{status}] {self.expression}"

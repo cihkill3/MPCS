@@ -9,15 +9,16 @@ Q12: 처음 실행할 때 기존 프로젝트를 열 수 있도록 표시.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 # 최근 프로젝트 최대 저장 수
 MAX_RECENT_PROJECTS: Final[int] = 10
 
-# 설정 저장 위치: 사용자 홈 디렉토리의 .mpcs 폴더
-_CONFIG_DIR: Path = Path.home() / ".mpcs"
-_RECENT_FILE: Path = _CONFIG_DIR / "recent_projects.json"
+# 설정 저장 위치: 사용자 홈 디렉토리의 .mpcs 폴더 (테스트는 MPCS_CONFIG_DIR로 바꾼다)
+def _config_dir() -> Path:
+    return Path(os.environ.get("MPCS_CONFIG_DIR") or (Path.home() / ".mpcs"))
 
 
 class RecentProjectsManager:
@@ -34,7 +35,8 @@ class RecentProjectsManager:
     """
 
     def __init__(self) -> None:
-        _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+        self._file = _config_dir() / "recent_projects.json"
+        self._file.parent.mkdir(parents=True, exist_ok=True)
         self._recent: list[str] = self._load()
 
     def add(self, filepath: str | Path) -> None:
@@ -78,10 +80,10 @@ class RecentProjectsManager:
 
     def _load(self) -> list[str]:
         """JSON 파일에서 최근 목록을 로드한다."""
-        if not _RECENT_FILE.exists():
+        if not self._file.exists():
             return []
         try:
-            data = json.loads(_RECENT_FILE.read_text(encoding="utf-8"))
+            data = json.loads(self._file.read_text(encoding="utf-8"))
             return data if isinstance(data, list) else []
         except Exception:
             return []
@@ -89,7 +91,7 @@ class RecentProjectsManager:
     def _save(self) -> None:
         """최근 목록을 JSON 파일에 저장한다."""
         try:
-            _RECENT_FILE.write_text(
+            self._file.write_text(
                 json.dumps(self._recent, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
@@ -97,22 +99,21 @@ class RecentProjectsManager:
             pass  # 설정 저장 실패는 앱 동작에 영향 없음
 
 
-# 전역 설정 저장 파일
-_APP_CONFIG_FILE: Path = _CONFIG_DIR / "app_config.json"
 
 class AppConfigManager:
     """
     다국어(Language) 및 UI 테마 등의 전역 애플리케이션 설정을 관리합니다.
     """
     def __init__(self) -> None:
-        _CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        self.config: dict[str, str] = self._load()
+        self._file = _config_dir() / "app_config.json"
+        self._file.parent.mkdir(parents=True, exist_ok=True)
+        self.config: dict[str, Any] = self._load()
 
-    def _load(self) -> dict[str, str]:
-        if not _APP_CONFIG_FILE.exists():
+    def _load(self) -> dict[str, Any]:
+        if not self._file.exists():
             return {"language": "ko"}
         try:
-            data = json.loads(_APP_CONFIG_FILE.read_text(encoding="utf-8"))
+            data = json.loads(self._file.read_text(encoding="utf-8"))
             if isinstance(data, dict):
                 return data
             return {"language": "ko"}
@@ -121,7 +122,7 @@ class AppConfigManager:
 
     def _save(self) -> None:
         try:
-            _APP_CONFIG_FILE.write_text(
+            self._file.write_text(
                 json.dumps(self.config, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
@@ -133,4 +134,12 @@ class AppConfigManager:
 
     def set_language(self, lang: str) -> None:
         self.config["language"] = lang
+        self._save()
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """임의 설정값 (창 크기, 패널 접힘 등)."""
+        return self.config.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        self.config[key] = value
         self._save()

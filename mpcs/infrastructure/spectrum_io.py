@@ -14,6 +14,7 @@ mzXML 2.x / 3.x 판독기 (외부 의존성 없음: xml.etree + base64 + zlib).
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import base64
 import re
 import xml.etree.ElementTree as ET
@@ -25,14 +26,13 @@ import numpy as np
 from mpcs.infrastructure.file_io import FileImportError
 from mpcs.models.spectrum import Spectrum, SpectrumFile
 
-SPECTRUM_FILE_FILTER = "mzXML (*.mzXML *.mzxml);;텍스트 스펙트럼 (*.txt *.csv *.xy);;모든 파일 (*.*)"
 
 
 def read_spectrum_file(path: str | Path) -> SpectrumFile:
     """확장자에 따라 mzXML 또는 2열 텍스트 스펙트럼을 읽는다."""
     p = Path(path)
     if not p.exists():
-        raise FileImportError(str(p), "파일이 존재하지 않습니다")
+        raise FileImportError(str(p), tr("파일이 존재하지 않습니다"))
     try:
         if p.suffix.lower() == ".mzxml":
             return read_mzxml(p)
@@ -65,7 +65,7 @@ def read_mzxml(path: str | Path) -> SpectrumFile:
         if peaks_el is not None:
             peaks_el.text = None
     if not scans:
-        raise FileImportError(str(p), "mzXML에서 scan을 찾을 수 없습니다")
+        raise FileImportError(str(p), tr("mzXML에서 scan을 찾을 수 없습니다"))
     scans.sort(key=lambda s: (s.scan_num is None, s.scan_num or 0))
     return SpectrumFile(path=str(p), scans=scans)
 
@@ -99,7 +99,7 @@ def _decode_peaks(el, peaks_count: int) -> tuple[np.ndarray, np.ndarray]:
     data = np.frombuffer(raw, dtype=f"{order}f{precision // 8}").astype(float)
     pair = (el.get("contentType") or el.get("pairOrder") or "m/z-int").lower()
     if data.size % 2:
-        raise ValueError("peaks 데이터 길이가 홀수입니다")
+        raise ValueError(tr("peaks 데이터 길이가 홀수입니다"))
     pairs = data.reshape(-1, 2)
     if pair.startswith("int"):
         return pairs[:, 1].copy(), pairs[:, 0].copy()
@@ -117,7 +117,7 @@ def read_text_spectrum(path: str | Path) -> SpectrumFile:
         except UnicodeDecodeError:
             continue
     if content is None:
-        raise FileImportError(str(p), "파일 인코딩을 인식할 수 없습니다")
+        raise FileImportError(str(p), tr("파일 인코딩을 인식할 수 없습니다"))
     mz, it = [], []
     for line in content.splitlines():
         line = line.strip()
@@ -135,7 +135,7 @@ def read_text_spectrum(path: str | Path) -> SpectrumFile:
         except ValueError:
             continue
     if not mz:
-        raise FileImportError(str(p), "숫자 데이터(m/z, intensity)를 찾을 수 없습니다")
+        raise FileImportError(str(p), tr("숫자 데이터(m/z, intensity)를 찾을 수 없습니다"))
     return SpectrumFile(path=str(p), scans=[Spectrum(np.array(mz), np.array(it))])
 
 

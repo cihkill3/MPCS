@@ -1,45 +1,2458 @@
 {
-  "파일(&F)": {"en": "File(&F)"},
-  "새 프로젝트(&N)": {"en": "New Project(&N)"},
-  "프로젝트 열기(&O)...": {"en": "Open Project(&O)..."},
-  "저장(&S)": {"en": "Save(&S)"},
-  "다른 이름으로 저장(&A)...": {"en": "Save As(&A)..."},
-  "종료(&X)": {"en": "Exit(&X)"},
-  "설정(&O)": {"en": "Settings(&O)"},
-  "언어(&L) / Language": {"en": "Language(&L)"},
-  "한국어": {"en": "Korean"},
-  "English": {"en": "English"},
-  "도움말(&H)": {"en": "Help(&H)"},
-  "정보(&A)...": {"en": "About(&A)..."},
-  "이용 안내(&G) / User Guide": {"en": "User Guide(&G)"},
-  "모노머 탭에서 가져오기": {"en": "Import from Monomer Tab"},
-  "대상 종류:": {"en": "Target Type:"},
-  "계산 설정": {"en": "Calculation Settings"},
-  "전환율 p (0 < p ≤ 1):": {"en": "Conversion p (0 < p ≤ 1):"},
-  "▶ 계산": {"en": "▶ Calculate"},
-  "계산 결과": {"en": "Calculation Results"},
-  "📋 최소값/최대값에 반영...": {"en": "📋 Apply to Min/Max..."},
-  "이론 m/z (Da)": {"en": "Calc. m/z (Da)"},
-  "관측 m/z (Da)": {"en": "Obs. m/z (Da)"},
-  "오차 (Da)": {"en": "Error (Da)"},
-  "동위원소 오프셋": {"en": "Isotope Offset"},
-  "어덕트": {"en": "Adduct"},
-  "순위": {"en": "Rank"},
-  "분자식": {"en": "Formula"},
-  "결과": {"en": "Results"},
-  "모노머 정의": {"en": "Monomers"},
-  "중합 계산기": {"en": "Polymer Calculator"},
-  "제약식 (Constraints)": {"en": "Constraints"},
-  "말단기 (End Group)": {"en": "End Group"},
-  "어덕트 이온 (Adducts)": {"en": "Adducts"},
-  "MALDI MS 입력": {"en": "MALDI MS Input"},
-  "모노머 추가": {"en": "Add Monomer"},
-  "삭제": {"en": "Delete"},
-  "이름": {"en": "Name"},
-  "화학식": {"en": "Formula"},
-  "유형": {"en": "Type"},
-  "질량": {"en": "Mass"},
-  "평균 질량": {"en": "Average Mass"},
-  "최소값": {"en": "Min:"},
-  "최대값": {"en": "Max:"}
+    "파일(&F)": {
+        "en": "File(&F)"
+    },
+    "새 프로젝트(&N)": {
+        "en": "New Project(&N)"
+    },
+    "프로젝트 열기(&O)...": {
+        "en": "Open Project(&O)..."
+    },
+    "저장(&S)": {
+        "en": "Save(&S)"
+    },
+    "다른 이름으로 저장(&A)...": {
+        "en": "Save As(&A)..."
+    },
+    "종료(&X)": {
+        "en": "Exit(&X)"
+    },
+    "설정(&O)": {
+        "en": "Settings(&O)"
+    },
+    "언어(&L) / Language": {
+        "en": "Language(&L)"
+    },
+    "한국어": {
+        "en": "Korean"
+    },
+    "English": {
+        "en": "English"
+    },
+    "도움말(&H)": {
+        "en": "Help(&H)"
+    },
+    "정보(&A)...": {
+        "en": "About(&A)..."
+    },
+    "이용 안내(&G) / User Guide": {
+        "en": "User Guide(&G)"
+    },
+    "모노머 탭에서 가져오기": {
+        "en": "Import from Monomer Tab"
+    },
+    "대상 종류:": {
+        "en": "Target Type:"
+    },
+    "계산 설정": {
+        "en": "Calculation Settings"
+    },
+    "전환율 p (0 < p ≤ 1):": {
+        "en": "Conversion p (0 < p ≤ 1):"
+    },
+    "▶ 계산": {
+        "en": "▶ Calculate"
+    },
+    "계산 결과": {
+        "en": "Calculation Results"
+    },
+    "📋 최소값/최대값에 반영...": {
+        "en": "📋 Apply to Min/Max..."
+    },
+    "이론 m/z (Da)": {
+        "en": "Calc. m/z (Da)"
+    },
+    "관측 m/z (Da)": {
+        "en": "Obs. m/z (Da)"
+    },
+    "오차 (Da)": {
+        "en": "Error (Da)"
+    },
+    "동위원소 오프셋": {
+        "en": "Isotope Offset"
+    },
+    "어덕트": {
+        "en": "Adduct"
+    },
+    "순위": {
+        "en": "Rank"
+    },
+    "분자식": {
+        "en": "Formula"
+    },
+    "결과": {
+        "en": "Results"
+    },
+    "모노머 정의": {
+        "en": "Monomers"
+    },
+    "중합 계산기": {
+        "en": "Polymer Calculator"
+    },
+    "제약식 (Constraints)": {
+        "en": "Constraints"
+    },
+    "말단기 (End Group)": {
+        "en": "End Group"
+    },
+    "어덕트 이온 (Adducts)": {
+        "en": "Adducts"
+    },
+    "MALDI MS 입력": {
+        "en": "MALDI MS Input"
+    },
+    "모노머 추가": {
+        "en": "Add Monomer"
+    },
+    "삭제": {
+        "en": "Delete"
+    },
+    "이름": {
+        "en": "Name"
+    },
+    "화학식": {
+        "en": "Formula"
+    },
+    "유형": {
+        "en": "Type"
+    },
+    "질량": {
+        "en": "Mass"
+    },
+    "평균 질량": {
+        "ko": "평균 질량",
+        "en": "average mass"
+    },
+    "최소값": {
+        "ko": "최소값",
+        "en": "Min"
+    },
+    "최대값": {
+        "ko": "최대값",
+        "en": "Max"
+    },
+    "빈 문자열은 허용되지 않습니다": {
+        "ko": "빈 문자열은 허용되지 않습니다",
+        "en": "Empty string is not allowed"
+    },
+    "괄호가 닫히지 않았습니다": {
+        "ko": "괄호가 닫히지 않았습니다",
+        "en": "Unclosed parenthesis"
+    },
+    "위치 {pos}: 예상치 못한 문자 {ch}": {
+        "ko": "위치 {pos}: 예상치 못한 문자 {ch}",
+        "en": "Position {pos}: unexpected character {ch}"
+    },
+    "분자식이 비어 있습니다": {
+        "ko": "분자식이 비어 있습니다",
+        "en": "The formula is empty"
+    },
+    "명령 막대": {
+        "ko": "명령 막대",
+        "en": "Command bar"
+    },
+    "화면 언어": {
+        "ko": "화면 언어",
+        "en": "Display language"
+    },
+    "새 프로젝트": {
+        "ko": "새 프로젝트",
+        "en": "New Project"
+    },
+    "프로젝트 열기...": {
+        "ko": "프로젝트 열기...",
+        "en": "Open Project..."
+    },
+    "저장": {
+        "ko": "저장",
+        "en": "Save"
+    },
+    "다른 이름으로 저장...": {
+        "ko": "다른 이름으로 저장...",
+        "en": "Save As..."
+    },
+    "종료": {
+        "ko": "종료",
+        "en": "Exit"
+    },
+    "스펙트럼 열기...": {
+        "ko": "스펙트럼 열기...",
+        "en": "Open Spectrum..."
+    },
+    "중단": {
+        "ko": "중단",
+        "en": "Stop"
+    },
+    "입력 패널": {
+        "ko": "입력 패널",
+        "en": "Input panel"
+    },
+    "파일": {
+        "ko": "파일",
+        "en": "File"
+    },
+    "내보내기": {
+        "ko": "내보내기",
+        "en": "Export"
+    },
+    "분석": {
+        "ko": "분석",
+        "en": "Analysis"
+    },
+    "도움말": {
+        "ko": "도움말",
+        "en": "Help"
+    },
+    "스펙트럼": {
+        "ko": "스펙트럼",
+        "en": "Spectrum"
+    },
+    "메시지": {
+        "ko": "메시지",
+        "en": "Messages"
+    },
+    "프로젝트 열기": {
+        "ko": "프로젝트 열기",
+        "en": "Open Project"
+    },
+    "데이터/설정": {
+        "ko": "데이터/설정",
+        "en": "Data/Settings"
+    },
+    "모든 파일": {
+        "ko": "모든 파일",
+        "en": "All files"
+    },
+    "스펙트럼 열기": {
+        "ko": "스펙트럼 열기",
+        "en": "Open spectrum"
+    },
+    "저장 실패": {
+        "ko": "저장 실패",
+        "en": "Save failed"
+    },
+    "입력 패널 펼치기": {
+        "ko": "입력 패널 펼치기",
+        "en": "Expand input panel"
+    },
+    "합산할 스캔이 없습니다": {
+        "ko": "합산할 스캔이 없습니다",
+        "en": "No scans to sum"
+    },
+    "상대 강도 (%)": {
+        "ko": "상대 강도 (%)",
+        "en": "Relative intensity (%)"
+    },
+    "동위원소 패턴": {
+        "ko": "동위원소 패턴",
+        "en": "Isotope pattern"
+    },
+    "말단기": {
+        "ko": "말단기",
+        "en": "End group"
+    },
+    "종류": {
+        "ko": "종류",
+        "en": "Type"
+    },
+    "스펙트럼 파일": {
+        "ko": "스펙트럼 파일",
+        "en": "Spectrum file"
+    },
+    "닫기": {
+        "ko": "닫기",
+        "en": "Close"
+    },
+    "강도": {
+        "ko": "강도",
+        "en": "Intensity"
+    },
+    "점수": {
+        "ko": "점수",
+        "en": "Score"
+    },
+    "내보내기 완료": {
+        "ko": "내보내기 완료",
+        "en": "Export finished"
+    },
+    "결과 내보내기": {
+        "ko": "결과 내보내기",
+        "en": "Export Results"
+    },
+    "프로젝트를 불러올 수 없습니다:\n{e}\n\n새 프로젝트로 시작합니다.": {
+        "ko": "프로젝트를 불러올 수 없습니다:\n{e}\n\n새 프로젝트로 시작합니다.",
+        "en": "Cannot load the project:\n{e}\n\nStarting a new project."
+    },
+    "동위원소 데이터 없음: '{element}'": {
+        "ko": "동위원소 데이터 없음: '{element}'",
+        "en": "No isotope data: '{element}'"
+    },
+    "지원하지 않는 원소: '{element}'. 지원 원소 목록: {supported}": {
+        "ko": "지원하지 않는 원소: '{element}'. 지원 원소 목록: {supported}",
+        "en": "Unsupported element: '{element}'. Supported elements: {supported}"
+    },
+    "지원하지 않는 원소입니다: {element}": {
+        "ko": "지원하지 않는 원소입니다: {element}",
+        "en": "Unsupported element: {element}"
+    },
+    "분자식 파싱 오류 '{formula}': {reason}": {
+        "ko": "분자식 파싱 오류 '{formula}': {reason}",
+        "en": "Formula parse error '{formula}': {reason}"
+    },
+    "지원하지 않는 원소 '{element}'. 지원 원소: {supported}": {
+        "ko": "지원하지 않는 원소 '{element}'. 지원 원소: {supported}",
+        "en": "Unsupported element '{element}'. Supported elements: {supported}"
+    },
+    "파싱 실패: 위치 {remaining}부터 인식 불가 ({formula})": {
+        "ko": "파싱 실패: 위치 {remaining}부터 인식 불가 ({formula})",
+        "en": "Parse failed: unrecognized from position {remaining} ({formula})"
+    },
+    "파싱 중 예외 발생: {exc}": {
+        "ko": "파싱 중 예외 발생: {exc}",
+        "en": "Exception while parsing: {exc}"
+    },
+    "빈 분자식은 허용되지 않습니다": {
+        "ko": "빈 분자식은 허용되지 않습니다",
+        "en": "An empty formula is not allowed"
+    },
+    "원소 '{elem}'의 원자 수가 음수입니다: {count}": {
+        "ko": "원소 '{elem}'의 원자 수가 음수입니다: {count}",
+        "en": "Element '{elem}' has a negative atom count: {count}"
+    },
+    "원소가 없습니다": {
+        "ko": "원소가 없습니다",
+        "en": "No elements"
+    },
+    "유효한 원소를 찾을 수 없습니다": {
+        "ko": "유효한 원소를 찾을 수 없습니다",
+        "en": "No valid elements found"
+    },
+    "1단계: 모노머 등록": {
+        "ko": "1단계: 모노머 등록",
+        "en": "Step 1: Register monomers"
+    },
+    "2단계: 말단기·어덕트": {
+        "ko": "2단계: 말단기·어덕트",
+        "en": "Step 2: End group and adducts"
+    },
+    "3단계: 제약식 (선택)": {
+        "ko": "3단계: 제약식 (선택)",
+        "en": "Step 3: Constraints (optional)"
+    },
+    "4단계: 피크 입력": {
+        "ko": "4단계: 피크 입력",
+        "en": "Step 4: Enter peaks"
+    },
+    "5단계: 솔버 실행과 결과 해석": {
+        "ko": "5단계: 솔버 실행과 결과 해석",
+        "en": "Step 5: Run the solver and read the results"
+    },
+    "<code>HDI = PLA + SMA - 1</code> 처럼 '이름 = 식'이면 그 모노머 개수를 식으로 계산해 탐색을 크게 줄입니다.": {
+        "ko": "<code>HDI = PLA + SMA - 1</code> 처럼 '이름 = 식'이면 그 모노머 개수를 식으로 계산해 탐색을 크게 줄입니다.",
+        "en": "An equation of the form 'name = expression', such as <code>HDI = PLA + SMA - 1</code>, computes that monomer's count from the expression and greatly reduces the search."
+    },
+    "<code>LA &gt;= 10</code>, <code>EO * EO.mw &lt;= 3000</code> 처럼 범위를 제한할 수 있습니다.": {
+        "ko": "<code>LA &gt;= 10</code>, <code>EO * EO.mw &lt;= 3000</code> 처럼 범위를 제한할 수 있습니다.",
+        "en": "You can limit ranges, e.g. <code>LA &gt;= 10</code> or <code>EO * EO.mw &lt;= 3000</code>."
+    },
+    "Linear (동위원소 미분리):": {
+        "ko": "Linear (동위원소 미분리):",
+        "en": "Linear (isotopes not resolved):"
+    },
+    "MALDI Polymer Composition Solver (MPCS) 이용 안내": {
+        "ko": "MALDI Polymer Composition Solver (MPCS) 이용 안내",
+        "en": "MALDI Polymer Composition Solver (MPCS) User Guide"
+    },
+    "MPCS는 고분자 MALDI-TOF·LC-MS 피크의 질량으로부터 어떤 모노머가 몇 개 결합했는지(조성)를 계산하고, 주기적으로 나타나는 피크에서 반복 수가 연속되는 조성 계열을 찾아 가능성이 높은 조성을 알려줍니다.": {
+        "ko": "MPCS는 고분자 MALDI-TOF·LC-MS 피크의 질량으로부터 어떤 모노머가 몇 개 결합했는지(조성)를 계산하고, 주기적으로 나타나는 피크에서 반복 수가 연속되는 조성 계열을 찾아 가능성이 높은 조성을 알려줍니다.",
+        "en": "MPCS calculates which monomers, and how many of each, make up a polymer ion (its composition) from MALDI-TOF or LC-MS peak masses. It then finds composition families whose repeat counts run consecutively across periodic peaks and tells you which compositions are most likely."
+    },
+    "Reflectron / 고분해능 LC-MS:": {
+        "ko": "Reflectron / 고분해능 LC-MS:",
+        "en": "Reflectron / high-resolution LC-MS:"
+    },
+    "[내보내기] → 전체 결과는 피크 요약·전체 후보·조성 계열을 엑셀 시트로 저장합니다.": {
+        "ko": "[내보내기] → 전체 결과는 피크 요약·전체 후보·조성 계열을 엑셀 시트로 저장합니다.",
+        "en": "[Export] → All results saves the peak summary, all candidates and the composition families as Excel sheets."
+    },
+    "[데이터/설정] 탭에서 mzXML을 열고 측정 모드 프리셋(Reflectron·LC-MS / Linear)을 고른 뒤 [피크 검출]을 누릅니다. 프리셋은 질량 기준과 허용 오차도 맞춥니다.": {
+        "ko": "[데이터/설정] 탭에서 mzXML을 열고 측정 모드 프리셋(Reflectron·LC-MS / Linear)을 고른 뒤 [피크 검출]을 누릅니다. 프리셋은 질량 기준과 허용 오차도 맞춥니다.",
+        "en": "Open an mzXML file in the [Data/Settings] tab, choose a measurement-mode preset (Reflectron·LC-MS / Linear) and press [Detect peaks]. The preset also sets the mass basis and tolerance."
+    },
+    "[솔버 실행] (F5)을 누르면 목록의 모든 피크를 한 번에 계산합니다.": {
+        "ko": "[솔버 실행] (F5)을 누르면 목록의 모든 피크를 한 번에 계산합니다.",
+        "en": "Press [Run solver] (F5) to calculate all peaks in the list at once."
+    },
+    "같은 계열(한 모노머만 1개씩 늘고 나머지 조성·어덕트가 같은 후보)이 많은 피크를 연속으로, 작은 오차로 설명할수록 확률이 높습니다. 후보를 고르면 같은 계열 피크가 스펙트럼에 ▲와 반복 수로 표시됩니다.": {
+        "ko": "같은 계열(한 모노머만 1개씩 늘고 나머지 조성·어덕트가 같은 후보)이 많은 피크를 연속으로, 작은 오차로 설명할수록 확률이 높습니다. 후보를 고르면 같은 계열 피크가 스펙트럼에 ▲와 반복 수로 표시됩니다.",
+        "en": "The more peaks a family (candidates where only one monomer increases by one and the rest of the composition and the adduct are the same) explains consecutively and with small errors, the higher its probability. Selecting a candidate marks the peaks of the same family in the spectrum with ▲ and their repeat count."
+    },
+    "결과 (오른쪽):": {
+        "ko": "결과 (오른쪽):",
+        "en": "Results (right):"
+    },
+    "내보내기:": {
+        "ko": "내보내기:",
+        "en": "Export:"
+    },
+    "동위원소 패턴:": {
+        "ko": "동위원소 패턴:",
+        "en": "Isotope pattern:"
+    },
+    "등식:": {
+        "ko": "등식:",
+        "en": "Equations:"
+    },
+    "말단기:": {
+        "ko": "말단기:",
+        "en": "End group:"
+    },
+    "맨 위 한 줄. [파일·분석·도움말] 메뉴, 프로젝트 열기/저장, 스펙트럼 열기, [솔버 실행] (F5), 중단, 내보내기, 화면 언어(KO/EN).": {
+        "ko": "맨 위 한 줄. [파일·분석·도움말] 메뉴, 프로젝트 열기/저장, 스펙트럼 열기, [솔버 실행] (F5), 중단, 내보내기, 화면 언어(KO/EN).",
+        "en": "One row at the top: [File · Analysis · Help] menus, open/save project, open spectrum, [Run solver] (F5), stop, export and display language (KO/EN)."
+    },
+    "명령 막대:": {
+        "ko": "명령 막대:",
+        "en": "Command bar:"
+    },
+    "모노머 / 제약식 / 말단기·어덕트 / 데이터·설정 / 중합 계산기 탭. Ctrl+B 또는 [입력 패널] 버튼으로 접어 결과 화면을 넓게 쓸 수 있습니다.": {
+        "ko": "모노머 / 제약식 / 말단기·어덕트 / 데이터·설정 / 중합 계산기 탭. Ctrl+B 또는 [입력 패널] 버튼으로 접어 결과 화면을 넓게 쓸 수 있습니다.",
+        "en": "Tabs: Monomers / Constraints / End group·Adducts / Data·Settings / Polymerization calculator. Collapse it with Ctrl+B or the [Input panel] button to give the results more room."
+    },
+    "모노머 질량 간격으로 이어지는 피크는 시리즈(S1, S2 …)로 색이 표시됩니다. [주기 시리즈 피크만]을 켜면 시리즈 피크만 솔버에 씁니다.": {
+        "ko": "모노머 질량 간격으로 이어지는 피크는 시리즈(S1, S2 …)로 색이 표시됩니다. [주기 시리즈 피크만]을 켜면 시리즈 피크만 솔버에 씁니다.",
+        "en": "Peaks spaced by a monomer mass are colored as series (S1, S2 …). Turn on [Periodic series peaks only] to send only series peaks to the solver."
+    },
+    "부등식·질량 참조:": {
+        "ko": "부등식·질량 참조:",
+        "en": "Inequalities and mass references:"
+    },
+    "분자식을 모르면 분자식 칸에 질량을 숫자로 입력합니다 (예: 100.5). 이 경우 후보의 분자식은 표시되지 않습니다.": {
+        "ko": "분자식을 모르면 분자식 칸에 질량을 숫자로 입력합니다 (예: 100.5). 이 경우 후보의 분자식은 표시되지 않습니다.",
+        "en": "If you do not know the formula, type the mass as a number in the formula field (e.g. 100.5). Candidate formulas are then not shown."
+    },
+    "블록(Block):": {
+        "ko": "블록(Block):",
+        "en": "Block:"
+    },
+    "사슬 양 끝 원자단을 '/'로 구분해 고릅니다 (예: H/OH = H₂O, 기본값 OH/OH = H₂O₂).": {
+        "ko": "사슬 양 끝 원자단을 '/'로 구분해 고릅니다 (예: H/OH = H₂O, 기본값 OH/OH = H₂O₂).",
+        "en": "Choose the groups at both chain ends, separated by '/' (e.g. H/OH = H₂O; default OH/OH = H₂O₂)."
+    },
+    "솔버가 탐색할 개수 범위입니다. 범위가 좁을수록 빠릅니다. 중합 계산기로 예상 범위를 자동으로 채울 수 있습니다.": {
+        "ko": "솔버가 탐색할 개수 범위입니다. 범위가 좁을수록 빠릅니다. 중합 계산기로 예상 범위를 자동으로 채울 수 있습니다.",
+        "en": "The count range the solver searches. Narrower ranges are faster. The polymerization calculator can fill in expected ranges."
+    },
+    "실행:": {
+        "ko": "실행:",
+        "en": "Run:"
+    },
+    "어덕트:": {
+        "ko": "어덕트:",
+        "en": "Adducts:"
+    },
+    "여러 성분이 묶인 반복 단위(예: PLA-PEG-PLA)는 유형을 블록으로 추가한 뒤, 블록을 선택한 상태에서 하위 성분을 추가합니다.": {
+        "ko": "여러 성분이 묶인 반복 단위(예: PLA-PEG-PLA)는 유형을 블록으로 추가한 뒤, 블록을 선택한 상태에서 하위 성분을 추가합니다.",
+        "en": "For a repeat unit made of several components (e.g. PLA-PEG-PLA), add an item of type Block, then select the block and add its sub-components."
+    },
+    "오른쪽 피크 목록에 m/z를 직접 입력하거나, 엑셀에서 복사해 [붙여넣기], 또는 [가져오기]로 xlsx/csv를 읽습니다.": {
+        "ko": "오른쪽 피크 목록에 m/z를 직접 입력하거나, 엑셀에서 복사해 [붙여넣기], 또는 [가져오기]로 xlsx/csv를 읽습니다.",
+        "en": "Type m/z values into the peak list on the right, copy them from Excel and use [Paste], or read an xlsx/csv file with [Import]."
+    },
+    "요약 띠(최상위 조성 계열) → 스펙트럼 → 피크 목록 → 후보 조성 / 조성 계열 / KMD / 메시지 탭.": {
+        "ko": "요약 띠(최상위 조성 계열) → 스펙트럼 → 피크 목록 → 후보 조성 / 조성 계열 / KMD / 메시지 탭.",
+        "en": "Summary strip (top composition family) → spectrum → peak list → Candidates / Composition families / KMD / Messages tabs."
+    },
+    "원본 스펙트럼:": {
+        "ko": "원본 스펙트럼:",
+        "en": "Raw spectrum:"
+    },
+    "이름과 분자식(예: LA, C3H4O2)을 입력하면 정밀질량과 평균질량을 자동 계산합니다.": {
+        "ko": "이름과 분자식(예: LA, C3H4O2)을 입력하면 정밀질량과 평균질량을 자동 계산합니다.",
+        "en": "Enter a name and formula (e.g. LA, C3H4O2) and the monoisotopic and average masses are calculated automatically."
+    },
+    "이온화될 때 붙는 이온([M+Na]⁺, [M+K]⁺, [M+H]⁺ …)을 체크합니다. 체크한 어덕트마다 후보를 계산합니다.": {
+        "ko": "이온화될 때 붙는 이온([M+Na]⁺, [M+K]⁺, [M+H]⁺ …)을 체크합니다. 체크한 어덕트마다 후보를 계산합니다.",
+        "en": "Check the ions that attach during ionization ([M+Na]⁺, [M+K]⁺, [M+H]⁺ …). Candidates are calculated for each checked adduct."
+    },
+    "일반 모노머:": {
+        "ko": "일반 모노머:",
+        "en": "Ordinary monomer:"
+    },
+    "입력 패널 (왼쪽):": {
+        "ko": "입력 패널 (왼쪽):",
+        "en": "Input panel (left):"
+    },
+    "주기 시리즈:": {
+        "ko": "주기 시리즈:",
+        "en": "Periodic series:"
+    },
+    "질량 기준 모노이소토픽(Exact), 허용 오차 0.01–0.05 Da, 동위원소 정리 '모노이소토픽만'.": {
+        "ko": "질량 기준 모노이소토픽(Exact), 허용 오차 0.01–0.05 Da, 동위원소 정리 '모노이소토픽만'.",
+        "en": "Mass basis monoisotopic (Exact), tolerance 0.01–0.05 Da, isotope cleanup 'Monoisotopic only'."
+    },
+    "질량 기준 평균 질량(Average), 허용 오차 0.5–2 Da. 거의 같은 질량의 다른 조성(예: Na⁺ vs K⁺−O)은 확률이 나뉘어 표시됩니다.": {
+        "ko": "질량 기준 평균 질량(Average), 허용 오차 0.5–2 Da. 거의 같은 질량의 다른 조성(예: Na⁺ vs K⁺−O)은 확률이 나뉘어 표시됩니다.",
+        "en": "Mass basis average (Average), tolerance 0.5–2 Da. Different compositions of almost equal mass (e.g. Na⁺ vs K⁺−O) share the probability."
+    },
+    "질량 직접 입력:": {
+        "ko": "질량 직접 입력:",
+        "en": "Direct mass input:"
+    },
+    "질량값 목록:": {
+        "ko": "질량값 목록:",
+        "en": "List of mass values:"
+    },
+    "최소값/최대값:": {
+        "ko": "최소값/최대값:",
+        "en": "Min / max:"
+    },
+    "측정 모드별 권장 설정": {
+        "ko": "측정 모드별 권장 설정",
+        "en": "Recommended settings by measurement mode"
+    },
+    "피크 목록의 행이나 스펙트럼의 피크를 누르면 [후보 조성]에 그 피크의 후보가 나옵니다.": {
+        "ko": "피크 목록의 행이나 스펙트럼의 피크를 누르면 [후보 조성]에 그 피크의 후보가 나옵니다.",
+        "en": "Click a row in the peak list or a peak in the spectrum to see that peak's candidates in [Candidates]."
+    },
+    "피크 선택:": {
+        "ko": "피크 선택:",
+        "en": "Selecting a peak:"
+    },
+    "화면 구성": {
+        "ko": "화면 구성",
+        "en": "Screen layout"
+    },
+    "확률과 조성 계열:": {
+        "ko": "확률과 조성 계열:",
+        "en": "Probability and composition families:"
+    },
+    "후보 행을 두 번 누르면 그 이온의 이론 동위원소 패턴을 볼 수 있습니다.": {
+        "ko": "후보 행을 두 번 누르면 그 이온의 이론 동위원소 패턴을 볼 수 있습니다.",
+        "en": "Double-click a candidate row to see the theoretical isotope pattern of that ion."
+    },
+    "가장 강한 동위원소 피크 = 100%. 10% 미만은 생략합니다.": {
+        "ko": "가장 강한 동위원소 피크 = 100%. 10% 미만은 생략합니다.",
+        "en": "Strongest isotope peak = 100%. Peaks below 10% are omitted."
+    },
+    "분자식 (Formula)": {
+        "ko": "분자식 (Formula)",
+        "en": "Formula"
+    },
+    "스펙트럼 계산 실패: {e}": {
+        "ko": "스펙트럼 계산 실패: {e}",
+        "en": "Spectrum calculation failed: {e}"
+    },
+    "어덕트 원자를 포함한 이온 전체의 분자식": {
+        "ko": "어덕트 원자를 포함한 이온 전체의 분자식",
+        "en": "Molecular formula of the whole ion, including the adduct atoms"
+    },
+    "오류": {
+        "ko": "오류",
+        "en": "Error"
+    },
+    "표시할 피크가 없습니다.": {
+        "ko": "표시할 피크가 없습니다.",
+        "en": "No peaks to show."
+    },
+    "(최근 프로젝트 없음)": {
+        "ko": "(최근 프로젝트 없음)",
+        "en": "(no recent projects)"
+    },
+    "MALDI·LC-MS 고분자 피크의 조성을 계산합니다. 시작하려면 옵션을 선택하십시오.": {
+        "ko": "MALDI·LC-MS 고분자 피크의 조성을 계산합니다. 시작하려면 옵션을 선택하십시오.",
+        "en": "Calculates the compositions of polymer peaks from MALDI and LC-MS. Choose an option to start."
+    },
+    "다른 위치의 프로젝트 파일(.mpcs)을 엽니다.": {
+        "ko": "다른 위치의 프로젝트 파일(.mpcs)을 엽니다.",
+        "en": "Open a project file (.mpcs) from another location."
+    },
+    "빈 프로젝트로 시작합니다 (기본 어덕트 [M+Na]+, 말단기 OH/OH).": {
+        "ko": "빈 프로젝트로 시작합니다 (기본 어덕트 [M+Na]+, 말단기 OH/OH).",
+        "en": "Start with an empty project (default adduct [M+Na]+, end group OH/OH)."
+    },
+    "최근 프로젝트 열기": {
+        "ko": "최근 프로젝트 열기",
+        "en": "Open recent project"
+    },
+    "최근 프로젝트:": {
+        "ko": "최근 프로젝트:",
+        "en": "Recent projects:"
+    },
+    "최근에 저장하거나 연 프로젝트 (.mpcs). 두 번 누르면 엽니다.": {
+        "ko": "최근에 저장하거나 연 프로젝트 (.mpcs). 두 번 누르면 엽니다.",
+        "en": "Projects you recently saved or opened (.mpcs). Double-click to open."
+    },
+    "파일 없음": {
+        "ko": "파일 없음",
+        "en": "File not found"
+    },
+    "파일 찾아보기...": {
+        "ko": "파일 찾아보기...",
+        "en": "Browse files..."
+    },
+    "파일을 찾을 수 없습니다:\n{path}": {
+        "ko": "파일을 찾을 수 없습니다:\n{path}",
+        "en": "File not found:\n{path}"
+    },
+    "프로젝트 파일 열기": {
+        "ko": "프로젝트 파일 열기",
+        "en": "Open project file"
+    },
+    "F5 솔버 실행 · Ctrl+B 입력 패널 · F1 이용 안내": {
+        "ko": "F5 솔버 실행 · Ctrl+B 입력 패널 · F1 이용 안내",
+        "en": "F5 Run solver · Ctrl+B Input panel · F1 User guide"
+    },
+    "MPCS 정보": {
+        "ko": "MPCS 정보",
+        "en": "About MPCS"
+    },
+    "MPCS 프로젝트": {
+        "ko": "MPCS 프로젝트",
+        "en": "MPCS project"
+    },
+    "mzXML 스펙트럼을 열고 데이터/설정 탭으로 이동합니다.": {
+        "ko": "mzXML 스펙트럼을 열고 데이터/설정 탭으로 이동합니다.",
+        "en": "Open an mzXML spectrum and switch to the Data/Settings tab."
+    },
+    "결과를 엑셀/CSV로 저장": {
+        "ko": "결과를 엑셀/CSV로 저장",
+        "en": "Save results to Excel/CSV"
+    },
+    "고분자 MALDI·LC-MS 피크의 조성 계산과 조성 계열 분석": {
+        "ko": "고분자 MALDI·LC-MS 피크의 조성 계산과 조성 계열 분석",
+        "en": "Composition calculation and composition-family analysis for polymer MALDI and LC-MS peaks"
+    },
+    "고분자를 이루는 반복 단위(모노머·블록)와 탐색 범위": {
+        "ko": "고분자를 이루는 반복 단위(모노머·블록)와 탐색 범위",
+        "en": "Repeat units of the polymer (monomers, blocks) and their search ranges"
+    },
+    "다른 이름으로 저장": {
+        "ko": "다른 이름으로 저장",
+        "en": "Save As"
+    },
+    "다음 오류를 수정한 후 다시 시도하십시오:": {
+        "ko": "다음 오류를 수정한 후 다시 시도하십시오:",
+        "en": "Fix the following errors and try again:"
+    },
+    "레시피와 전환율로 반복 수 범위 예측": {
+        "ko": "레시피와 전환율로 반복 수 범위 예측",
+        "en": "Predict repeat-count ranges from the recipe and conversion"
+    },
+    "말단기 / 어덕트": {
+        "ko": "말단기 / 어덕트",
+        "en": "End group / Adducts"
+    },
+    "먼저 스펙트럼을 여십시오.": {
+        "ko": "먼저 스펙트럼을 여십시오.",
+        "en": "Open a spectrum first."
+    },
+    "모노머": {
+        "ko": "모노머",
+        "en": "Monomers"
+    },
+    "모노머 개수 사이의 규칙 (선택)": {
+        "ko": "모노머 개수 사이의 규칙 (선택)",
+        "en": "Rules between monomer counts (optional)"
+    },
+    "모노이소토픽 (Exact)": {
+        "ko": "모노이소토픽 (Exact)",
+        "en": "Monoisotopic (Exact)"
+    },
+    "버전 1.3": {
+        "ko": "버전 1.3",
+        "en": "Version 1.3"
+    },
+    "버전과 제작 정보": {
+        "ko": "버전과 제작 정보",
+        "en": "Version and author"
+    },
+    "사슬 말단기와 이온화 어덕트": {
+        "ko": "사슬 말단기와 이온화 어덕트",
+        "en": "Chain end group and ionization adducts"
+    },
+    "선택한 피크의 후보 표를 엑셀/CSV로 저장합니다.": {
+        "ko": "선택한 피크의 후보 표를 엑셀/CSV로 저장합니다.",
+        "en": "Save the candidate table of the selected peak to Excel/CSV."
+    },
+    "선택한 피크의 후보...": {
+        "ko": "선택한 피크의 후보...",
+        "en": "Candidates of selected peak..."
+    },
+    "솔버 설정(질량 기준·허용 오차), mzXML 스펙트럼, 피크 검출, 주기 시리즈": {
+        "ko": "솔버 설정(질량 기준·허용 오차), mzXML 스펙트럼, 피크 검출, 주기 시리즈",
+        "en": "Solver settings (mass basis, tolerance), mzXML spectrum, peak detection, periodic series"
+    },
+    "솔버 실행": {
+        "ko": "솔버 실행",
+        "en": "Run solver"
+    },
+    "솔버 실행 중에는 화면 언어를 바꿀 수 없습니다.": {
+        "ko": "솔버 실행 중에는 화면 언어를 바꿀 수 없습니다.",
+        "en": "The display language cannot be changed while the solver is running."
+    },
+    "솔버 실행: 피크 {n}개, 허용 오차 {t} Da, {m}": {
+        "ko": "솔버 실행: 피크 {n}개, 허용 오차 {t} Da, {m}",
+        "en": "Solver run: {n} peaks, tolerance {t} Da, {m}"
+    },
+    "솔버 오류": {
+        "ko": "솔버 오류",
+        "en": "Solver error"
+    },
+    "솔버 진행률": {
+        "ko": "솔버 진행률",
+        "en": "Solver progress"
+    },
+    "솔버 취소 중...": {
+        "ko": "솔버 취소 중...",
+        "en": "Cancelling solver..."
+    },
+    "순환 제약식 오류": {
+        "ko": "순환 제약식 오류",
+        "en": "Circular constraint error"
+    },
+    "스펙트럼 닫기": {
+        "ko": "스펙트럼 닫기",
+        "en": "Close spectrum"
+    },
+    "실행 중인 솔버를 멈춥니다.": {
+        "ko": "실행 중인 솔버를 멈춥니다.",
+        "en": "Stop the running solver."
+    },
+    "열기": {
+        "ko": "열기",
+        "en": "Open"
+    },
+    "열린 스펙트럼을 닫습니다 (피크 목록은 유지).": {
+        "ko": "열린 스펙트럼을 닫습니다 (피크 목록은 유지).",
+        "en": "Close the open spectrum (the peak list is kept)."
+    },
+    "오른쪽 피크 목록에 m/z 값을 입력하거나(붙여넣기/가져오기),\n데이터/설정 탭에서 스펙트럼 피크를 검출하십시오.": {
+        "ko": "오른쪽 피크 목록에 m/z 값을 입력하거나(붙여넣기/가져오기),\n데이터/설정 탭에서 스펙트럼 피크를 검출하십시오.",
+        "en": "Enter m/z values in the peak list on the right (paste/import),\nor detect spectrum peaks in the Data/Settings tab."
+    },
+    "완료: 피크 {n}개 중 {h}개에서 후보 발견 · 조성 계열 {f}개": {
+        "ko": "완료: 피크 {n}개 중 {h}개에서 후보 발견 · 조성 계열 {f}개",
+        "en": "Done: candidates found for {h} of {n} peaks · {f} composition families"
+    },
+    "왼쪽 입력 패널을 접거나 펼칩니다.": {
+        "ko": "왼쪽 입력 패널을 접거나 펼칩니다.",
+        "en": "Collapse or expand the left input panel."
+    },
+    "우세 간격: {v}": {
+        "ko": "우세 간격: {v}",
+        "en": "Dominant spacings: {v}"
+    },
+    "이용 안내": {
+        "ko": "이용 안내",
+        "en": "User guide"
+    },
+    "입력 오류": {
+        "ko": "입력 오류",
+        "en": "Input error"
+    },
+    "작업 기록 (파일 열기, 피크 검출, 솔버 실행, 오류)": {
+        "ko": "작업 기록 (파일 열기, 피크 검출, 솔버 실행, 오류)",
+        "en": "Activity log (file opening, peak detection, solver runs, errors)"
+    },
+    "저장 완료: {name}": {
+        "ko": "저장 완료: {name}",
+        "en": "Saved: {name}"
+    },
+    "저장하지 않은 변경 사항이 있을 수 있습니다.\n종료하시겠습니까?": {
+        "ko": "저장하지 않은 변경 사항이 있을 수 있습니다.\n종료하시겠습니까?",
+        "en": "There may be unsaved changes.\nQuit anyway?"
+    },
+    "저장한 프로젝트(.mpcs)를 엽니다.": {
+        "ko": "저장한 프로젝트(.mpcs)를 엽니다.",
+        "en": "Open a saved project (.mpcs)."
+    },
+    "전체 결과 (엑셀)...": {
+        "ko": "전체 결과 (엑셀)...",
+        "en": "All results (Excel)..."
+    },
+    "제약식": {
+        "ko": "제약식",
+        "en": "Constraints"
+    },
+    "제약식 간 순환 의존성이 발견되었습니다:\n\n{cycle}\n\n순환 제약식을 수정한 후 다시 시도하십시오.": {
+        "ko": "제약식 간 순환 의존성이 발견되었습니다:\n\n{cycle}\n\n순환 제약식을 수정한 후 다시 시도하십시오.",
+        "en": "A circular dependency between constraints was found:\n\n{cycle}\n\nFix the circular constraints and try again."
+    },
+    "제약식 오류": {
+        "ko": "제약식 오류",
+        "en": "Constraint error"
+    },
+    "제작자: Jeonghun Lee (cihkill@gmail.com)": {
+        "ko": "제작자: Jeonghun Lee (cihkill@gmail.com)",
+        "en": "Author: Jeonghun Lee (cihkill@gmail.com)"
+    },
+    "조합 {c:,} / {a:,} (유효 {v:,})": {
+        "ko": "조합 {c:,} / {a:,} (유효 {v:,})",
+        "en": "Combinations {c:,} / {a:,} (valid {v:,})"
+    },
+    "준비": {
+        "ko": "준비",
+        "en": "Ready"
+    },
+    "최상위: {label} ({n}개 피크)": {
+        "ko": "최상위: {label} ({n}개 피크)",
+        "en": "Top: {label} ({n} peaks)"
+    },
+    "측정 모드 프리셋 적용: {m}, 허용 오차 {t} Da": {
+        "ko": "측정 모드 프리셋 적용: {m}, 허용 오차 {t} Da",
+        "en": "Measurement-mode preset applied: {m}, tolerance {t} Da"
+    },
+    "파일 열기 실패": {
+        "ko": "파일 열기 실패",
+        "en": "Failed to open file"
+    },
+    "평균 질량 (Average)": {
+        "ko": "평균 질량 (Average)",
+        "en": "Average mass (Average)"
+    },
+    "프로그램을 종료합니다.": {
+        "ko": "프로그램을 종료합니다.",
+        "en": "Quit the program."
+    },
+    "프로젝트 열림: {name}": {
+        "ko": "프로젝트 열림: {name}",
+        "en": "Project opened: {name}"
+    },
+    "프로젝트를 불러올 수 없습니다:\n{e}": {
+        "ko": "프로젝트를 불러올 수 없습니다:\n{e}",
+        "en": "Cannot load the project:\n{e}"
+    },
+    "프로젝트를 새 파일로 저장합니다.": {
+        "ko": "프로젝트를 새 파일로 저장합니다.",
+        "en": "Save the project to a new file."
+    },
+    "프로젝트를 저장할 수 없습니다:\n{e}": {
+        "ko": "프로젝트를 저장할 수 없습니다:\n{e}",
+        "en": "Cannot save the project:\n{e}"
+    },
+    "프로젝트를 저장합니다 (모노머·제약식·어덕트·피크 목록·스펙트럼 경로).": {
+        "ko": "프로젝트를 저장합니다 (모노머·제약식·어덕트·피크 목록·스펙트럼 경로).",
+        "en": "Save the project (monomers, constraints, adducts, peak list, spectrum path)."
+    },
+    "피크 {n}개 · 시리즈 {s}개": {
+        "ko": "피크 {n}개 · 시리즈 {s}개",
+        "en": "Peaks: {n} · series: {s}"
+    },
+    "피크 {n}개 검출": {
+        "ko": "피크 {n}개 검출",
+        "en": "Peaks detected: {n}"
+    },
+    "피크 검출": {
+        "ko": "피크 검출",
+        "en": "Detect peaks"
+    },
+    "피크 목록의 (체크한) 모든 피크에 대해 조성을 계산하고 조성 계열 확률을 매깁니다.": {
+        "ko": "피크 목록의 (체크한) 모든 피크에 대해 조성을 계산하고 조성 계열 확률을 매깁니다.",
+        "en": "Calculate compositions for all (checked) peaks in the list and score composition-family probabilities."
+    },
+    "피크 없음": {
+        "ko": "피크 없음",
+        "en": "No peaks"
+    },
+    "피크 요약 · 전체 후보 · 조성 계열을 엑셀 시트로 저장합니다.": {
+        "ko": "피크 요약 · 전체 후보 · 조성 계열을 엑셀 시트로 저장합니다.",
+        "en": "Save the peak summary, all candidates and composition families as Excel sheets."
+    },
+    "현재 스펙트럼에서 피크를 검출합니다.": {
+        "ko": "현재 스펙트럼에서 피크를 검출합니다.",
+        "en": "Detect peaks in the current spectrum."
+    },
+    "현재 입력을 지우고 새 프로젝트를 시작합니다.": {
+        "ko": "현재 입력을 지우고 새 프로젝트를 시작합니다.",
+        "en": "Clear the current input and start a new project."
+    },
+    "현재 프로젝트를 닫고 새 프로젝트를 시작하시겠습니까?": {
+        "ko": "현재 프로젝트를 닫고 새 프로젝트를 시작하시겠습니까?",
+        "en": "Close the current project and start a new one?"
+    },
+    "화면 구성과 사용 순서를 안내합니다.": {
+        "ko": "화면 구성과 사용 순서를 안내합니다.",
+        "en": "Explains the screen layout and the order of use."
+    },
+    "화면 언어를 바꿨습니다.": {
+        "ko": "화면 언어를 바꿨습니다.",
+        "en": "Display language changed."
+    },
+    "모노머 개수 사이의 규칙을 식으로 적어 탐색 범위를 줄입니다. 변수는 모노머 탭의 이름을 그대로 씁니다. '이름 = 식' 형태의 등식은 그 모노머의 개수를 식으로 계산하므로(탐색에서 제외) 특히 빠릅니다.": {
+        "ko": "모노머 개수 사이의 규칙을 식으로 적어 탐색 범위를 줄입니다. 변수는 모노머 탭의 이름을 그대로 씁니다. '이름 = 식' 형태의 등식은 그 모노머의 개수를 식으로 계산하므로(탐색에서 제외) 특히 빠릅니다.",
+        "en": "Write rules between monomer counts as expressions to narrow the search. Use the names from the Monomers tab as variables. An equation of the form 'name = expression' computes that monomer's count (it is removed from the search) and is especially fast."
+    },
+    "선택한 제약식을 지웁니다.": {
+        "ko": "선택한 제약식을 지웁니다.",
+        "en": "Delete the selected constraint."
+    },
+    "연산자: + - * / ^ ( )   비교: = < <= > >=   함수: ABS() ROUND() INT()   질량 참조: 이름.mw (예: EO.mw)\n예: HDI = PLA + SMA - 1   |   EO = 45 * PLA   |   LA >= 10   |   EO * EO.mw <= 3000": {
+        "ko": "연산자: + - * / ^ ( )   비교: = < <= > >=   함수: ABS() ROUND() INT()   질량 참조: 이름.mw (예: EO.mw)\n예: HDI = PLA + SMA - 1   |   EO = 45 * PLA   |   LA >= 10   |   EO * EO.mw <= 3000",
+        "en": "Operators: + - * / ^ ( )   Comparisons: = < <= > >=   Functions: ABS() ROUND() INT()   Mass reference: name.mw (e.g. EO.mw)\nExamples: HDI = PLA + SMA - 1   |   EO = 45 * PLA   |   LA >= 10   |   EO * EO.mw <= 3000"
+    },
+    "입력한 제약식을 목록에 추가합니다.": {
+        "ko": "입력한 제약식을 목록에 추가합니다.",
+        "en": "Add the entered constraint to the list."
+    },
+    "제약식 입력 (예: HDI = PLA + SMA - 1)": {
+        "ko": "제약식 입력 (예: HDI = PLA + SMA - 1)",
+        "en": "Enter a constraint (e.g. HDI = PLA + SMA - 1)"
+    },
+    "제약식. 셀을 두 번 눌러 고칠 수 있습니다.": {
+        "ko": "제약식. 셀을 두 번 눌러 고칠 수 있습니다.",
+        "en": "Constraint. Double-click the cell to edit."
+    },
+    "제약식:": {
+        "ko": "제약식:",
+        "en": "Constraint:"
+    },
+    "제약식을 입력하고 Enter 또는 [추가]를 누르세요.": {
+        "ko": "제약식을 입력하고 Enter 또는 [추가]를 누르세요.",
+        "en": "Type a constraint and press Enter or [Add]."
+    },
+    "체크한 제약식만 솔버에 적용됩니다.": {
+        "ko": "체크한 제약식만 솔버에 적용됩니다.",
+        "en": "Only checked constraints are applied by the solver."
+    },
+    "추가": {
+        "ko": "추가",
+        "en": "Add"
+    },
+    "(계산 오류)": {
+        "ko": "(계산 오류)",
+        "en": "(calculation error)"
+    },
+    "(질량 = {m:.5f} Da)": {
+        "ko": "(질량 = {m:.5f} Da)",
+        "en": "(mass = {m:.5f} Da)"
+    },
+    "(질량 = {m:.5f} Da, z = {z})": {
+        "ko": "(질량 = {m:.5f} Da, z = {z})",
+        "en": "(mass = {m:.5f} Da, z = {z})"
+    },
+    "Exact: 동위원소가 분리되는 Reflectron / 고분해능 LC-MS. 모노이소토픽 정밀질량으로 비교합니다.\nAverage: 동위원소가 분리되지 않는 Linear 모드(고분자량). 평균 질량으로 비교합니다.": {
+        "ko": "Exact: 동위원소가 분리되는 Reflectron / 고분해능 LC-MS. 모노이소토픽 정밀질량으로 비교합니다.\nAverage: 동위원소가 분리되지 않는 Linear 모드(고분자량). 평균 질량으로 비교합니다.",
+        "en": "Exact: Reflectron / high-resolution LC-MS with resolved isotopes. Compares monoisotopic exact masses.\nAverage: Linear mode (high mass) with unresolved isotopes. Compares average masses."
+    },
+    "관측 m/z와 이론 m/z의 최대 허용 차이 (Da). 이 범위 안의 조성만 후보가 됩니다.\n권장: Reflectron·LC-MS 0.01–0.05 Da, Linear 0.5–2 Da. 주기 시리즈 검출에도 쓰입니다.": {
+        "ko": "관측 m/z와 이론 m/z의 최대 허용 차이 (Da). 이 범위 안의 조성만 후보가 됩니다.\n권장: Reflectron·LC-MS 0.01–0.05 Da, Linear 0.5–2 Da. 주기 시리즈 검출에도 쓰입니다.",
+        "en": "Maximum allowed difference between observed and theoretical m/z (Da). Only compositions within this range become candidates.\nRecommended: Reflectron·LC-MS 0.01–0.05 Da, Linear 0.5–2 Da. Also used for periodic-series detection."
+    },
+    "관측 피크가 모노이소토픽이 아니라 N번째 동위원소(+1.00335·N/z Da)일 가능성까지 허용합니다.\n0 = 모노이소토픽만. 평균 질량 모드에서는 쓰지 않습니다.": {
+        "ko": "관측 피크가 모노이소토픽이 아니라 N번째 동위원소(+1.00335·N/z Da)일 가능성까지 허용합니다.\n0 = 모노이소토픽만. 평균 질량 모드에서는 쓰지 않습니다.",
+        "en": "Also allow the observed peak to be the N-th isotope (+1.00335·N/z Da) instead of the monoisotopic peak.\n0 = monoisotopic only. Not used in average-mass mode."
+    },
+    "기본값 복원": {
+        "ko": "기본값 복원",
+        "en": "Restore defaults"
+    },
+    "동위원소 오프셋 (N)": {
+        "ko": "동위원소 오프셋 (N)",
+        "en": "Isotope offset (N)"
+    },
+    "말단기 목록을 기본 프리셋으로 되돌립니다.": {
+        "ko": "말단기 목록을 기본 프리셋으로 되돌립니다.",
+        "en": "Reset the end-group list to the default presets."
+    },
+    "말단기 분자식. 양 끝을 '/'로 구분합니다 (예: H/OH, NH2/OH, Cyclized).": {
+        "ko": "말단기 분자식. 양 끝을 '/'로 구분합니다 (예: H/OH, NH2/OH, Cyclized).",
+        "en": "End-group formula. Separate the two ends with '/' (e.g. H/OH, NH2/OH, Cyclized)."
+    },
+    "말단기 전체 질량 (Da). 정밀질량/평균질량 모드 모두 이 값을 그대로 씁니다.": {
+        "ko": "말단기 전체 질량 (Da). 정밀질량/평균질량 모드 모두 이 값을 그대로 씁니다.",
+        "en": "Total end-group mass (Da). Used as is in both exact and average modes."
+    },
+    "분자식을 모를 때 말단기 질량을 숫자로 직접 넣습니다. 이 경우 후보의 분자식은 표시되지 않습니다.": {
+        "ko": "분자식을 모를 때 말단기 질량을 숫자로 직접 넣습니다. 이 경우 후보의 분자식은 표시되지 않습니다.",
+        "en": "Enter the end-group mass as a number when the formula is unknown. Candidate formulas are then not shown."
+    },
+    "사슬 양 끝에 붙는 원자단을 '/'로 구분해 입력합니다 (예: H/OH = H₂O, OH/OH = H₂O₂). 'Cyclized'는 고리형(말단 없음)입니다. 선택한 말단기의 질량이 모든 후보 조성에 더해집니다.": {
+        "ko": "사슬 양 끝에 붙는 원자단을 '/'로 구분해 입력합니다 (예: H/OH = H₂O, OH/OH = H₂O₂). 'Cyclized'는 고리형(말단 없음)입니다. 선택한 말단기의 질량이 모든 후보 조성에 더해집니다.",
+        "en": "Enter the groups attached to both chain ends, separated by '/' (e.g. H/OH = H₂O, OH/OH = H₂O₂). 'Cyclized' means a ring (no ends). The selected end-group mass is added to every candidate composition."
+    },
+    "솔버 설정": {
+        "ko": "솔버 설정",
+        "en": "Solver settings"
+    },
+    "스펙트럼 탭의 측정 모드 프리셋(Reflectron / Linear)을 누르면 질량 기준과 허용 오차가 함께 맞춰집니다. 솔버 실행은 명령 막대의 [솔버 실행] (F5).": {
+        "ko": "스펙트럼 탭의 측정 모드 프리셋(Reflectron / Linear)을 누르면 질량 기준과 허용 오차가 함께 맞춰집니다. 솔버 실행은 명령 막대의 [솔버 실행] (F5).",
+        "en": "The measurement-mode presets (Reflectron / Linear) in the spectrum section also set the mass basis and tolerance. Run the solver with [Run solver] (F5) in the command bar."
+    },
+    "어덕트 (Adduct)": {
+        "ko": "어덕트 (Adduct)",
+        "en": "Adducts"
+    },
+    "어덕트 레이블. 예: [M+H]+, [M+Na]+, [M+K]+, [M+NH4]+, [M+2Na]2+, [M-H]-": {
+        "ko": "어덕트 레이블. 예: [M+H]+, [M+Na]+, [M+K]+, [M+NH4]+, [M+2Na]2+, [M-H]-",
+        "en": "Adduct label. E.g. [M+H]+, [M+Na]+, [M+K]+, [M+NH4]+, [M+2Na]2+, [M-H]-"
+    },
+    "어덕트 목록을 기본값으로 되돌립니다 ([M+Na]+만 켜짐).": {
+        "ko": "어덕트 목록을 기본값으로 되돌립니다 ([M+Na]+만 켜짐).",
+        "en": "Reset the adduct list to the defaults (only [M+Na]+ on)."
+    },
+    "어덕트 행을 추가합니다. 레이블을 고쳐 원하는 이온으로 바꾸세요.": {
+        "ko": "어덕트 행을 추가합니다. 레이블을 고쳐 원하는 이온으로 바꾸세요.",
+        "en": "Add an adduct row. Edit the label to the ion you want."
+    },
+    "이 말단기를 사용합니다.": {
+        "ko": "이 말단기를 사용합니다.",
+        "en": "Use this end group."
+    },
+    "이 어덕트를 목록에서 지웁니다.": {
+        "ko": "이 어덕트를 목록에서 지웁니다.",
+        "en": "Remove this adduct from the list."
+    },
+    "이온화될 때 붙거나 떨어지는 이온입니다. '[M+Na]+', '[M+2H]2+', '[M-H]-' 형식으로 입력하면 질량과 전하(z)를 자동 계산합니다 (전자 질량 보정 포함). 체크한 어덕트만 솔버가 사용합니다.": {
+        "ko": "이온화될 때 붙거나 떨어지는 이온입니다. '[M+Na]+', '[M+2H]2+', '[M-H]-' 형식으로 입력하면 질량과 전하(z)를 자동 계산합니다 (전자 질량 보정 포함). 체크한 어덕트만 솔버가 사용합니다.",
+        "en": "Ions that attach or detach during ionization. Enter them as '[M+Na]+', '[M+2H]2+' or '[M-H]-' and the mass and charge (z) are calculated automatically (including the electron mass). The solver uses only checked adducts."
+    },
+    "직접 입력 (Da):": {
+        "ko": "직접 입력 (Da):",
+        "en": "Direct input (Da):"
+    },
+    "질량 기준": {
+        "ko": "질량 기준",
+        "en": "Mass basis"
+    },
+    "체크하면 솔버가 이 어덕트로 후보 m/z를 계산합니다.": {
+        "ko": "체크하면 솔버가 이 어덕트로 후보 m/z를 계산합니다.",
+        "en": "When checked, the solver calculates candidate m/z values with this adduct."
+    },
+    "표시 형식 (전하는 위첨자)": {
+        "ko": "표시 형식 (전하는 위첨자)",
+        "en": "Display format (charge as superscript)"
+    },
+    "허용 오차": {
+        "ko": "허용 오차",
+        "en": "Tolerance"
+    },
+    "＋ 추가": {
+        "ko": "＋ 추가",
+        "en": "＋ Add"
+    },
+    "'{name}' 항목을 삭제하시겠습니까?": {
+        "ko": "'{name}' 항목을 삭제하시겠습니까?",
+        "en": "Delete the item '{name}'?"
+    },
+    "Block 선택됨 [{name}]: 추가 시 이 Block의 하위 성분으로 들어갑니다": {
+        "ko": "Block 선택됨 [{name}]: 추가 시 이 Block의 하위 성분으로 들어갑니다",
+        "en": "Block selected [{name}]: new items are added as sub-components of this block"
+    },
+    "Block 하위 성분 선택됨 (상위: {parent}) — 추가 시 같은 Block에 들어갑니다": {
+        "ko": "Block 하위 성분 선택됨 (상위: {parent}) — 추가 시 같은 Block에 들어갑니다",
+        "en": "Block sub-component selected (parent: {parent}) — new items go into the same block"
+    },
+    "{m:.4f} Da (블록)": {
+        "ko": "{m:.4f} Da (블록)",
+        "en": "{m:.4f} Da (block)"
+    },
+    "→ 하위에서 계산": {
+        "ko": "→ 하위에서 계산",
+        "en": "→ calculated from sub-components"
+    },
+    "✏ 수정": {
+        "ko": "✏ 수정",
+        "en": "✏ Edit"
+    },
+    "✖ 취소": {
+        "ko": "✖ 취소",
+        "en": "✖ Cancel"
+    },
+    "가교제": {
+        "ko": "가교제",
+        "en": "Crosslinker"
+    },
+    "모노머: 반복 단위 / 블록: 하위 성분 묶음(예: PLA-PEG-PLA) / 가교제·말단기·어덕트: 개수 범위를 갖는 기타 성분.\nBlock을 선택한 상태에서 추가하면 그 Block의 하위 성분이 됩니다.": {
+        "ko": "모노머: 반복 단위 / 블록: 하위 성분 묶음(예: PLA-PEG-PLA) / 가교제·말단기·어덕트: 개수 범위를 갖는 기타 성분.\nBlock을 선택한 상태에서 추가하면 그 Block의 하위 성분이 됩니다.",
+        "en": "Monomer: repeat unit / Block: group of sub-components (e.g. PLA-PEG-PLA) / Crosslinker·End group·Adduct: other components with a count range.\nAdding while a block is selected makes the new item a sub-component of that block."
+    },
+    "반복 단위 1개의 모노이소토픽 정밀질량. Block은 하위 성분 평균 개수로 계산한 참고값입니다.": {
+        "ko": "반복 단위 1개의 모노이소토픽 정밀질량. Block은 하위 성분 평균 개수로 계산한 참고값입니다.",
+        "en": "Monoisotopic exact mass of one repeat unit. For a block this is a reference value calculated from the average sub-component counts."
+    },
+    "분자식 (예: C2H4O) 또는 정밀질량 (예: 44.026)": {
+        "ko": "분자식 (예: C2H4O) 또는 정밀질량 (예: 44.026)",
+        "en": "Formula (e.g. C2H4O) or exact mass (e.g. 44.026)"
+    },
+    "분자식 / 질량입력": {
+        "ko": "분자식 / 질량입력",
+        "en": "Formula / mass input"
+    },
+    "분자식 또는 정밀질량을 입력하십시오.": {
+        "ko": "분자식 또는 정밀질량을 입력하십시오.",
+        "en": "Enter a formula or an exact mass."
+    },
+    "분자식 오류": {
+        "ko": "분자식 오류",
+        "en": "Formula error"
+    },
+    "분자식(예: C2H4O) 또는 직접 입력한 질량(~44.0262Da).": {
+        "ko": "분자식(예: C2H4O) 또는 직접 입력한 질량(~44.0262Da).",
+        "en": "Formula (e.g. C2H4O) or a directly entered mass (~44.0262Da)."
+    },
+    "분자식/질량:": {
+        "ko": "분자식/질량:",
+        "en": "Formula/mass:"
+    },
+    "분자식을 넣으면 정밀질량·평균질량을 자동 계산합니다 (예: C2H4O, C3H4O2).\n분자식을 모르면 질량을 숫자로 넣습니다 (이때 후보의 분자식은 표시되지 않음).": {
+        "ko": "분자식을 넣으면 정밀질량·평균질량을 자동 계산합니다 (예: C2H4O, C3H4O2).\n분자식을 모르면 질량을 숫자로 넣습니다 (이때 후보의 분자식은 표시되지 않음).",
+        "en": "Enter a formula and the exact and average masses are calculated (e.g. C2H4O, C3H4O2).\nIf the formula is unknown, enter the mass as a number (candidate formulas are then not shown)."
+    },
+    "블록": {
+        "ko": "블록",
+        "en": "Block"
+    },
+    "삭제 확인": {
+        "ko": "삭제 확인",
+        "en": "Confirm deletion"
+    },
+    "선택 없음": {
+        "ko": "선택 없음",
+        "en": "No selection"
+    },
+    "선택 없음: 새 항목을 최상위로 추가합니다": {
+        "ko": "선택 없음: 새 항목을 최상위로 추가합니다",
+        "en": "No selection: new items are added at the top level"
+    },
+    "선택한 항목을 입력 폼으로 불러와 고칩니다 (항목을 두 번 눌러도 됩니다).": {
+        "ko": "선택한 항목을 입력 폼으로 불러와 고칩니다 (항목을 두 번 눌러도 됩니다).",
+        "en": "Load the selected item into the form to edit it (double-clicking the item also works)."
+    },
+    "선택한 항목을 지웁니다.": {
+        "ko": "선택한 항목을 지웁니다.",
+        "en": "Delete the selected item."
+    },
+    "성분 유형. Block은 여러 하위 성분을 묶은 반복 단위입니다.": {
+        "ko": "성분 유형. Block은 여러 하위 성분을 묶은 반복 단위입니다.",
+        "en": "Component type. A block is a repeat unit made of several sub-components."
+    },
+    "성분 이름. 제약식에서 이 이름을 변수로 씁니다. '-'는 '_'로 자동 변환됩니다.": {
+        "ko": "성분 이름. 제약식에서 이 이름을 변수로 씁니다. '-'는 '_'로 자동 변환됩니다.",
+        "en": "Component name. Constraints use this name as a variable. '-' is converted to '_' automatically."
+    },
+    "성분 이름. 제약식의 변수 이름으로도 쓰입니다 (영문·한글·숫자·밑줄).": {
+        "ko": "성분 이름. 제약식의 변수 이름으로도 쓰입니다 (영문·한글·숫자·밑줄).",
+        "en": "Component name, also used as the variable name in constraints (letters, Hangul, digits, underscore)."
+    },
+    "솔버가 탐색할 최대 개수. 범위가 좁을수록 계산이 빠릅니다.": {
+        "ko": "솔버가 탐색할 최대 개수. 범위가 좁을수록 계산이 빠릅니다.",
+        "en": "Maximum count the solver searches. Narrower ranges calculate faster."
+    },
+    "솔버가 탐색할 최대 개수. 중합 계산기 탭에서 예상 범위를 자동으로 채울 수 있습니다.": {
+        "ko": "솔버가 탐색할 최대 개수. 중합 계산기 탭에서 예상 범위를 자동으로 채울 수 있습니다.",
+        "en": "Maximum count the solver searches. The polymerization calculator tab can fill in the expected range."
+    },
+    "솔버가 탐색할 최소 개수 (Block은 블록 수).": {
+        "ko": "솔버가 탐색할 최소 개수 (Block은 블록 수).",
+        "en": "Minimum count the solver searches (number of blocks for a block)."
+    },
+    "솔버가 탐색할 최소 개수 (Block은 블록 수, 하위 성분은 블록 1개당 개수).": {
+        "ko": "솔버가 탐색할 최소 개수 (Block은 블록 수, 하위 성분은 블록 1개당 개수).",
+        "en": "Minimum count the solver searches (number of blocks for a block, count per block for sub-components)."
+    },
+    "수정할 항목을 먼저 선택하십시오.": {
+        "ko": "수정할 항목을 먼저 선택하십시오.",
+        "en": "Select the item to edit first."
+    },
+    "유형:": {
+        "ko": "유형:",
+        "en": "Type:"
+    },
+    "이름 (예: EO, PLA_PEG_PLA)": {
+        "ko": "이름 (예: EO, PLA_PEG_PLA)",
+        "en": "Name (e.g. EO, PLA_PEG_PLA)"
+    },
+    "이름 오류": {
+        "ko": "이름 오류",
+        "en": "Name error"
+    },
+    "이름:": {
+        "ko": "이름:",
+        "en": "Name:"
+    },
+    "이름에 연산자 문자가 포함되어 있습니다: {chars}\n사용 불가 문자: + * / ^ ( ) = < > . (공백)\n하이픈(-)은 밑줄(_)로 자동 변환됩니다.": {
+        "ko": "이름에 연산자 문자가 포함되어 있습니다: {chars}\n사용 불가 문자: + * / ^ ( ) = < > . (공백)\n하이픈(-)은 밑줄(_)로 자동 변환됩니다.",
+        "en": "The name contains operator characters: {chars}\nNot allowed: + * / ^ ( ) = < > . (space)\nHyphens (-) are converted to underscores (_) automatically."
+    },
+    "이름을 입력하십시오.": {
+        "ko": "이름을 입력하십시오.",
+        "en": "Enter a name."
+    },
+    "일반 항목 선택됨: 추가 시 최상위로 추가됩니다": {
+        "ko": "일반 항목 선택됨: 추가 시 최상위로 추가됩니다",
+        "en": "Ordinary item selected: new items are added at the top level"
+    },
+    "입력한 분자식의 모노이소토픽 정밀질량 미리보기": {
+        "ko": "입력한 분자식의 모노이소토픽 정밀질량 미리보기",
+        "en": "Monoisotopic exact mass preview of the entered formula"
+    },
+    "입력한 성분을 목록에 추가합니다 (편집 중이면 저장).": {
+        "ko": "입력한 성분을 목록에 추가합니다 (편집 중이면 저장).",
+        "en": "Add the entered component to the list (or save while editing)."
+    },
+    "정밀질량 (Da)": {
+        "ko": "정밀질량 (Da)",
+        "en": "Exact mass (Da)"
+    },
+    "질량: -": {
+        "ko": "질량: -",
+        "en": "Mass: -"
+    },
+    "질량: {m:.4f} Da": {
+        "ko": "질량: {m:.4f} Da",
+        "en": "Mass: {m:.4f} Da"
+    },
+    "질량: 오류": {
+        "ko": "질량: 오류",
+        "en": "Mass: error"
+    },
+    "최대값 (블록 수):": {
+        "ko": "최대값 (블록 수):",
+        "en": "Max (blocks):"
+    },
+    "최대값:": {
+        "ko": "최대값:",
+        "en": "Max:"
+    },
+    "최소값 (블록 수):": {
+        "ko": "최소값 (블록 수):",
+        "en": "Min (blocks):"
+    },
+    "최소값:": {
+        "ko": "최소값:",
+        "en": "Min:"
+    },
+    "최소값이 최대값보다 큽니다.": {
+        "ko": "최소값이 최대값보다 큽니다.",
+        "en": "The minimum is greater than the maximum."
+    },
+    "편집 중: [{name}] — 수정 후 [저장]을 누르세요": {
+        "ko": "편집 중: [{name}] — 수정 후 [저장]을 누르세요",
+        "en": "Editing: [{name}] — press [Save] when done"
+    },
+    "－ 삭제": {
+        "ko": "－ 삭제",
+        "en": "－ Delete"
+    },
+    "💾 저장": {
+        "ko": "💾 저장",
+        "en": "💾 Save"
+    },
+    " 관능기수 f:": {
+        "ko": " 관능기수 f:",
+        "en": " Functionality f:"
+    },
+    " 반응 그룹:": {
+        "ko": " 반응 그룹:",
+        "en": " Reacting group:"
+    },
+    "A형 (예: Diol)": {
+        "ko": "A형 (예: Diol)",
+        "en": "Type A (e.g. Diol)"
+    },
+    "B형 (예: Diisocyanate)": {
+        "ko": "B형 (예: Diisocyanate)",
+        "en": "Type B (e.g. Diisocyanate)"
+    },
+    "Xn = 2 / (2 − p·f_eff) 로 수평균 중합도와 성분별 평균 개수를 계산합니다.": {
+        "ko": "Xn = 2 / (2 − p·f_eff) 로 수평균 중합도와 성분별 평균 개수를 계산합니다.",
+        "en": "Calculates the number-average degree of polymerization and the average count of each component with Xn = 2 / (2 − p·f_eff)."
+    },
+    "[모노머 탭에서 가져오기]로 채울 종류": {
+        "ko": "[모노머 탭에서 가져오기]로 채울 종류",
+        "en": "Type to fill with [Import from Monomers tab]"
+    },
+    "f_avg: 유효 평균 관능기수, Xn: 수평균 중합도(사슬당 단량체 수), Mn: 예상 수평균 분자량": {
+        "ko": "f_avg: 유효 평균 관능기수, Xn: 수평균 중합도(사슬당 단량체 수), Mn: 예상 수평균 분자량",
+        "en": "f_avg: effective average functionality, Xn: number-average degree of polymerization (monomers per chain), Mn: expected number-average molecular weight"
+    },
+    "mmol 합계가 0입니다.": {
+        "ko": "mmol 합계가 0입니다.",
+        "en": "The mmol total is 0."
+    },
+    "r: 관능기 당량비 (작은 쪽/큰 쪽), f_eff: 유효 관능기수, p_gel: 겔화점 (= 2/f_eff).\np ≥ p_gel이면 무한 망상(겔)이 생겨 평균 사슬 길이를 정의할 수 없습니다.": {
+        "ko": "r: 관능기 당량비 (작은 쪽/큰 쪽), f_eff: 유효 관능기수, p_gel: 겔화점 (= 2/f_eff).\np ≥ p_gel이면 무한 망상(겔)이 생겨 평균 사슬 길이를 정의할 수 없습니다.",
+        "en": "r: functional-group equivalence ratio (smaller/larger), f_eff: effective functionality, p_gel: gel point (= 2/f_eff).\nIf p ≥ p_gel an infinite network (gel) forms and the average chain length is undefined."
+    },
+    "⟳ 구성 갱신": {
+        "ko": "⟳ 구성 갱신",
+        "en": "⟳ Rebuild"
+    },
+    "⟳ 모노머 탭에서 가져오기": {
+        "ko": "⟳ 모노머 탭에서 가져오기",
+        "en": "⟳ Import from Monomers tab"
+    },
+    "겔화": {
+        "ko": "겔화",
+        "en": "Gelation"
+    },
+    "겔화 없음 (선형)": {
+        "ko": "겔화 없음 (선형)",
+        "en": "No gelation (linear)"
+    },
+    "겔화 초과!": {
+        "ko": "겔화 초과!",
+        "en": "Beyond the gel point!"
+    },
+    "겔화점 p_gel = {p:.4f}": {
+        "ko": "겔화점 p_gel = {p:.4f}",
+        "en": "Gel point p_gel = {p:.4f}"
+    },
+    "결과 없음": {
+        "ko": "결과 없음",
+        "en": "No results"
+    },
+    "계산 결과가 없습니다.": {
+        "ko": "계산 결과가 없습니다.",
+        "en": "No calculation results."
+    },
+    "계산된 평균 개수 ± 오차 범위를 모노머 탭의 최소값/최대값에 설정합니다 (이름이 같은 모노머).": {
+        "ko": "계산된 평균 개수 ± 오차 범위를 모노머 탭의 최소값/최대값에 설정합니다 (이름이 같은 모노머).",
+        "en": "Set the calculated average count ± tolerance as min/max in the Monomers tab (monomers with the same name)."
+    },
+    "다음 평균 개수를 모노머의 최소값/최대값에 반영합니다:": {
+        "ko": "다음 평균 개수를 모노머의 최소값/최대값에 반영합니다:",
+        "en": "Apply the following average counts to the monomer min/max values:"
+    },
+    "단량체 종류 수 (예: Diol + Diisocyanate = 2). 바꾼 뒤 [구성 갱신]을 누르세요.": {
+        "ko": "단량체 종류 수 (예: Diol + Diisocyanate = 2). 바꾼 뒤 [구성 갱신]을 누르세요.",
+        "en": "Number of monomer types (e.g. Diol + Diisocyanate = 2). Press [Rebuild] after changing it."
+    },
+    "먼저 [▶ 계산]을 실행하십시오.": {
+        "ko": "먼저 [▶ 계산]을 실행하십시오.",
+        "en": "Run [▶ Calculate] first."
+    },
+    "모노머 정의 탭의 성분(이름·질량)을 '대상 종류'로 가져옵니다. mmol은 1.0으로 채워집니다.": {
+        "ko": "모노머 정의 탭의 성분(이름·질량)을 '대상 종류'로 가져옵니다. mmol은 1.0으로 채워집니다.",
+        "en": "Import the components (name, mass) from the Monomers tab into the 'Target type'. mmol is set to 1.0."
+    },
+    "몰분율 (%)": {
+        "ko": "몰분율 (%)",
+        "en": "Mole fraction (%)"
+    },
+    "반응한 관능기의 비율 (0–1). 1에 가까울수록 사슬이 길어집니다. 겔화점 이상이면 계산하지 않습니다.": {
+        "ko": "반응한 관능기의 비율 (0–1). 1에 가까울수록 사슬이 길어집니다. 겔화점 이상이면 계산하지 않습니다.",
+        "en": "Fraction of functional groups that have reacted (0–1). The closer to 1, the longer the chains. Not calculated at or beyond the gel point."
+    },
+    "분자 1개당 반응 가능한 관능기 수 (선형 사슬 = 2, 가교제 ≥ 3).": {
+        "ko": "분자 1개당 반응 가능한 관능기 수 (선형 사슬 = 2, 가교제 ≥ 3).",
+        "en": "Number of reactive functional groups per molecule (linear chain = 2, crosslinker ≥ 3)."
+    },
+    "사슬 1개 질량에 대한 기여 = 평균 개수 × MW": {
+        "ko": "사슬 1개 질량에 대한 기여 = 평균 개수 × MW",
+        "en": "Contribution to the mass of one chain = average count × MW"
+    },
+    "사슬 1개에 들어 있는 평균 개수 = 몰분율 × Xn. 솔버 최소값/최대값의 기준이 됩니다.": {
+        "ko": "사슬 1개에 들어 있는 평균 개수 = 몰분율 × Xn. 솔버 최소값/최대값의 기준이 됩니다.",
+        "en": "Average count in one chain = mole fraction × Xn. Basis for the solver min/max."
+    },
+    "서로 반응하는 관능기 짝 중 어느 쪽인지 (예: Diol의 OH = A, Diisocyanate의 NCO = B).\nA와 B의 관능기 당량 중 작은 쪽이 반응을 제한합니다 (당량비 r).": {
+        "ko": "서로 반응하는 관능기 짝 중 어느 쪽인지 (예: Diol의 OH = A, Diisocyanate의 NCO = B).\nA와 B의 관능기 당량 중 작은 쪽이 반응을 제한합니다 (당량비 r).",
+        "en": "Which side of the reacting functional-group pair this is (e.g. OH of a diol = A, NCO of a diisocyanate = B).\nThe smaller of the A and B equivalents limits the reaction (equivalence ratio r)."
+    },
+    "선택한 성분 행을 지웁니다.": {
+        "ko": "선택한 성분 행을 지웁니다.",
+        "en": "Delete the selected component rows."
+    },
+    "성분": {
+        "ko": "성분",
+        "en": "Component"
+    },
+    "성분 1개의 분자량 (Da)": {
+        "ko": "성분 1개의 분자량 (Da)",
+        "en": "Molecular weight of one component (Da)"
+    },
+    "성분 1개의 분자량 (Da).": {
+        "ko": "성분 1개의 분자량 (Da).",
+        "en": "Molecular weight of one component (Da)."
+    },
+    "성분 이름": {
+        "ko": "성분 이름",
+        "en": "Component name"
+    },
+    "성분 이름 (모노머 탭의 이름과 같으면 [최소값/최대값에 반영]이 그 모노머에 적용됩니다).": {
+        "ko": "성분 이름 (모노머 탭의 이름과 같으면 [최소값/최대값에 반영]이 그 모노머에 적용됩니다).",
+        "en": "Component name (if it matches a name in the Monomers tab, [Apply to min/max] updates that monomer)."
+    },
+    "성분 종류 설정": {
+        "ko": "성분 종류 설정",
+        "en": "Component types"
+    },
+    "성분 종류 수:": {
+        "ko": "성분 종류 수:",
+        "en": "Number of component types:"
+    },
+    "성분명": {
+        "ko": "성분명",
+        "en": "Component"
+    },
+    "성분이 속한 종류": {
+        "ko": "성분이 속한 종류",
+        "en": "Type the component belongs to"
+    },
+    "소계: -": {
+        "ko": "소계: -",
+        "en": "Subtotal: -"
+    },
+    "소계: {mmol:.3f} mmol  |  Mn = {mn:,.1f} Da": {
+        "ko": "소계: {mmol:.3f} mmol  |  Mn = {mn:,.1f} Da",
+        "en": "Subtotal: {mmol:.3f} mmol  |  Mn = {mn:,.1f} Da"
+    },
+    "예: Diol, Diisocyanate": {
+        "ko": "예: Diol, Diisocyanate",
+        "en": "e.g. Diol, Diisocyanate"
+    },
+    "예: 평균 26.0, 오차 ±20% → 최소값 = 20, 최대값 = 32\n(min = floor(avg × (1−tol)),  max = ceil(avg × (1+tol)))": {
+        "ko": "예: 평균 26.0, 오차 ±20% → 최소값 = 20, 최대값 = 32\n(min = floor(avg × (1−tol)),  max = ceil(avg × (1+tol)))",
+        "en": "Example: average 26.0, tolerance ±20% → min = 20, max = 32\n(min = floor(avg × (1−tol)),  max = ceil(avg × (1+tol)))"
+    },
+    "오차 범위 (±%):": {
+        "ko": "오차 범위 (±%):",
+        "en": "Tolerance (±%):"
+    },
+    "이 성분 종류의 이름 (결과 표와 대상 종류 목록에 표시).": {
+        "ko": "이 성분 종류의 이름 (결과 표와 대상 종류 목록에 표시).",
+        "en": "Name of this component type (shown in the result table and the target-type list)."
+    },
+    "이 종류에 성분 행을 추가합니다.": {
+        "ko": "이 종류에 성분 행을 추가합니다.",
+        "en": "Add a component row to this type."
+    },
+    "이 종류의 mmol 합계와 수평균 분자량 Mn = Σ(mmol·MW) / Σmmol": {
+        "ko": "이 종류의 mmol 합계와 수평균 분자량 Mn = Σ(mmol·MW) / Σmmol",
+        "en": "mmol total of this type and its number-average molecular weight Mn = Σ(mmol·MW) / Σmmol"
+    },
+    "입력 없음": {
+        "ko": "입력 없음",
+        "en": "No input"
+    },
+    "전체 성분 중 몰분율": {
+        "ko": "전체 성분 중 몰분율",
+        "en": "Mole fraction among all components"
+    },
+    "종류 '{name}'에 성분이 없습니다.\n성분을 추가하거나 종류 수를 줄이십시오.": {
+        "ko": "종류 '{name}'에 성분이 없습니다.\n성분을 추가하거나 종류 수를 줄이십시오.",
+        "en": "Type '{name}' has no components.\nAdd components or reduce the number of types."
+    },
+    "종류 {i}": {
+        "ko": "종류 {i}",
+        "en": "Type {i}"
+    },
+    "종류 {i}  이름:": {
+        "ko": "종류 {i}  이름:",
+        "en": "Type {i}  name:"
+    },
+    "종류 수를 바꾼 뒤 이 버튼을 누르면 입력 영역이 재구성됩니다.\n(기존 입력은 유지됩니다)": {
+        "ko": "종류 수를 바꾼 뒤 이 버튼을 누르면 입력 영역이 재구성됩니다.\n(기존 입력은 유지됩니다)",
+        "en": "After changing the number of types, press this button to rebuild the input area.\n(Existing input is kept)"
+    },
+    "질량 기여 (Da)": {
+        "ko": "질량 기여 (Da)",
+        "en": "Mass contribution (Da)"
+    },
+    "최소값/최대값 반영": {
+        "ko": "최소값/최대값 반영",
+        "en": "Apply to min/max"
+    },
+    "투입량 (mmol)": {
+        "ko": "투입량 (mmol)",
+        "en": "Amount (mmol)"
+    },
+    "투입량 (mmol). 비율만 중요하므로 단위가 같으면 됩니다.": {
+        "ko": "투입량 (mmol). 비율만 중요하므로 단위가 같으면 됩니다.",
+        "en": "Amount (mmol). Only the ratios matter, so any common unit works."
+    },
+    "평균 개수": {
+        "ko": "평균 개수",
+        "en": "Average count"
+    },
+    "평균 개수/체인": {
+        "ko": "평균 개수/체인",
+        "en": "Average count/chain"
+    },
+    "평균 개수에서 위아래로 몇 %까지를 솔버 탐색 범위로 둘지 정합니다.": {
+        "ko": "평균 개수에서 위아래로 몇 %까지를 솔버 탐색 범위로 둘지 정합니다.",
+        "en": "How many % above and below the average count to use as the solver search range."
+    },
+    "합성 레시피(성분별 mmol, 관능기수)와 전환율 p로 Carothers 식에 따라 사슬당 평균 반복 수를 예측합니다. 결과를 모노머 탭의 최소값/최대값에 반영하면 솔버 탐색 범위를 빠르게 정할 수 있습니다.": {
+        "ko": "합성 레시피(성분별 mmol, 관능기수)와 전환율 p로 Carothers 식에 따라 사슬당 평균 반복 수를 예측합니다. 결과를 모노머 탭의 최소값/최대값에 반영하면 솔버 탐색 범위를 빠르게 정할 수 있습니다.",
+        "en": "Predicts the average repeat count per chain from the synthesis recipe (mmol and functionality of each component) and the conversion p using the Carothers equation. Applying the result to the min/max values in the Monomers tab quickly sets the solver search range."
+    },
+    "현재 조건에서 겔화가 발생합니다.\n유효 f_eff = {f:.3f}, 겔화점 p_gel = {p:.4f}\n전환율을 낮추거나 당량비(r)를 조절하십시오.": {
+        "ko": "현재 조건에서 겔화가 발생합니다.\n유효 f_eff = {f:.3f}, 겔화점 p_gel = {p:.4f}\n전환율을 낮추거나 당량비(r)를 조절하십시오.",
+        "en": "Gelation occurs under the current conditions.\nEffective f_eff = {f:.3f}, gel point p_gel = {p:.4f}\nLower the conversion or adjust the equivalence ratio (r)."
+    },
+    "＋ 성분 추가": {
+        "ko": "＋ 성분 추가",
+        "en": "＋ Add component"
+    },
+    "LC-MS: 스캔을 고르거나 MS1 전체를 합산합니다": {
+        "ko": "LC-MS: 스캔을 고르거나 MS1 전체를 합산합니다",
+        "en": "LC-MS: choose a scan or sum all MS1 scans"
+    },
+    "Linear": {
+        "ko": "Linear",
+        "en": "Linear"
+    },
+    "MS1 전체 합산 ({n}개 스캔)": {
+        "ko": "MS1 전체 합산 ({n}개 스캔)",
+        "en": "Sum of all MS1 scans ({n})"
+    },
+    "Reflectron / LC-MS": {
+        "ko": "Reflectron / LC-MS",
+        "en": "Reflectron / LC-MS"
+    },
+    "Savitzky–Golay 스무딩 창 (점 수, 홀수). 피크 반치폭 정도가 적당합니다. 0 = 사용 안 함": {
+        "ko": "Savitzky–Golay 스무딩 창 (점 수, 홀수). 피크 반치폭 정도가 적당합니다. 0 = 사용 안 함",
+        "en": "Savitzky–Golay smoothing window (points, odd). About the peak half-width works well. 0 = off"
+    },
+    "m/z {a:.1f} – {b:.1f}, 데이터 {n:,}점": {
+        "ko": "m/z {a:.1f} – {b:.1f}, 데이터 {n:,}점",
+        "en": "m/z {a:.1f} – {b:.1f}, {n:,} data points"
+    },
+    "m/z 최대": {
+        "ko": "m/z 최대",
+        "en": "m/z max"
+    },
+    "m/z 최소": {
+        "ko": "m/z 최소",
+        "en": "m/z min"
+    },
+    "mzXML 스펙트럼을 엽니다 (txt/csv 2열 스펙트럼도 가능). LC-MS 다중 스캔 파일도 지원합니다.": {
+        "ko": "mzXML 스펙트럼을 엽니다 (txt/csv 2열 스펙트럼도 가능). LC-MS 다중 스캔 파일도 지원합니다.",
+        "en": "Open an mzXML spectrum (two-column txt/csv spectra also work). LC-MS files with multiple scans are supported."
+    },
+    "mzXML 열기...": {
+        "ko": "mzXML 열기...",
+        "en": "Open mzXML..."
+    },
+    "▶ 피크 검출": {
+        "ko": "▶ 피크 검출",
+        "en": "▶ Detect peaks"
+    },
+    "가장 강한 피크 대비 최소 상대 강도 (%)": {
+        "ko": "가장 강한 피크 대비 최소 상대 강도 (%)",
+        "en": "Minimum intensity relative to the strongest peak (%)"
+    },
+    "강한 순서로 최대 몇 개까지 피크를 남길지": {
+        "ko": "강한 순서로 최대 몇 개까지 피크를 남길지",
+        "en": "Maximum number of peaks to keep, strongest first"
+    },
+    "검출된 피크·시리즈 수와, 피크 간 질량 차이에서 찾은 우세 반복 간격": {
+        "ko": "검출된 피크·시리즈 수와, 피크 간 질량 차이에서 찾은 우세 반복 간격",
+        "en": "Number of detected peaks and series, and the dominant repeat spacings found from peak-to-peak mass differences"
+    },
+    "검출할 m/z 상한. 0 = 스펙트럼 끝까지": {
+        "ko": "검출할 m/z 상한. 0 = 스펙트럼 끝까지",
+        "en": "Upper m/z limit for detection. 0 = to the end of the spectrum"
+    },
+    "검출할 m/z 하한. 0 = 스펙트럼 처음부터": {
+        "ko": "검출할 m/z 하한. 0 = 스펙트럼 처음부터",
+        "en": "Lower m/z limit for detection. 0 = from the start of the spectrum"
+    },
+    "동위원소 미분리: 포락선 중심 · 평균질량 · 1 Da": {
+        "ko": "동위원소 미분리: 포락선 중심 · 평균질량 · 1 Da",
+        "en": "Isotopes not resolved: envelope center · average mass · 1 Da"
+    },
+    "동위원소 분리: 모노이소토픽 피크 · 정밀질량 · 0.05 Da": {
+        "ko": "동위원소 분리: 모노이소토픽 피크 · 정밀질량 · 0.05 Da",
+        "en": "Isotopes resolved: monoisotopic peak · exact mass · 0.05 Da"
+    },
+    "동위원소 정리": {
+        "ko": "동위원소 정리",
+        "en": "Isotope cleanup"
+    },
+    "동위원소 피크(1.00335 Da 간격) 묶음에서 하나만 남깁니다.\n모노이소토픽만: 첫 피크 (솔버 동위원소 오프셋 0과 대응)\n최대 피크만: 가장 강한 피크 (솔버 동위원소 오프셋 N을 함께 쓰세요)\nLinear 모드처럼 동위원소가 분리되지 않으면 '사용 안 함'.": {
+        "ko": "동위원소 피크(1.00335 Da 간격) 묶음에서 하나만 남깁니다.\n모노이소토픽만: 첫 피크 (솔버 동위원소 오프셋 0과 대응)\n최대 피크만: 가장 강한 피크 (솔버 동위원소 오프셋 N을 함께 쓰세요)\nLinear 모드처럼 동위원소가 분리되지 않으면 '사용 안 함'.",
+        "en": "Keep only one peak from each isotope cluster (1.00335 Da spacing).\nMonoisotopic only: the first peak (matches solver isotope offset 0)\nStrongest peak only: the most intense peak (use solver isotope offset N as well)\nUse 'Off' when isotopes are not resolved, as in Linear mode."
+    },
+    "모노이소토픽만 (첫 피크)": {
+        "ko": "모노이소토픽만 (첫 피크)",
+        "en": "Monoisotopic only (first peak)"
+    },
+    "반복단위 간격으로 이 개수 이상 이어져야 시리즈로 인정합니다.": {
+        "ko": "반복단위 간격으로 이 개수 이상 이어져야 시리즈로 인정합니다.",
+        "en": "At least this many peaks must be connected by repeat-unit spacings to count as a series."
+    },
+    "반복단위 질량은 모노머 탭의 일반 모노머에서, 허용 오차·질량 기준은 위 솔버 설정에서 가져옵니다.": {
+        "ko": "반복단위 질량은 모노머 탭의 일반 모노머에서, 허용 오차·질량 기준은 위 솔버 설정에서 가져옵니다.",
+        "en": "Repeat-unit masses come from the ordinary monomers in the Monomers tab; tolerance and mass basis come from the solver settings above."
+    },
+    "베이스라인 창": {
+        "ko": "베이스라인 창",
+        "en": "Baseline window"
+    },
+    "베이스라인(바닥 신호)을 추정할 창 크기 (Da). 피크 폭의 5–10배가 적당합니다. 0 = 제거 안 함": {
+        "ko": "베이스라인(바닥 신호)을 추정할 창 크기 (Da). 피크 폭의 5–10배가 적당합니다. 0 = 제거 안 함",
+        "en": "Window size (Da) for estimating the baseline. About 5–10 times the peak width works well. 0 = no removal"
+    },
+    "사용 안 함": {
+        "ko": "사용 안 함",
+        "en": "Off"
+    },
+    "상대 강도 ≥": {
+        "ko": "상대 강도 ≥",
+        "en": "Rel. intensity ≥"
+    },
+    "스무딩": {
+        "ko": "스무딩",
+        "en": "Smoothing"
+    },
+    "스캔 {n}개": {
+        "ko": "스캔 {n}개",
+        "en": "Scans: {n}"
+    },
+    "스펙트럼을 닫습니다 (피크 목록은 유지).": {
+        "ko": "스펙트럼을 닫습니다 (피크 목록은 유지).",
+        "en": "Close the spectrum (the peak list is kept)."
+    },
+    "시리즈 안에서 건너뛸 수 있는 반복단위 수 (누락 피크 허용)": {
+        "ko": "시리즈 안에서 건너뛸 수 있는 반복단위 수 (누락 피크 허용)",
+        "en": "Number of repeat units that may be skipped within a series (missing peaks allowed)"
+    },
+    "신호 대 잡음비 임계값. 노이즈 표준편차의 몇 배 이상인 피크만 남깁니다 (3–5 권장).": {
+        "ko": "신호 대 잡음비 임계값. 노이즈 표준편차의 몇 배 이상인 피크만 남깁니다 (3–5 권장).",
+        "en": "Signal-to-noise threshold. Keeps only peaks this many times the noise standard deviation (3–5 recommended)."
+    },
+    "열린 파일 없음": {
+        "ko": "열린 파일 없음",
+        "en": "No file open"
+    },
+    "이보다 가까운 피크는 강한 것만 남깁니다. Reflectron 0.3 Da, Linear 10 Da 정도.": {
+        "ko": "이보다 가까운 피크는 강한 것만 남깁니다. Reflectron 0.3 Da, Linear 10 Da 정도.",
+        "en": "Of peaks closer than this, only the stronger is kept. About 0.3 Da for Reflectron, 10 Da for Linear."
+    },
+    "주기 시리즈 (반복단위 간격)": {
+        "ko": "주기 시리즈 (반복단위 간격)",
+        "en": "Periodic series (repeat-unit spacing)"
+    },
+    "질량값만 분석할 때는 오른쪽 피크 목록에 직접 입력/붙여넣기 하세요. 원본 스펙트럼(mzXML)을 열면 피크를 검출해 목록을 채웁니다.": {
+        "ko": "질량값만 분석할 때는 오른쪽 피크 목록에 직접 입력/붙여넣기 하세요. 원본 스펙트럼(mzXML)을 열면 피크를 검출해 목록을 채웁니다.",
+        "en": "To analyze mass values only, type or paste them into the peak list on the right. Opening a raw spectrum (mzXML) detects peaks and fills the list."
+    },
+    "최대 건너뜀": {
+        "ko": "최대 건너뜀",
+        "en": "Max skip"
+    },
+    "최대 피크 수": {
+        "ko": "최대 피크 수",
+        "en": "Max peaks"
+    },
+    "최대 피크만": {
+        "ko": "최대 피크만",
+        "en": "Strongest peak only"
+    },
+    "최소 간격": {
+        "ko": "최소 간격",
+        "en": "Min spacing"
+    },
+    "최소 길이": {
+        "ko": "최소 길이",
+        "en": "Min length"
+    },
+    "측정 모드 프리셋": {
+        "ko": "측정 모드 프리셋",
+        "en": "Measurement-mode presets"
+    },
+    "텍스트 스펙트럼": {
+        "ko": "텍스트 스펙트럼",
+        "en": "Text spectrum"
+    },
+    "피크 검출 파라미터와 솔버의 질량 기준·허용 오차를 측정 방식에 맞게 한 번에 설정합니다.": {
+        "ko": "피크 검출 파라미터와 솔버의 질량 기준·허용 오차를 측정 방식에 맞게 한 번에 설정합니다.",
+        "en": "Sets the peak-detection parameters and the solver's mass basis and tolerance for the measurement method in one step."
+    },
+    "현재 스펙트럼에서 피크를 찾아 오른쪽 피크 목록을 채웁니다 (기존 목록은 바뀝니다).": {
+        "ko": "현재 스펙트럼에서 피크를 찾아 오른쪽 피크 목록을 채웁니다 (기존 목록은 바뀝니다).",
+        "en": "Find peaks in the current spectrum and fill the peak list on the right (the existing list is replaced)."
+    },
+    "KMD 계산에 쓸 반복단위. 이 단위의 정수배만큼 떨어진 피크는 같은 KMD를 갖습니다.": {
+        "ko": "KMD 계산에 쓸 반복단위. 이 단위의 정수배만큼 떨어진 피크는 같은 KMD를 갖습니다.",
+        "en": "Repeat unit used for the KMD. Peaks separated by integer multiples of this unit have the same KMD."
+    },
+    "Kendrick mass defect 플롯": {
+        "ko": "Kendrick mass defect 플롯",
+        "en": "Kendrick mass defect plot"
+    },
+    "Kendrick mass defect: KMD = round(KM) − KM, KM = m/z × round(M)/M. 같은 계열은 수평선 위에 정렬됩니다. 점을 클릭하면 피크가 선택됩니다.": {
+        "ko": "Kendrick mass defect: KMD = round(KM) − KM, KM = m/z × round(M)/M. 같은 계열은 수평선 위에 정렬됩니다. 점을 클릭하면 피크가 선택됩니다.",
+        "en": "Kendrick mass defect: KMD = round(KM) − KM, KM = m/z × round(M)/M. Members of the same family line up horizontally. Click a point to select the peak."
+    },
+    "n 범위": {
+        "ko": "n 범위",
+        "en": "n range"
+    },
+    "{n}개 피크를 가져왔습니다. 기존 목록을 어떻게 할까요?": {
+        "ko": "{n}개 피크를 가져왔습니다. 기존 목록을 어떻게 할까요?",
+        "en": "Imported {n} peaks. What should happen to the existing list?"
+    },
+    "Σ 가중치(오차가 작을수록 1에 가까움) × (최장 연속 구간이면 1, 아니면 0.5)": {
+        "ko": "Σ 가중치(오차가 작을수록 1에 가까움) × (최장 연속 구간이면 1, 아니면 0.5)",
+        "en": "Σ weight (closer to 1 for smaller errors) × (1 inside the longest consecutive run, otherwise 0.5)"
+    },
+    "가져오기 실패": {
+        "ko": "가져오기 실패",
+        "en": "Import failed"
+    },
+    "가져오기...": {
+        "ko": "가져오기...",
+        "en": "Import..."
+    },
+    "같은 계열 = 반복단위 하나만 연속으로 증가하고 나머지 조성·어덕트가 같은 후보들. 많은 피크를 연속적으로, 작은 오차로 설명할수록 점수가 높습니다. 행을 고르면 그 계열의 피크가 강조됩니다.": {
+        "ko": "같은 계열 = 반복단위 하나만 연속으로 증가하고 나머지 조성·어덕트가 같은 후보들. 많은 피크를 연속적으로, 작은 오차로 설명할수록 점수가 높습니다. 행을 고르면 그 계열의 피크가 강조됩니다.",
+        "en": "Same family = candidates where only one repeat unit increases consecutively and the rest of the composition and the adduct are the same. Families that explain many peaks consecutively with small errors score higher. Select a row to highlight that family's peaks."
+    },
+    "계열 피크": {
+        "ko": "계열 피크",
+        "en": "Family peaks"
+    },
+    "관측 m/z. 질량 목록 모드에서는 셀을 두 번 눌러 고칠 수 있습니다.": {
+        "ko": "관측 m/z. 질량 목록 모드에서는 셀을 두 번 눌러 고칠 수 있습니다.",
+        "en": "Observed m/z. In mass-list mode, double-click the cell to edit."
+    },
+    "교체": {
+        "ko": "교체",
+        "en": "Replace"
+    },
+    "기준 반복단위:": {
+        "ko": "기준 반복단위:",
+        "en": "Base repeat unit:"
+    },
+    "내보내기 오류": {
+        "ko": "내보내기 오류",
+        "en": "Export error"
+    },
+    "뒤에 추가": {
+        "ko": "뒤에 추가",
+        "en": "Append"
+    },
+    "메모": {
+        "ko": "메모",
+        "en": "Note"
+    },
+    "메모 (가져온 파일의 설명 열, 동위원소 묶음 크기 등). 두 번 눌러 고칠 수 있습니다.": {
+        "ko": "메모 (가져온 파일의 설명 열, 동위원소 묶음 크기 등). 두 번 눌러 고칠 수 있습니다.",
+        "en": "Note (description column of the imported file, isotope cluster size, etc.). Double-click to edit."
+    },
+    "모두 지우기": {
+        "ko": "모두 지우기",
+        "en": "Clear all"
+    },
+    "반복 수 n이 끊김 없이 이어지는 가장 긴 구간의 피크 수": {
+        "ko": "반복 수 n이 끊김 없이 이어지는 가장 긴 구간의 피크 수",
+        "en": "Number of peaks in the longest uninterrupted run of repeat counts n"
+    },
+    "반복단위 n=범위 · 고정 조성 · 어덕트 (동위원소 오프셋이 있으면 +N iso)": {
+        "ko": "반복단위 n=범위 · 고정 조성 · 어덕트 (동위원소 오프셋이 있으면 +N iso)",
+        "en": "Repeat unit n=range · fixed composition · adduct (+N iso if there is an isotope offset)"
+    },
+    "반복단위 간격으로 이어지는 시리즈에 속한 피크만 표시하고 솔버에 사용합니다": {
+        "ko": "반복단위 간격으로 이어지는 시리즈에 속한 피크만 표시하고 솔버에 사용합니다",
+        "en": "Show and solve only peaks that belong to a series connected by repeat-unit spacings"
+    },
+    "붙여넣기": {
+        "ko": "붙여넣기",
+        "en": "Paste"
+    },
+    "빈 행을 추가하고 m/z를 바로 입력합니다.": {
+        "ko": "빈 행을 추가하고 m/z를 바로 입력합니다.",
+        "en": "Add an empty row and type the m/z right away."
+    },
+    "사용": {
+        "ko": "사용",
+        "en": "Use"
+    },
+    "선택 삭제": {
+        "ko": "선택 삭제",
+        "en": "Delete selected"
+    },
+    "선택한 피크 행을 지웁니다.": {
+        "ko": "선택한 피크 행을 지웁니다.",
+        "en": "Delete the selected peak rows."
+    },
+    "선택한 피크의 후보 조성 (확률 순)": {
+        "ko": "선택한 피크의 후보 조성 (확률 순)",
+        "en": "Candidate compositions of the selected peak (by probability)"
+    },
+    "설명 피크 수": {
+        "ko": "설명 피크 수",
+        "en": "Peaks explained"
+    },
+    "설명한 피크들의 반복 수 범위": {
+        "ko": "설명한 피크들의 반복 수 범위",
+        "en": "Repeat-count range of the explained peaks"
+    },
+    "설명한 피크들의 평균 질량 오차": {
+        "ko": "설명한 피크들의 평균 질량 오차",
+        "en": "Average mass error of the explained peaks"
+    },
+    "솔버를 먼저 실행하십시오.": {
+        "ko": "솔버를 먼저 실행하십시오.",
+        "en": "Run the solver first."
+    },
+    "시리즈": {
+        "ko": "시리즈",
+        "en": "Series"
+    },
+    "시리즈 {s}개 ({p}개 피크)": {
+        "ko": "시리즈 {s}개 ({p}개 피크)",
+        "en": "Series: {s} ({p} peaks)"
+    },
+    "신호 대 잡음비 (스펙트럼에서 검출한 경우).": {
+        "ko": "신호 대 잡음비 (스펙트럼에서 검출한 경우).",
+        "en": "Signal-to-noise ratio (when detected from a spectrum)."
+    },
+    "엑셀/CSV/TXT의 m/z(, 강도, 메모) 열을 읽습니다": {
+        "ko": "엑셀/CSV/TXT의 m/z(, 강도, 메모) 열을 읽습니다",
+        "en": "Reads the m/z (, intensity, note) columns from Excel/CSV/TXT"
+    },
+    "엑셀에서 복사한 셀을 붙여넣습니다 (Ctrl+V)": {
+        "ko": "엑셀에서 복사한 셀을 붙여넣습니다 (Ctrl+V)",
+        "en": "Paste cells copied from Excel (Ctrl+V)"
+    },
+    "연속 반복 수로 묶은 조성 계열 순위": {
+        "ko": "연속 반복 수로 묶은 조성 계열 순위",
+        "en": "Ranking of composition families grouped by consecutive repeat counts"
+    },
+    "이 계열 후보들이 각 피크에서 받은 확률의 평균": {
+        "ko": "이 계열 후보들이 각 피크에서 받은 확률의 평균",
+        "en": "Average probability that this family's candidates received at each peak"
+    },
+    "이 계열의 후보가 있는 피크 수": {
+        "ko": "이 계열의 후보가 있는 피크 수",
+        "en": "Number of peaks that have a candidate of this family"
+    },
+    "이 피크가 속한 주기 시리즈 (반복단위 간격으로 이어진 피크 묶음).": {
+        "ko": "이 피크가 속한 주기 시리즈 (반복단위 간격으로 이어진 피크 묶음).",
+        "en": "Periodic series this peak belongs to (peaks connected by repeat-unit spacings)."
+    },
+    "전체 결과 내보내기": {
+        "ko": "전체 결과 내보내기",
+        "en": "Export all results"
+    },
+    "전체 결과 내보내기...": {
+        "ko": "전체 결과 내보내기...",
+        "en": "Export all results..."
+    },
+    "전체 피크 수 · 솔버에 들어갈 피크 수 · 주기 시리즈 수": {
+        "ko": "전체 피크 수 · 솔버에 들어갈 피크 수 · 주기 시리즈 수",
+        "en": "Total peaks · peaks sent to the solver · periodic series"
+    },
+    "점수 순위": {
+        "ko": "점수 순위",
+        "en": "Score rank"
+    },
+    "조성 계열": {
+        "ko": "조성 계열",
+        "en": "Composition families"
+    },
+    "주기 시리즈 피크만": {
+        "ko": "주기 시리즈 피크만",
+        "en": "Periodic series peaks only"
+    },
+    "체크한 피크만 솔버에 넣습니다.": {
+        "ko": "체크한 피크만 솔버에 넣습니다.",
+        "en": "Only checked peaks are sent to the solver."
+    },
+    "최상위 조성": {
+        "ko": "최상위 조성",
+        "en": "Top composition"
+    },
+    "최상위 후보와 같은 조성 계열이 설명하는 피크 수.": {
+        "ko": "최상위 후보와 같은 조성 계열이 설명하는 피크 수.",
+        "en": "Number of peaks explained by the same family as the top candidate."
+    },
+    "최상위 후보의 어덕트.": {
+        "ko": "최상위 후보의 어덕트.",
+        "en": "Adduct of the top candidate."
+    },
+    "최상위 후보의 확률. 같은 계열이 많은 피크를 연속으로 설명할수록 높습니다.": {
+        "ko": "최상위 후보의 확률. 같은 계열이 많은 피크를 연속으로 설명할수록 높습니다.",
+        "en": "Probability of the top candidate. Higher when its family explains many peaks consecutively."
+    },
+    "최장 연속": {
+        "ko": "최장 연속",
+        "en": "Longest run"
+    },
+    "클립보드에서 m/z 숫자를 찾을 수 없습니다.": {
+        "ko": "클립보드에서 m/z 숫자를 찾을 수 없습니다.",
+        "en": "No m/z numbers found on the clipboard."
+    },
+    "평균 |오차| (Da)": {
+        "ko": "평균 |오차| (Da)",
+        "en": "Mean |error| (Da)"
+    },
+    "평균 확률": {
+        "ko": "평균 확률",
+        "en": "Mean probability"
+    },
+    "표 파일 (*.xlsx *.xls *.csv *.txt);;모든 파일 (*.*)": {
+        "ko": "표 파일 (*.xlsx *.xls *.csv *.txt);;모든 파일 (*.*)",
+        "en": "Table files (*.xlsx *.xls *.csv *.txt);;All files (*.*)"
+    },
+    "피크 {n}개 · 솔버 대상 {m}개": {
+        "ko": "피크 {n}개 · 솔버 대상 {m}개",
+        "en": "Peaks: {n} · to solver: {m}"
+    },
+    "피크 강도 (스펙트럼에서 검출한 경우 스무딩 후 높이).": {
+        "ko": "피크 강도 (스펙트럼에서 검출한 경우 스무딩 후 높이).",
+        "en": "Peak intensity (height after smoothing when detected from a spectrum)."
+    },
+    "피크 목록": {
+        "ko": "피크 목록",
+        "en": "Peak list"
+    },
+    "피크 목록을 모두 지울까요?": {
+        "ko": "피크 목록을 모두 지울까요?",
+        "en": "Clear the whole peak list?"
+    },
+    "피크 목록을 모두 지웁니다.": {
+        "ko": "피크 목록을 모두 지웁니다.",
+        "en": "Clear the whole peak list."
+    },
+    "피크 요약 · 전체 후보 · 조성 계열을 엑셀(.xlsx) 시트 3개로 저장합니다.": {
+        "ko": "피크 요약 · 전체 후보 · 조성 계열을 엑셀(.xlsx) 시트 3개로 저장합니다.",
+        "en": "Save the peak summary, all candidates and composition families as three Excel (.xlsx) sheets."
+    },
+    "피크 추가": {
+        "ko": "피크 추가",
+        "en": "Add peaks"
+    },
+    "피크 표 가져오기": {
+        "ko": "피크 표 가져오기",
+        "en": "Import peak table"
+    },
+    "피크(●)를 누르면 선택됩니다. 색 = 주기 시리즈, ▲와 숫자 = 선택한 후보와 같은 조성 계열의 피크와 반복 수.\n마우스 휠: 확대/축소 · 드래그: 이동 · 오른쪽 버튼: 보기 메뉴": {
+        "ko": "피크(●)를 누르면 선택됩니다. 색 = 주기 시리즈, ▲와 숫자 = 선택한 후보와 같은 조성 계열의 피크와 반복 수.\n마우스 휠: 확대/축소 · 드래그: 이동 · 오른쪽 버튼: 보기 메뉴",
+        "en": "Click a peak (●) to select it. Color = periodic series; ▲ and number = peaks of the same composition family as the selected candidate, with their repeat count.\nMouse wheel: zoom · drag: pan · right button: view menu"
+    },
+    "행 추가": {
+        "ko": "행 추가",
+        "en": "Add row"
+    },
+    "허용 오차 안에 든 후보 조성 수.": {
+        "ko": "허용 오차 안에 든 후보 조성 수.",
+        "en": "Number of candidate compositions within the tolerance."
+    },
+    "확률": {
+        "ko": "확률",
+        "en": "Probability"
+    },
+    "확률이 가장 높은 후보 조성.": {
+        "ko": "확률이 가장 높은 후보 조성.",
+        "en": "Candidate composition with the highest probability."
+    },
+    "후보 수": {
+        "ko": "후보 수",
+        "en": "Candidates"
+    },
+    "후보 조성": {
+        "ko": "후보 조성",
+        "en": "Candidates"
+    },
+    "(상위 {k}개 표시)": {
+        "ko": "(상위 {k}개 표시)",
+        "en": "(top {k} shown)"
+    },
+    "0 = 모노이소토픽 피크와 대응, N = N번째 동위원소 피크와 대응": {
+        "ko": "0 = 모노이소토픽 피크와 대응, N = N번째 동위원소 피크와 대응",
+        "en": "0 = matches the monoisotopic peak, N = matches the N-th isotope peak"
+    },
+    "|관측 − 이론| (Da). 솔버 허용 오차 이하만 후보가 됩니다.": {
+        "ko": "|관측 − 이론| (Da). 솔버 허용 오차 이하만 후보가 됩니다.",
+        "en": "|observed − theoretical| (Da). Only values within the solver tolerance become candidates."
+    },
+    "결과가 성공적으로 저장되었습니다:\n{path}": {
+        "ko": "결과가 성공적으로 저장되었습니다:\n{path}",
+        "en": "Results saved:\n{path}"
+    },
+    "계열 피크 수": {
+        "ko": "계열 피크 수",
+        "en": "Family peaks"
+    },
+    "관측된 피크 m/z": {
+        "ko": "관측된 피크 m/z",
+        "en": "Observed peak m/z"
+    },
+    "내보낼 결과가 없습니다.": {
+        "ko": "내보낼 결과가 없습니다.",
+        "en": "No results to export."
+    },
+    "어덕트를 포함한 이온 분자식. 행을 두 번 누르면 동위원소 패턴을 봅니다.": {
+        "ko": "어덕트를 포함한 이온 분자식. 행을 두 번 누르면 동위원소 패턴을 봅니다.",
+        "en": "Ion formula including the adduct. Double-click a row to see the isotope pattern."
+    },
+    "이 모노머의 개수": {
+        "ko": "이 모노머의 개수",
+        "en": "Count of this monomer"
+    },
+    "이 조성의 이론 m/z (질량 기준에 따라 모노이소토픽 또는 평균)": {
+        "ko": "이 조성의 이론 m/z (질량 기준에 따라 모노이소토픽 또는 평균)",
+        "en": "Theoretical m/z of this composition (monoisotopic or average depending on the mass basis)"
+    },
+    "이 피크 내보내기...": {
+        "ko": "이 피크 내보내기...",
+        "en": "Export this peak..."
+    },
+    "이 후보가 정답일 확률. 같은 조성 계열(한 반복단위만 1개씩 다른 후보)이 많은 피크를 연속으로 설명할수록 높습니다. '설명되지 않음' 가능성도 함께 고려합니다.": {
+        "ko": "이 후보가 정답일 확률. 같은 조성 계열(한 반복단위만 1개씩 다른 후보)이 많은 피크를 연속으로 설명할수록 높습니다. '설명되지 않음' 가능성도 함께 고려합니다.",
+        "en": "Probability that this candidate is correct. Higher when the same composition family (candidates differing by one repeat unit) explains many peaks consecutively. The possibility that the peak is unexplained is also considered."
+    },
+    "이 후보에는 직접 입력 질량이 포함되어 있어\n분자식을 알 수 없으므로 동위원소 패턴을 계산할 수 없습니다.": {
+        "ko": "이 후보에는 직접 입력 질량이 포함되어 있어\n분자식을 알 수 없으므로 동위원소 패턴을 계산할 수 없습니다.",
+        "en": "This candidate contains a directly entered mass,\nso its formula is unknown and the isotope pattern cannot be calculated."
+    },
+    "이 후보와 같은 조성 계열이 설명하는 피크 수 (-: 계열 없음)": {
+        "ko": "이 후보와 같은 조성 계열이 설명하는 피크 수 (-: 계열 없음)",
+        "en": "Number of peaks explained by the same composition family as this candidate (-: no family)"
+    },
+    "이온화 어덕트": {
+        "ko": "이온화 어덕트",
+        "en": "Ionization adduct"
+    },
+    "파일 저장 중 오류가 발생했습니다:\n{e}": {
+        "ko": "파일 저장 중 오류가 발생했습니다:\n{e}",
+        "en": "An error occurred while saving the file:\n{e}"
+    },
+    "피크를 선택하면 후보 조성이 표시됩니다": {
+        "ko": "피크를 선택하면 후보 조성이 표시됩니다",
+        "en": "Select a peak to see its candidate compositions"
+    },
+    "확률 순위 (같으면 오차가 작은 순)": {
+        "ko": "확률 순위 (같으면 오차가 작은 순)",
+        "en": "Rank by probability (ties: smaller error first)"
+    },
+    "후보 {n}개": {
+        "ko": "후보 {n}개",
+        "en": "Candidates: {n}"
+    },
+    "2위 계열": {
+        "ko": "2위 계열",
+        "en": "Runner-up family"
+    },
+    "가장 점수가 높은 조성 계열: 반복단위 n 범위 · 고정 조성 · 어덕트. 누르면 조성 계열 탭에서 강조합니다.": {
+        "ko": "가장 점수가 높은 조성 계열: 반복단위 n 범위 · 고정 조성 · 어덕트. 누르면 조성 계열 탭에서 강조합니다.",
+        "en": "Highest-scoring composition family: repeat unit n range · fixed composition · adduct. Click to highlight it in the Composition families tab."
+    },
+    "계열 없음": {
+        "ko": "계열 없음",
+        "en": "No family"
+    },
+    "두 번째로 점수가 높은 조성 계열. 누르면 강조합니다.": {
+        "ko": "두 번째로 점수가 높은 조성 계열. 누르면 강조합니다.",
+        "en": "Second-highest-scoring composition family. Click to highlight it."
+    },
+    "설명 피크 {n}": {
+        "ko": "설명 피크 {n}",
+        "en": "{n} peaks explained"
+    },
+    "설명 피크 {n} · 연속 {r} · 평균 오차 {e:.4f} Da": {
+        "ko": "설명 피크 {n} · 연속 {r} · 평균 오차 {e:.4f} Da",
+        "en": "{n} peaks explained · run {r} · mean error {e:.4f} Da"
+    },
+    "솔버를 실행하면 가장 가능성 높은 조성 계열이 여기에 표시됩니다.": {
+        "ko": "솔버를 실행하면 가장 가능성 높은 조성 계열이 여기에 표시됩니다.",
+        "en": "After you run the solver, the most likely composition family appears here."
+    },
+    "시리즈 {s}개": {
+        "ko": "시리즈 {s}개",
+        "en": "Series: {s}"
+    },
+    "연속된 피크를 설명하는 조성 계열을 찾지 못했습니다.": {
+        "ko": "연속된 피크를 설명하는 조성 계열을 찾지 못했습니다.",
+        "en": "No composition family explains consecutive peaks."
+    },
+    "최상위 계열 후보들이 각 피크에서 받은 확률의 평균. 비슷한 질량의 다른 계열이 있으면 낮아집니다.": {
+        "ko": "최상위 계열 후보들이 각 피크에서 받은 확률의 평균. 비슷한 질량의 다른 계열이 있으면 낮아집니다.",
+        "en": "Average probability that the top family's candidates received at each peak. Lower when another family has similar masses."
+    },
+    "최상위 조성 계열": {
+        "ko": "최상위 조성 계열",
+        "en": "Top composition family"
+    },
+    "피크 할당": {
+        "ko": "피크 할당",
+        "en": "Peaks assigned"
+    },
+    "후보가 하나 이상 있는 피크 수 / 솔버에 넣은 피크 수": {
+        "ko": "후보가 하나 이상 있는 피크 수 / 솔버에 넣은 피크 수",
+        "en": "Peaks with at least one candidate / peaks sent to the solver"
+    },
+    "Intensity 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}": {
+        "ko": "Intensity 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}",
+        "en": "Intensity column not found. Header: {header}. Allowed names: {v}"
+    },
+    "m/z 숫자 열을 찾을 수 없습니다": {
+        "ko": "m/z 숫자 열을 찾을 수 없습니다",
+        "en": "No m/z number column found"
+    },
+    "m/z 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}": {
+        "ko": "m/z 컬럼을 찾을 수 없습니다. 헤더: {header}. 허용 이름: {v}",
+        "en": "m/z column not found. Header: {header}. Allowed names: {v}"
+    },
+    "openpyxl 라이브러리가 필요합니다": {
+        "ko": "openpyxl 라이브러리가 필요합니다",
+        "en": "The openpyxl library is required"
+    },
+    "데이터가 없습니다": {
+        "ko": "데이터가 없습니다",
+        "en": "No data"
+    },
+    "시트가 비어 있습니다": {
+        "ko": "시트가 비어 있습니다",
+        "en": "The sheet is empty"
+    },
+    "유효한 피크 데이터가 없습니다": {
+        "ko": "유효한 피크 데이터가 없습니다",
+        "en": "No valid peak data"
+    },
+    "지원하지 않는 파일 형식: {suffix}. 지원 형식: .csv, .txt, .xlsx": {
+        "ko": "지원하지 않는 파일 형식: {suffix}. 지원 형식: .csv, .txt, .xlsx",
+        "en": "Unsupported file type: {suffix}. Supported types: .csv, .txt, .xlsx"
+    },
+    "파일 가져오기 실패 '{filepath}': {reason}": {
+        "ko": "파일 가져오기 실패 '{filepath}': {reason}",
+        "en": "File import failed '{filepath}': {reason}"
+    },
+    "파일 인코딩을 인식할 수 없습니다": {
+        "ko": "파일 인코딩을 인식할 수 없습니다",
+        "en": "Cannot detect the file encoding"
+    },
+    "파일이 비어 있습니다": {
+        "ko": "파일이 비어 있습니다",
+        "en": "The file is empty"
+    },
+    "파일이 존재하지 않습니다": {
+        "ko": "파일이 존재하지 않습니다",
+        "en": "The file does not exist"
+    },
+    "파일이 존재하지 않습니다: {path}": {
+        "ko": "파일이 존재하지 않습니다: {path}",
+        "en": "The file does not exist: {path}"
+    },
+    "행 {line_num}: 숫자 변환 실패 ({exc})": {
+        "ko": "행 {line_num}: 숫자 변환 실패 ({exc})",
+        "en": "Row {line_num}: number conversion failed ({exc})"
+    },
+    "'{filepath}' 파일 구조 오류: {exc}": {
+        "ko": "'{filepath}' 파일 구조 오류: {exc}",
+        "en": "File structure error in '{filepath}': {exc}"
+    },
+    "불러온 프로젝트": {
+        "ko": "불러온 프로젝트",
+        "en": "Loaded project"
+    },
+    "파일이 존재하지 않습니다: '{filepath}'": {
+        "ko": "파일이 존재하지 않습니다: '{filepath}'",
+        "en": "The file does not exist: '{filepath}'"
+    },
+    "프로젝트 불러오기 실패 '{filepath}': {exc}": {
+        "ko": "프로젝트 불러오기 실패 '{filepath}': {exc}",
+        "en": "Failed to load project '{filepath}': {exc}"
+    },
+    "프로젝트 저장 실패 '{filepath}': {exc}": {
+        "ko": "프로젝트 저장 실패 '{filepath}': {exc}",
+        "en": "Failed to save project '{filepath}': {exc}"
+    },
+    "mzXML에서 scan을 찾을 수 없습니다": {
+        "ko": "mzXML에서 scan을 찾을 수 없습니다",
+        "en": "No scan found in the mzXML file"
+    },
+    "peaks 데이터 길이가 홀수입니다": {
+        "ko": "peaks 데이터 길이가 홀수입니다",
+        "en": "The peaks data length is odd"
+    },
+    "숫자 데이터(m/z, intensity)를 찾을 수 없습니다": {
+        "ko": "숫자 데이터(m/z, intensity)를 찾을 수 없습니다",
+        "en": "No numeric data (m/z, intensity) found"
+    },
+    "어덕트 레이블이 비어 있습니다": {
+        "ko": "어덕트 레이블이 비어 있습니다",
+        "en": "The adduct label is empty"
+    },
+    "어덕트 문자열이 비어 있습니다.": {
+        "ko": "어덕트 문자열이 비어 있습니다.",
+        "en": "The adduct string is empty."
+    },
+    "올바르지 않은 분자식입니다: {part_formula}": {
+        "ko": "올바르지 않은 분자식입니다: {part_formula}",
+        "en": "Invalid formula: {part_formula}"
+    },
+    "전하 수가 0 이하입니다: {charge}": {
+        "ko": "전하 수가 0 이하입니다: {charge}",
+        "en": "Charge is 0 or less: {charge}"
+    },
+    "전하(z)는 0이 될 수 없습니다.": {
+        "ko": "전하(z)는 0이 될 수 없습니다.",
+        "en": "The charge (z) cannot be 0."
+    },
+    "지원되지 않는 어덕트 형식입니다 (예: [M+Na]+): {label}": {
+        "ko": "지원되지 않는 어덕트 형식입니다 (예: [M+Na]+): {label}",
+        "en": "Unsupported adduct format (e.g. [M+Na]+): {label}"
+    },
+    "괄호 불균형: 열림 {depth}개 초과": {
+        "ko": "괄호 불균형: 열림 {depth}개 초과",
+        "en": "Unbalanced parentheses: {depth} more opening than closing"
+    },
+    "괄호가 올바르게 닫히지 않았습니다 (닫힘이 먼저)": {
+        "ko": "괄호가 올바르게 닫히지 않았습니다 (닫힘이 먼저)",
+        "en": "Parentheses are not closed correctly (closing comes first)"
+    },
+    "비활성": {
+        "ko": "비활성",
+        "en": "inactive"
+    },
+    "제약식에 비교 연산자(= < <= > >=)가 없습니다: '{expr}'": {
+        "ko": "제약식에 비교 연산자(= < <= > >=)가 없습니다: '{expr}'",
+        "en": "The constraint has no comparison operator (= < <= > >=): '{expr}'"
+    },
+    "제약식이 비어 있습니다": {
+        "ko": "제약식이 비어 있습니다",
+        "en": "The constraint is empty"
+    },
+    "활성": {
+        "ko": "활성",
+        "en": "active"
+    },
+    "사용자 정의 말단기의 질량이 0 이하입니다. 양수 질량(Da)을 입력하십시오.": {
+        "ko": "사용자 정의 말단기의 질량이 0 이하입니다. 양수 질량(Da)을 입력하십시오.",
+        "en": "The custom end-group mass is 0 or less. Enter a positive mass (Da)."
+    },
+    "mmol 값이 0 이하입니다: {mmol}": {
+        "ko": "mmol 값이 0 이하입니다: {mmol}",
+        "en": "mmol value is 0 or less: {mmol}"
+    },
+    "공급비 항목이 없습니다": {
+        "ko": "공급비 항목이 없습니다",
+        "en": "No feed-ratio entries"
+    },
+    "성분 이름이 비어 있습니다": {
+        "ko": "성분 이름이 비어 있습니다",
+        "en": "The component name is empty"
+    },
+    "중복된 성분 이름: {v}": {
+        "ko": "중복된 성분 이름: {v}",
+        "en": "Duplicate component names: {v}"
+    },
+    "항목 {v}: {msg}": {
+        "ko": "항목 {v}: {msg}",
+        "en": "Entry {v}: {msg}"
+    },
+    "허용 오차가 유효 범위(0~100%)를 벗어났습니다: {tolerance_pct}%": {
+        "ko": "허용 오차가 유효 범위(0~100%)를 벗어났습니다: {tolerance_pct}%",
+        "en": "Tolerance is outside the valid range (0–100%): {tolerance_pct}%"
+    },
+    "{v:.4f} Da (블록)": {
+        "ko": "{v:.4f} Da (블록)",
+        "en": "{v:.4f} Da (block)"
+    },
+    "모노머 이름이 비어 있습니다": {
+        "ko": "모노머 이름이 비어 있습니다",
+        "en": "The monomer name is empty"
+    },
+    "입력값이 비어 있습니다": {
+        "ko": "입력값이 비어 있습니다",
+        "en": "The input is empty"
+    },
+    "정밀질량이 0 이하입니다: {exact_mass}": {
+        "ko": "정밀질량이 0 이하입니다: {exact_mass}",
+        "en": "Exact mass is 0 or less: {exact_mass}"
+    },
+    "최대값이 0 이하입니다: {max_count}": {
+        "ko": "최대값이 0 이하입니다: {max_count}",
+        "en": "Maximum is 0 or less: {max_count}"
+    },
+    "최소값({count_min})이 최대값({count_max})보다 큽니다": {
+        "ko": "최소값({count_min})이 최대값({count_max})보다 큽니다",
+        "en": "Minimum ({count_min}) is greater than maximum ({count_max})"
+    },
+    "최소값({min_count})이 최대값({max_count})보다 큽니다": {
+        "ko": "최소값({min_count})이 최대값({max_count})보다 큽니다",
+        "en": "Minimum ({min_count}) is greater than maximum ({max_count})"
+    },
+    "최소값이 음수입니다: {count_min}": {
+        "ko": "최소값이 음수입니다: {count_min}",
+        "en": "Minimum is negative: {count_min}"
+    },
+    "최소값이 음수입니다: {min_count}": {
+        "ko": "최소값이 음수입니다: {min_count}",
+        "en": "Minimum is negative: {min_count}"
+    },
+    "하위 성분 이름이 비어 있습니다": {
+        "ko": "하위 성분 이름이 비어 있습니다",
+        "en": "The sub-component name is empty"
+    },
+    "MALDI 데이터: {msg}": {
+        "ko": "MALDI 데이터: {msg}",
+        "en": "MALDI data: {msg}"
+    },
+    "Project '{name}': {v}개 모노머, {v2}개 제약식, {v3}개 피크": {
+        "ko": "Project '{name}': {v}개 모노머, {v2}개 제약식, {v3}개 피크",
+        "en": "Project '{name}': {v} monomers, {v2} constraints, {v3} peaks"
+    },
+    "SEC 데이터: {msg}": {
+        "ko": "SEC 데이터: {msg}",
+        "en": "SEC data: {msg}"
+    },
+    "말단기: {msg}": {
+        "ko": "말단기: {msg}",
+        "en": "End group: {msg}"
+    },
+    "모노머 '{name}': {msg}": {
+        "ko": "모노머 '{name}': {msg}",
+        "en": "Monomer '{name}': {msg}"
+    },
+    "모노머가 하나도 정의되지 않았습니다": {
+        "ko": "모노머가 하나도 정의되지 않았습니다",
+        "en": "No monomers are defined"
+    },
+    "제약식 {v}: {msg}": {
+        "ko": "제약식 {v}: {msg}",
+        "en": "Constraint {v}: {msg}"
+    },
+    "중복된 모노머 이름: {v}": {
+        "ko": "중복된 모노머 이름: {v}",
+        "en": "Duplicate monomer names: {v}"
+    },
+    "프로젝트 이름이 비어 있습니다": {
+        "ko": "프로젝트 이름이 비어 있습니다",
+        "en": "The project name is empty"
+    },
+    "활성화된 어덕트가 없습니다. 최소 하나 이상 선택하십시오.": {
+        "ko": "활성화된 어덕트가 없습니다. 최소 하나 이상 선택하십시오.",
+        "en": "No adduct is enabled. Select at least one."
+    },
+    "Mn({mn})이 Mw({mw})보다 큽니다": {
+        "ko": "Mn({mn})이 Mw({mw})보다 큽니다",
+        "en": "Mn ({mn}) is greater than Mw ({mw})"
+    },
+    "Mn이 0 이하입니다: {mn}": {
+        "ko": "Mn이 0 이하입니다: {mn}",
+        "en": "Mn is 0 or less: {mn}"
+    },
+    "Mw가 0 이하입니다: {mw}": {
+        "ko": "Mw가 0 이하입니다: {mw}",
+        "en": "Mw is 0 or less: {mw}"
+    },
+    "PDI({pdi:.4f})가 Mw/Mn({v:.4f})과 일치하지 않습니다 (허용오차 1%)": {
+        "ko": "PDI({pdi:.4f})가 Mw/Mn({v:.4f})과 일치하지 않습니다 (허용오차 1%)",
+        "en": "PDI ({pdi:.4f}) does not match Mw/Mn ({v:.4f}) (1% tolerance)"
+    },
+    "PDI가 1.0 미만입니다: {pdi}": {
+        "ko": "PDI가 1.0 미만입니다: {pdi}",
+        "en": "PDI is less than 1.0: {pdi}"
+    },
+    "m/z 수({v})와 강도 수({v2})가 일치하지 않습니다": {
+        "ko": "m/z 수({v})와 강도 수({v2})가 일치하지 않습니다",
+        "en": "Number of m/z values ({v}) does not match number of intensities ({v2})"
+    },
+    "피크 {v}: m/z 값이 0 이하입니다 ({mz})": {
+        "ko": "피크 {v}: m/z 값이 0 이하입니다 ({mz})",
+        "en": "Peak {v}: m/z is 0 or less ({mz})"
+    },
+    "솔버 파라미터 오류: {v}": {
+        "ko": "솔버 파라미터 오류: {v}",
+        "en": "Solver parameter error: {v}"
+    },
+    "'{name}.mw'에서 '{name}'은 정의되지 않은 성분입니다. 사용 가능한 성분: {v}": {
+        "ko": "'{name}.mw'에서 '{name}'은 정의되지 않은 성분입니다. 사용 가능한 성분: {v}",
+        "en": "In '{name}.mw', '{name}' is not a defined component. Available components: {v}"
+    },
+    "SymPy 파싱 실패: {exc}": {
+        "ko": "SymPy 파싱 실패: {exc}",
+        "en": "SymPy parse failed: {exc}"
+    },
+    "비교 연산자({v})가 없습니다": {
+        "ko": "비교 연산자({v})가 없습니다",
+        "en": "No comparison operator ({v})"
+    },
+    "빈 제약식": {
+        "ko": "빈 제약식",
+        "en": "Empty constraint"
+    },
+    "수식 평가 실패: {exc}": {
+        "ko": "수식 평가 실패: {exc}",
+        "en": "Expression evaluation failed: {exc}"
+    },
+    "순환 참조": {
+        "ko": "순환 참조",
+        "en": "Circular reference"
+    },
+    "식[{idx}]": {
+        "ko": "식[{idx}]",
+        "en": "expr[{idx}]"
+    },
+    "알 수 없는 연산자: {op}": {
+        "ko": "알 수 없는 연산자: {op}",
+        "en": "Unknown operator: {op}"
+    },
+    "우변 계산 실패: {exc}": {
+        "ko": "우변 계산 실패: {exc}",
+        "en": "Right-hand side calculation failed: {exc}"
+    },
+    "정의되지 않은 변수: {v}. 사용 가능한 변수: {v2}\n💡 정밀질량 참조는 '이름.mw' 형식을 사용하세요 (예: EO.mw)": {
+        "ko": "정의되지 않은 변수: {v}. 사용 가능한 변수: {v2}\n💡 정밀질량 참조는 '이름.mw' 형식을 사용하세요 (예: EO.mw)",
+        "en": "Undefined variables: {v}. Available variables: {v2}\n💡 Use 'name.mw' to refer to an exact mass (e.g. EO.mw)"
+    },
+    "제약식 간 순환 의존성 발견: {v}": {
+        "ko": "제약식 간 순환 의존성 발견: {v}",
+        "en": "Circular dependency between constraints: {v}"
+    },
+    "제약식 파싱 오류 '{expression}': {reason}": {
+        "ko": "제약식 파싱 오류 '{expression}': {reason}",
+        "en": "Constraint parse error '{expression}': {reason}"
+    },
+    "제약식 평가 오류 '{expression}': {reason}": {
+        "ko": "제약식 평가 오류 '{expression}': {reason}",
+        "en": "Constraint evaluation error '{expression}': {reason}"
+    },
+    "S{series_id} ({repeat_name}, {v}개)": {
+        "ko": "S{series_id} ({repeat_name}, {v}개)",
+        "en": "S{series_id} ({repeat_name}, {v} peaks)"
+    },
+    "'{name}'의 {label}이 0 이하입니다": {
+        "ko": "'{name}'의 {label}이 0 이하입니다",
+        "en": "The {label} of '{name}' is 0 or less"
+    },
+    "m/z 값이 0 이하입니다: {peak_mz}": {
+        "ko": "m/z 값이 0 이하입니다: {peak_mz}",
+        "en": "m/z is 0 or less: {peak_mz}"
+    },
+    "모노머가 없습니다": {
+        "ko": "모노머가 없습니다",
+        "en": "No monomers"
+    },
+    "정밀질량": {
+        "ko": "정밀질량",
+        "en": "exact mass"
+    },
+    "허용 오차가 음수입니다: {tolerance_da}": {
+        "ko": "허용 오차가 음수입니다: {tolerance_da}",
+        "en": "Tolerance is negative: {tolerance_da}"
+    },
+    "활성화된 어덕트가 없습니다": {
+        "ko": "활성화된 어덕트가 없습니다",
+        "en": "No adduct is enabled"
+    },
+    "최소값/최대값에 반영...": {
+        "ko": "최소값/최대값에 반영...",
+        "en": "Apply to min/max..."
+    },
+    "입력 패널 넓게": {
+        "ko": "입력 패널 넓게",
+        "en": "Widen input panel"
+    },
+    "입력 패널을 창 폭의 절반 정도로 넓힙니다. 다시 누르면 기본 폭으로 돌아갑니다. 가운데 경계선을 끌어서 원하는 폭으로 조절할 수도 있습니다.": {
+        "ko": "입력 패널을 창 폭의 절반 정도로 넓힙니다. 다시 누르면 기본 폭으로 돌아갑니다. 가운데 경계선을 끌어서 원하는 폭으로 조절할 수도 있습니다.",
+        "en": "Widens the input panel to about half the window. Press again to return to the default width. You can also drag the divider to any width."
+    },
+    "끌어서 입력 패널 폭을 조절합니다 · 두 번 누르면 접거나 펼칩니다": {
+        "ko": "끌어서 입력 패널 폭을 조절합니다 · 두 번 누르면 접거나 펼칩니다",
+        "en": "Drag to resize the input panel · double-click to collapse or expand"
+    },
+    "입력 패널 폭: {w}px": {
+        "ko": "입력 패널 폭: {w}px",
+        "en": "Input panel width: {w}px"
+    }
 }

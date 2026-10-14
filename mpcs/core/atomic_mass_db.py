@@ -14,6 +14,7 @@ All masses are in Daltons (Da), 9+ decimal places for high-mass polymer accuracy
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from typing import Final
 
 
@@ -127,7 +128,7 @@ class AtomicMassDB:
             평균 질량
         """
         if element not in _AVERAGE_MASSES:
-            raise KeyError(f"지원하지 않는 원소입니다: {element}")
+            raise KeyError(tr('지원하지 않는 원소입니다: {element}', element=element))
         return _AVERAGE_MASSES[element]
 
     @classmethod
@@ -149,8 +150,7 @@ class AtomicMassDB:
         except KeyError:
             supported = ", ".join(sorted(cls.SUPPORTED_ELEMENTS))
             raise KeyError(
-                f"지원하지 않는 원소: '{element}'. "
-                f"지원 원소 목록: {supported}"
+                tr("지원하지 않는 원소: '{element}'. 지원 원소 목록: {supported}", element=element, supported=supported)
             ) from None
 
     @classmethod
@@ -169,7 +169,7 @@ class AtomicMassDB:
             KeyError: 지원하지 않는 원소인 경우
         """
         if element not in _ISOTOPE_DATA:
-            raise KeyError(f"동위원소 데이터 없음: '{element}'")
+            raise KeyError(tr("동위원소 데이터 없음: '{element}'", element=element))
         return list(_ISOTOPE_DATA[element])
 
     @classmethod

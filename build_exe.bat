@@ -11,18 +11,22 @@ setlocal
 cd /d "%~dp0"
 set QT_API=pyqt5
 
+.\.venv2\Scripts\python.exe packaging\make_icon.py || goto :error
+
 for /f "tokens=2 delims==" %%H in ('findstr /b /c:"home" .venv2\pyvenv.cfg') do set "PYHOME=%%H"
 set "PYHOME=%PYHOME:~1%"
 if exist "%PYHOME%\Library\bin" set "PATH=%PYHOME%\Library\bin;%PATH%"
 
 .\.venv2\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed ^
   --name MPCS ^
+  --icon "%~dp0packaging\mpcs.ico" ^
   --paths "%~dp0." ^
   --add-data "%~dp0mpcs\assets;mpcs\assets" ^
   --hidden-import molmass ^
   --hidden-import sympy ^
   --hidden-import qtpy ^
   --hidden-import pyqtgraph ^
+  --hidden-import qtpy.QtSvg ^
   --exclude-module PySide6 ^
   --exclude-module PyQt6 ^
   --exclude-module tkinter ^

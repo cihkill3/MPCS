@@ -27,6 +27,8 @@ from qtpy.QtWidgets import (
     QFileDialog,
 )
 
+from mpcs.core.i18n import tr
+from mpcs.gui.widgets import caption, role_label
 from mpcs.infrastructure.config_manager import RecentProjectsManager
 from mpcs.infrastructure.project_serializer import PROJECT_FILE_EXTENSION
 
@@ -60,41 +62,44 @@ class StartupDialog(QDialog):
         layout.setContentsMargins(24, 24, 24, 24)
 
         # 제목
-        title_label = QLabel("MALDI Polymer Composition Solver")
+        from mpcs.gui.icons import app_icon, app_pixmap
+
+        self.setWindowIcon(app_icon())
+        logo = QLabel()
+        logo.setPixmap(app_pixmap(72))
+        logo.setAlignment(Qt.AlignCenter)
+        layout.addWidget(logo)
+        title_label = role_label("MALDI Polymer Composition Solver", "dialogTitle")
         title_label.setAlignment(Qt.AlignCenter)
-        font = title_label.font()
-        font.setPointSize(14)
-        font.setBold(True)
-        title_label.setFont(font)
         layout.addWidget(title_label)
 
-        sub_label = QLabel("시작하려면 옵션을 선택하십시오.")
+        sub_label = caption(tr("MALDI·LC-MS 고분자 피크의 조성을 계산합니다. 시작하려면 옵션을 선택하십시오."))
         sub_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(sub_label)
 
         # 최근 프로젝트 섹션
-        recent_label = QLabel("최근 프로젝트:")
-        recent_font = recent_label.font()
-        recent_font.setBold(True)
-        recent_label.setFont(recent_font)
-        layout.addWidget(recent_label)
+        layout.addWidget(role_label(tr("최근 프로젝트:"), "sectionTitle"))
 
         self._recent_list = QListWidget()
         self._recent_list.setAlternatingRowColors(True)
         self._recent_list.itemDoubleClicked.connect(self._open_recent)
+        self._recent_list.setToolTip(tr("최근에 저장하거나 연 프로젝트 (.mpcs). 두 번 누르면 엽니다."))
         layout.addWidget(self._recent_list)
 
         # 버튼 행
         btn_layout = QHBoxLayout()
 
-        self._open_recent_btn = QPushButton("최근 프로젝트 열기")
+        self._open_recent_btn = QPushButton(tr("최근 프로젝트 열기"))
         self._open_recent_btn.setEnabled(False)
         self._open_recent_btn.clicked.connect(self._open_recent)
 
-        browse_btn = QPushButton("파일 찾아보기...")
+        browse_btn = QPushButton(tr("파일 찾아보기..."))
+        browse_btn.setToolTip(tr("다른 위치의 프로젝트 파일(.mpcs)을 엽니다."))
         browse_btn.clicked.connect(self._browse_file)
 
-        new_btn = QPushButton("새 프로젝트")
+        new_btn = QPushButton(tr("새 프로젝트"))
+        new_btn.setObjectName("primaryButton")
+        new_btn.setToolTip(tr("빈 프로젝트로 시작합니다 (기본 어덕트 [M+Na]+, 말단기 OH/OH)."))
         new_btn.setDefault(True)
         new_btn.clicked.connect(self._new_project)
 
@@ -114,7 +119,7 @@ class StartupDialog(QDialog):
         recent = self._recent_manager.get_valid()
 
         if not recent:
-            placeholder = QListWidgetItem("(최근 프로젝트 없음)")
+            placeholder = QListWidgetItem(tr("(최근 프로젝트 없음)"))
             placeholder.setFlags(Qt.NoItemFlags)
             self._recent_list.addItem(placeholder)
             return
@@ -143,8 +148,8 @@ class StartupDialog(QDialog):
         else:
             from qtpy.QtWidgets import QMessageBox
             QMessageBox.warning(
-                self, "파일 없음",
-                f"파일을 찾을 수 없습니다:\n{filepath}"
+                self, tr("파일 없음"),
+                tr("파일을 찾을 수 없습니다:\n{path}", path=filepath)
             )
             self._recent_manager.remove(filepath)
             self._load_recent()
@@ -153,9 +158,9 @@ class StartupDialog(QDialog):
         """파일 탐색기로 프로젝트 파일을 선택한다."""
         filepath, _ = QFileDialog.getOpenFileName(
             self,
-            "프로젝트 파일 열기",
+            tr("프로젝트 파일 열기"),
             str(Path.home()),
-            f"MPCS 프로젝트 (*{PROJECT_FILE_EXTENSION});;모든 파일 (*.*)",
+            tr("MPCS 프로젝트") + f" (*{PROJECT_FILE_EXTENSION});;" + tr("모든 파일") + " (*.*)",
         )
         if filepath:
             self.selected_path = filepath

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass
 import re
 import molmass
@@ -17,11 +18,11 @@ def parse_adduct_label(label: str) -> tuple[float, float, int]:
     """
     label = label.strip()
     if not label:
-        raise ValueError("어덕트 문자열이 비어 있습니다.")
+        raise ValueError(tr("어덕트 문자열이 비어 있습니다."))
         
     m = re.match(r'^\[M([+-].*?)\](\d*)([+-])?$', label)
     if not m:
-        raise ValueError(f"지원되지 않는 어덕트 형식입니다 (예: [M+Na]+): {label}")
+        raise ValueError(tr('지원되지 않는 어덕트 형식입니다 (예: [M+Na]+): {label}', label=label))
         
     formula_str = m.group(1)
     z_str = m.group(2)
@@ -34,7 +35,7 @@ def parse_adduct_label(label: str) -> tuple[float, float, int]:
         charge_val = 1
         
     if charge_val == 0:
-        raise ValueError("전하(z)는 0이 될 수 없습니다.")
+        raise ValueError(tr("전하(z)는 0이 될 수 없습니다."))
         
     parts = re.findall(r'([+-])([^+-]+)', formula_str)
     
@@ -57,7 +58,7 @@ def parse_adduct_label(label: str) -> tuple[float, float, int]:
                 exact_mass -= f.isotope.mass
                 avg_mass -= f.mass
         except Exception:
-            raise ValueError(f"올바르지 않은 분자식입니다: {part_formula}")
+            raise ValueError(tr('올바르지 않은 분자식입니다: {part_formula}', part_formula=part_formula))
 
     # 이온 질량 = 원자 질량 합 − z × 전자 질량 (양이온은 전자를 잃고, 음이온은 얻는다)
     exact_mass -= charge_val * ELECTRON_MASS
@@ -111,9 +112,9 @@ class Adduct:
     def validate(self) -> list[str]:
         errors: list[str] = []
         if not self.label or not self.label.strip():
-            errors.append("어덕트 레이블이 비어 있습니다")
+            errors.append(tr("어덕트 레이블이 비어 있습니다"))
         if self.charge <= 0:
-            errors.append(f"전하 수가 0 이하입니다: {self.charge}")
+            errors.append(tr('전하 수가 0 이하입니다: {charge}', charge=self.charge))
         try:
             parse_adduct_label(self.label)
         except ValueError as e:

@@ -1,83 +1,79 @@
 """
 MPCS — GUI Dialog: Guide Dialog
-이용 안내 메뉴
+이용 안내 (도움말 > 이용 안내, F1)
 """
 
 from __future__ import annotations
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import (
-    QDialog,
-    QDialogButtonBox,
-    QTextBrowser,
-    QVBoxLayout,
-)
+from qtpy.QtWidgets import QDialog, QDialogButtonBox, QTextBrowser, QVBoxLayout
 
 from mpcs.core.i18n import tr
+from mpcs.gui import theme
+
+
+def _section(title: str, items: list[tuple[str, str]], intro: str = "") -> str:
+    body = f"<p>{intro}</p>" if intro else ""
+    body += "<ul>" + "".join(f"<li><b>{k}</b> {v}</li>" for k, v in items) + "</ul>"
+    return f"<h3>{title}</h3>{body}"
+
+
+def guide_html() -> str:
+    t = theme
+    css = (f"<style>h2{{color:{t.TEXT};}} h3{{color:{t.ACCENT}; margin-top:14px;}} "
+           f"li{{margin-bottom:4px;}} code{{background:{t.BG};}}</style>")
+    parts = [
+        css,
+        f"<h2>{tr('MALDI Polymer Composition Solver (MPCS) 이용 안내')}</h2>",
+        f"<p>{tr('MPCS는 고분자 MALDI-TOF·LC-MS 피크의 질량으로부터 어떤 모노머가 몇 개 결합했는지(조성)를 계산하고, 주기적으로 나타나는 피크에서 반복 수가 연속되는 조성 계열을 찾아 가능성이 높은 조성을 알려줍니다.')}</p>",
+        _section(tr("화면 구성"), [
+            (tr("명령 막대:"), tr("맨 위 한 줄. [파일·분석·도움말] 메뉴, 프로젝트 열기/저장, 스펙트럼 열기, [솔버 실행] (F5), 중단, 내보내기, 화면 언어(KO/EN).")),
+            (tr("입력 패널 (왼쪽):"), tr("모노머 / 제약식 / 말단기·어덕트 / 데이터·설정 / 중합 계산기 탭. Ctrl+B 또는 [입력 패널] 버튼으로 접어 결과 화면을 넓게 쓸 수 있습니다.")),
+            (tr("결과 (오른쪽):"), tr("요약 띠(최상위 조성 계열) → 스펙트럼 → 피크 목록 → 후보 조성 / 조성 계열 / KMD / 메시지 탭.")),
+        ]),
+        _section(tr("1단계: 모노머 등록"), [
+            (tr("일반 모노머:"), tr("이름과 분자식(예: LA, C3H4O2)을 입력하면 정밀질량과 평균질량을 자동 계산합니다.")),
+            (tr("질량 직접 입력:"), tr("분자식을 모르면 분자식 칸에 질량을 숫자로 입력합니다 (예: 100.5). 이 경우 후보의 분자식은 표시되지 않습니다.")),
+            (tr("블록(Block):"), tr("여러 성분이 묶인 반복 단위(예: PLA-PEG-PLA)는 유형을 블록으로 추가한 뒤, 블록을 선택한 상태에서 하위 성분을 추가합니다.")),
+            (tr("최소값/최대값:"), tr("솔버가 탐색할 개수 범위입니다. 범위가 좁을수록 빠릅니다. 중합 계산기로 예상 범위를 자동으로 채울 수 있습니다.")),
+        ]),
+        _section(tr("2단계: 말단기·어덕트"), [
+            (tr("말단기:"), tr("사슬 양 끝 원자단을 '/'로 구분해 고릅니다 (예: H/OH = H₂O, 기본값 OH/OH = H₂O₂).")),
+            (tr("어덕트:"), tr("이온화될 때 붙는 이온([M+Na]⁺, [M+K]⁺, [M+H]⁺ …)을 체크합니다. 체크한 어덕트마다 후보를 계산합니다.")),
+        ]),
+        _section(tr("3단계: 제약식 (선택)"), [
+            (tr("등식:"), tr("<code>HDI = PLA + SMA - 1</code> 처럼 '이름 = 식'이면 그 모노머 개수를 식으로 계산해 탐색을 크게 줄입니다.")),
+            (tr("부등식·질량 참조:"), tr("<code>LA &gt;= 10</code>, <code>EO * EO.mw &lt;= 3000</code> 처럼 범위를 제한할 수 있습니다.")),
+        ]),
+        _section(tr("4단계: 피크 입력"), [
+            (tr("질량값 목록:"), tr("오른쪽 피크 목록에 m/z를 직접 입력하거나, 엑셀에서 복사해 [붙여넣기], 또는 [가져오기]로 xlsx/csv를 읽습니다.")),
+            (tr("원본 스펙트럼:"), tr("[데이터/설정] 탭에서 mzXML을 열고 측정 모드 프리셋(Reflectron·LC-MS / Linear)을 고른 뒤 [피크 검출]을 누릅니다. 프리셋은 질량 기준과 허용 오차도 맞춥니다.")),
+            (tr("주기 시리즈:"), tr("모노머 질량 간격으로 이어지는 피크는 시리즈(S1, S2 …)로 색이 표시됩니다. [주기 시리즈 피크만]을 켜면 시리즈 피크만 솔버에 씁니다.")),
+        ]),
+        _section(tr("5단계: 솔버 실행과 결과 해석"), [
+            (tr("실행:"), tr("[솔버 실행] (F5)을 누르면 목록의 모든 피크를 한 번에 계산합니다.")),
+            (tr("피크 선택:"), tr("피크 목록의 행이나 스펙트럼의 피크를 누르면 [후보 조성]에 그 피크의 후보가 나옵니다.")),
+            (tr("확률과 조성 계열:"), tr("같은 계열(한 모노머만 1개씩 늘고 나머지 조성·어덕트가 같은 후보)이 많은 피크를 연속으로, 작은 오차로 설명할수록 확률이 높습니다. 후보를 고르면 같은 계열 피크가 스펙트럼에 ▲와 반복 수로 표시됩니다.")),
+            (tr("동위원소 패턴:"), tr("후보 행을 두 번 누르면 그 이온의 이론 동위원소 패턴을 볼 수 있습니다.")),
+            (tr("내보내기:"), tr("[내보내기] → 전체 결과는 피크 요약·전체 후보·조성 계열을 엑셀 시트로 저장합니다.")),
+        ]),
+        _section(tr("측정 모드별 권장 설정"), [
+            (tr("Reflectron / 고분해능 LC-MS:"), tr("질량 기준 모노이소토픽(Exact), 허용 오차 0.01–0.05 Da, 동위원소 정리 '모노이소토픽만'.")),
+            (tr("Linear (동위원소 미분리):"), tr("질량 기준 평균 질량(Average), 허용 오차 0.5–2 Da. 거의 같은 질량의 다른 조성(예: Na⁺ vs K⁺−O)은 확률이 나뉘어 표시됩니다.")),
+        ]),
+    ]
+    return "".join(parts)
 
 
 class GuideDialog(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setWindowTitle(tr("이용 안내 (User Guide)"))
-        self.resize(700, 500)
-        self._setup_ui()
-
-    def _setup_ui(self) -> None:
+        self.setWindowTitle(tr("이용 안내"))
+        self.resize(780, 620)
         layout = QVBoxLayout(self)
-
         browser = QTextBrowser()
         browser.setOpenExternalLinks(True)
-
-        guide_html = f"""
-        <h2>{tr("MALDI Polymer Composition Solver (MPCS) - 초보자 가이드")}</h2>
-        <p>{tr("MPCS는 복잡한 고분자의 MALDI-TOF MS(질량분석) 데이터를 분석하여, 어떤 모노머가 몇 개 결합했는지 정확한 조합을 찾아주는 프로그램입니다. 아래 순서대로 따라해 보세요!")}</p>
-        
-        <h3>{tr("1단계: 모노머(단량체) 등록하기 🧱")}</h3>
-        <p>{tr("분석할 고분자를 구성하는 기본 블록(모노머)들을 등록합니다.")}</p>
-        <ul>
-            <li><b>{tr("일반 모노머:")}</b> {tr("예를 들어 젖산(LA, C3H4O2)을 분석하려면, 이름과 화학 분자식을 입력하세요. 프로그램이 정확한 질량을 자동으로 계산합니다.")}</li>
-            <li><b>{tr("질량 직접 입력:")}</b> {tr("분자식을 정확히 모르고 질량만 안다면, 분자식 입력칸에 '~' 기호와 함께 질량을 적어주세요. (예: ~100.5)")}</li>
-            <li><b>{tr("블록(Block) 공중합체:")}</b> {tr("여러 성분이 미리 결합된 거대한 블록(예: PLA-PEG)이 있다면 '유형'을 Block으로 바꾸고 하위 성분들을 추가해 묶을 수 있습니다.")}</li>
-            <li><b>{tr("최소값/최대값:")}</b> {tr("각 모노머가 결합될 수 있는 대략적인 개수 범위를 지정합니다. 범위를 좁게 잡을수록 솔버가 정답을 더 빨리 찾습니다.")}</li>
-        </ul>
-
-        <h3>{tr("2단계: 부가 정보 설정하기 (말단기 & 어덕트) 🧪")}</h3>
-        <ul>
-            <li><b>{tr("말단기 (End Group):")}</b> {tr("고분자 양 끝에 붙어있는 화학 성분입니다. 기본적으로 물(H2O)이 들어있지만, 분석 샘플에 맞게 수정하세요.")}</li>
-            <li><b>{tr("어덕트 (Adducts):")}</b> {tr("질량분석기에서 이온화될 때 달라붙는 이온(예: 나트륨 Na, 칼륨 K)입니다. 사용하는 매트릭스와 염(Salt)에 따라 체크박스를 선택하세요.")}</li>
-        </ul>
-
-        <h3>{tr("3단계: 제약식(Constraints) 활용하기 (선택 사항) ⚙️")}</h3>
-        <p>{tr("특정 성분들 사이에 수학적 규칙이 있다면 제약식으로 지정할 수 있습니다.")}</p>
-        <ul>
-            <li>{tr("예를 들어, A 모노머와 B 모노머가 항상 1:1로 결합한다면 <code>A = B</code> 라고 입력해 탐색 시간을 대폭 줄일 수 있습니다.")}</li>
-            <li>{tr("특정 모노머의 질량을 참조하고 싶다면 <code>A.mw</code> 처럼 입력하세요. (예: <code>A * A.mw <= 1000</code>)")}</li>
-        </ul>
-
-        <h3>{tr("4단계: 피크 입력 📈")}</h3>
-        <ul>
-            <li><b>{tr("질량값 목록:")}</b> {tr("오른쪽 [피크 목록]에 m/z를 직접 입력하거나, 엑셀에서 복사해 [붙여넣기], 또는 [가져오기]로 xlsx/csv를 읽습니다. 여러 피크를 한 번에 계산합니다.")}</li>
-            <li><b>{tr("원본 스펙트럼:")}</b> {tr("[스펙트럼] 탭에서 mzXML을 열고 측정 모드 프리셋(Reflectron·LC-MS / Linear)을 고른 뒤 [피크 검출]을 누릅니다. 프리셋은 솔버의 질량 기준(정밀/평균)과 허용 오차도 함께 맞춥니다.")}</li>
-            <li><b>{tr("주기 시리즈:")}</b> {tr("모노머 질량 간격으로 이어지는 피크는 시리즈(S1, S2…)로 색이 표시됩니다. [주기 시리즈 피크만]을 켜면 시리즈 피크만 솔버에 사용합니다.")}</li>
-        </ul>
-
-        <h3>{tr("5단계: 솔버 실행 및 결과 분석 🔍")}</h3>
-        <ul>
-            <li><b>{tr("계산 시작:")}</b> {tr("[솔버 실행]을 누르면 목록의 모든 피크를 한 번에 탐색합니다.")}</li>
-            <li><b>{tr("피크 선택:")}</b> {tr("피크 목록의 행이나 스펙트럼의 피크를 클릭하면 아래 [후보 조성]에 그 피크의 후보가 표시됩니다.")}</li>
-            <li><b>{tr("확률과 조성 계열:")}</b> {tr("같은 계열(한 모노머만 1개씩 늘고 나머지·어덕트가 같은 조성)이 많은 피크를 연속으로 설명할수록 확률이 높습니다. 후보를 선택하면 같은 계열 피크가 스펙트럼에 ▲와 반복수로 표시됩니다. [조성 계열] 탭에서 계열 순위를, [KMD] 탭에서 Kendrick mass defect 플롯을 볼 수 있습니다.")}</li>
-            <li><b>{tr("동위원소 패턴 확인:")}</b> {tr("후보 행을 <b>더블 클릭</b>하면 해당 조합의 동위원소 패턴을 볼 수 있습니다.")}</li>
-            <li><b>{tr("내보내기:")}</b> {tr("[전체 결과 내보내기]는 피크 요약·전체 후보·조성 계열을 엑셀 시트로 저장합니다.")}</li>
-        </ul>
-
-        <hr/>
-        <h3>{tr("💡 팁: 중합 계산기 (Polymer Calculator)")}</h3>
-        <p>{tr("고분자 합성 레시피(Feed Ratio)나 전환율을 알고 계신가요? <b>[중합 계산기]</b> 탭에서 이를 입력하면 통계적으로 예상되는 모노머의 평균 개수를 미리 계산해 줍니다. 계산된 값을 '최소값/최대값에 반영' 버튼으로 가져오면, 수동으로 범위를 정하는 수고를 덜 수 있습니다.")}</p>
-        """
-        browser.setHtml(guide_html)
+        browser.setHtml(guide_html())
         layout.addWidget(browser)
-
-        btns = QDialogButtonBox(QDialogButtonBox.Ok)
-        btns.accepted.connect(self.accept)
+        btns = QDialogButtonBox(QDialogButtonBox.Close)
+        btns.rejected.connect(self.reject)
         layout.addWidget(btns)

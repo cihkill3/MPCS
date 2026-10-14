@@ -28,6 +28,7 @@ SRS §21 Performance:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 import itertools
 from dataclasses import dataclass
 from typing import Callable, Iterator
@@ -84,22 +85,22 @@ class SolverParams:
         """파라미터 유효성 검사."""
         errors: list[str] = []
         if self.peak_mz <= 0.0:
-            errors.append(f"m/z 값이 0 이하입니다: {self.peak_mz}")
+            errors.append(tr('m/z 값이 0 이하입니다: {peak_mz}', peak_mz=self.peak_mz))
         if not self.monomers:
-            errors.append("모노머가 없습니다")
+            errors.append(tr("모노머가 없습니다"))
         if not self.adducts:
-            errors.append("활성화된 어덕트가 없습니다")
+            errors.append(tr("활성화된 어덕트가 없습니다"))
         if self.tolerance_da < 0.0:
-            errors.append(f"허용 오차가 음수입니다: {self.tolerance_da}")
+            errors.append(tr('허용 오차가 음수입니다: {tolerance_da}', tolerance_da=self.tolerance_da))
         # 질량이 0인 성분은 해당 질량 기준으로 계산할 수 없음 (평균 질량 누락 버그 방지)
         use_average = self.mass_type == "AVERAGE"
-        label = "평균 질량" if use_average else "정밀질량"
+        label = tr("평균 질량") if use_average else tr("정밀질량")
         for m in self.monomers:
             items = m.sub_items if m.monomer_type == MonomerType.BLOCK and m.sub_items else [m]
             for it in items:
                 mass = it.average_mass if use_average else it.exact_mass
                 if mass <= 0.0:
-                    errors.append(f"'{it.name}'의 {label}이 0 이하입니다")
+                    errors.append(tr("'{name}'의 {label}이 0 이하입니다", name=it.name, label=label))
         return errors
 
 
@@ -163,7 +164,7 @@ class SolverService:
         # 파라미터 검증
         param_errors = params.validate()
         if param_errors:
-            raise ValueError(f"솔버 파라미터 오류: {'; '.join(param_errors)}")
+            raise ValueError(tr('솔버 파라미터 오류: {v}', v='; '.join(param_errors)))
 
         # Step 1: 제약식 파싱 및 위상 정렬
         monomer_names = []

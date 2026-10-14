@@ -13,6 +13,7 @@ SRS §5 Monomer Definition Module:
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -90,14 +91,14 @@ class BlockSubItem:
     def validate(self) -> list[str]:
         errors: list[str] = []
         if not self.name.strip():
-            errors.append("하위 성분 이름이 비어 있습니다")
+            errors.append(tr("하위 성분 이름이 비어 있습니다"))
         if self.exact_mass <= 0.0:
-            errors.append(f"정밀질량이 0 이하입니다: {self.exact_mass}")
+            errors.append(tr('정밀질량이 0 이하입니다: {exact_mass}', exact_mass=self.exact_mass))
         if self.count_min < 0:
-            errors.append(f"최소값이 음수입니다: {self.count_min}")
+            errors.append(tr('최소값이 음수입니다: {count_min}', count_min=self.count_min))
         if self.count_max < self.count_min:
             errors.append(
-                f"최소값({self.count_min})이 최대값({self.count_max})보다 큽니다"
+                tr('최소값({count_min})이 최대값({count_max})보다 큽니다', count_min=self.count_min, count_max=self.count_max)
             )
         return errors
 
@@ -127,7 +128,7 @@ def parse_formula_or_mass(text: str, mass_calculator) -> tuple[str, float, float
     """
     text = text.strip()
     if not text:
-        raise ValueError("입력값이 비어 있습니다")
+        raise ValueError(tr("입력값이 비어 있습니다"))
 
     try:
         exact_mass = float(text)
@@ -320,21 +321,21 @@ class Monomer:
         errors: list[str] = []
 
         if not self.name or not self.name.strip():
-            errors.append("모노머 이름이 비어 있습니다")
+            errors.append(tr("모노머 이름이 비어 있습니다"))
 
         if self.monomer_type != MonomerType.BLOCK:
             if self.exact_mass <= 0.0:
-                errors.append(f"정밀질량이 0 이하입니다: {self.exact_mass}")
+                errors.append(tr('정밀질량이 0 이하입니다: {exact_mass}', exact_mass=self.exact_mass))
 
         if self.min_count < 0:
-            errors.append(f"최소값이 음수입니다: {self.min_count}")
+            errors.append(tr('최소값이 음수입니다: {min_count}', min_count=self.min_count))
 
         if self.max_count <= 0:
-            errors.append(f"최대값이 0 이하입니다: {self.max_count}")
+            errors.append(tr('최대값이 0 이하입니다: {max_count}', max_count=self.max_count))
 
         if self.min_count > self.max_count:
             errors.append(
-                f"최소값({self.min_count})이 최대값({self.max_count})보다 큽니다"
+                tr('최소값({min_count})이 최대값({max_count})보다 큽니다', min_count=self.min_count, max_count=self.max_count)
             )
 
         # Block 유형: 하위 성분도 검사
@@ -351,7 +352,7 @@ class Monomer:
 
     def __str__(self) -> str:
         mass_str = (
-            f"{self.effective_mass():.4f} Da (블록)"
+            tr('{v:.4f} Da (블록)', v=self.effective_mass())
             if self.monomer_type == MonomerType.BLOCK
             else f"{self.exact_mass:.6f} Da"
         )

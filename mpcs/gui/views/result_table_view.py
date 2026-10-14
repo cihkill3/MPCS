@@ -34,13 +34,42 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
 )
 
-from mpcs.core.formatting import HtmlDelegate, format_adduct_html, format_formula_html
+from mpcs.core.formatting import HtmlDelegate, format_adduct_html, format_formula_html, ion_text
 from mpcs.core.i18n import tr
+from mpcs.gui import theme
+from mpcs.gui.widgets import fit_header, set_header_tooltips, set_role
 from mpcs.models.result import RankedResultSet, SolverResult
 
-_FIXED_LEADING = [tr("순위"), tr("확률"), tr("분자식")]
-_FIXED_TRAILING = [tr("이론 m/z (Da)"), tr("관측 m/z (Da)"), tr("오차 (Da)"),
-                   tr("동위원소 오프셋"), tr("어덕트"), tr("계열 피크 수")]
+N_LEADING = 3
+N_TRAILING = 6
+
+
+def _leading() -> list[str]:
+    return [tr("순위"), tr("확률"), tr("분자식")]
+
+
+def _trailing() -> list[str]:
+    return [tr("이론 m/z (Da)"), tr("관측 m/z (Da)"), tr("오차 (Da)"), tr("동위원소 오프셋"), tr("어덕트"), tr("계열 피크 수")]
+
+
+def _leading_tips() -> list[str]:
+    return [
+        tr("확률 순위 (같으면 오차가 작은 순)"),
+        tr("이 후보가 정답일 확률. 같은 조성 계열(한 반복단위만 1개씩 다른 후보)이 많은 피크를 연속으로 설명할수록 높습니다. "
+           "'설명되지 않음' 가능성도 함께 고려합니다."),
+        tr("어덕트를 포함한 이온 분자식. 행을 두 번 누르면 동위원소 패턴을 봅니다."),
+    ]
+
+
+def _trailing_tips() -> list[str]:
+    return [
+        tr("이 조성의 이론 m/z (질량 기준에 따라 모노이소토픽 또는 평균)"),
+        tr("관측된 피크 m/z"),
+        tr("|관측 − 이론| (Da). 솔버 허용 오차 이하만 후보가 됩니다."),
+        tr("0 = 모노이소토픽 피크와 대응, N = N번째 동위원소 피크와 대응"),
+        tr("이온화 어덕트"),
+        tr("이 후보와 같은 조성 계열이 설명하는 피크 수 (-: 계열 없음)"),
+    ]
 _ROLE_RESULT = Qt.UserRole + 1
 _DISPLAY_LIMIT = 500
 
@@ -61,7 +90,7 @@ class ResultTableView(QGroupBox):
     candidate_selected = Signal(object)   # SolverResult | None
 
     def __init__(self, parent=None) -> None:
-        super().__init__(tr("후보 조성"), parent)
+        super().__init__("", parent)
         self._monomer_names: list[str] = []
         self._setup_ui()
 
@@ -71,16 +100,17 @@ class ResultTableView(QGroupBox):
 
         header_layout = QHBoxLayout()
         self._count_label = QLabel(tr("피크를 선택하면 후보 조성이 표시됩니다"))
-        self._count_label.setStyleSheet("color: gray;")
+        self._count_label.setObjectName("caption")
         header_layout.addWidget(self._count_label)
         header_layout.addStretch()
         self._export_btn = QPushButton(tr("이 피크 내보내기..."))
+        self._export_btn.setToolTip(tr("선택한 피크의 후보 표를 엑셀/CSV로 저장합니다."))
         self._export_btn.clicked.connect(self._export_results)
         header_layout.addWidget(self._export_btn)
         layout.addLayout(header_layout)
 
-        self._table = QTableWidget(0, len(_FIXED_LEADING) + len(_FIXED_TRAILING))
-        self._table.setHorizontalHeaderLabels(_FIXED_LEADING + _FIXED_TRAILING)
+        self._table = QTableWidget(0, N_LEADING + N_TRAILING)
+        self._table.setHorizontalHeaderLabels(_leading() + _trailing())
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -113,27 +143,30 @@ class ResultTableView(QGroupBox):
                 seen.setdefault(name, None)
         self._monomer_names = list(seen.keys())
 
-        headers = _FIXED_LEADING + self._monomer_names + _FIXED_TRAILING
+        headers = _leading() + self._monomer_names + _trailing()
         self._table.setColumnCount(len(headers))
         self._table.setHorizontalHeaderLabels(headers)
-        widths = [45, 65, 200] + [55] * len(self._monomer_names) + [110, 110, 75, 80, 90, 80]
+        set_header_tooltips(self._table, _leading_tips()
+                            + [tr("이 모노머의 개수") for _ in self._monomer_names] + _trailing_tips())
+        widths = [50, 70, 200] + [55] * len(self._monomer_names) + [110, 110, 80, 90, 90, 90]
         for c, w in enumerate(widths):
             self._table.setColumnWidth(c, w)
+        fit_header(self._table)
 
         for rank, result in enumerate(results, start=1):
             self._add_row(rank, result)
 
-        trail = len(_FIXED_LEADING) + len(self._monomer_names)
+        trail = N_LEADING + len(self._monomer_names)
         self._table.setItemDelegateForColumn(2, HtmlDelegate(self._table, format_formula_html))
         self._table.setItemDelegateForColumn(trail + 4, HtmlDelegate(self._table, format_adduct_html))
         self._table.setSortingEnabled(True)
         self._table.blockSignals(False)
 
         n = result_set.count()
-        shown = f" ({tr('상위')} {_DISPLAY_LIMIT}{tr('개 표시')})" if n > _DISPLAY_LIMIT else ""
+        shown = " " + tr("(상위 {k}개 표시)", k=_DISPLAY_LIMIT) if n > _DISPLAY_LIMIT else ""
         head = title or f"m/z {result_set.peak_mz:.4f}"
-        self._count_label.setText(f"<b>{head}</b> — {tr('후보')} {n}{tr('개')}{shown}")
-        self._count_label.setStyleSheet("")
+        self._count_label.setText(f"<b>{ion_text(head)}</b> — " + tr("후보 {n}개", n=n) + shown)
+        set_role(self._count_label, "sectionTitle")
         if results:
             self._table.selectRow(0)
 
@@ -141,7 +174,7 @@ class ResultTableView(QGroupBox):
         self._table.setRowCount(0)
         self._monomer_names = []
         self._count_label.setText(tr("피크를 선택하면 후보 조성이 표시됩니다"))
-        self._count_label.setStyleSheet("color: gray;")
+        set_role(self._count_label, "caption")
 
     def selected_result(self) -> SolverResult | None:
         rows = self._table.selectionModel().selectedRows()
@@ -158,7 +191,7 @@ class ResultTableView(QGroupBox):
         row = self._table.rowCount()
         self._table.insertRow(row)
         comp = result.composition.to_dict()
-        mono_start = len(_FIXED_LEADING)
+        mono_start = N_LEADING
         trail = mono_start + len(self._monomer_names)
 
         def num(text: str) -> NumericTableWidgetItem:
@@ -238,9 +271,9 @@ class ResultTableView(QGroupBox):
                 df.to_excel(path, index=False)
             else:
                 df.to_csv(path, index=False, encoding="utf-8-sig")
-            QMessageBox.information(self, tr("내보내기 완료"), f"{tr('결과가 성공적으로 저장되었습니다')}:\n{path}")
+            QMessageBox.information(self, tr("내보내기 완료"), tr("결과가 성공적으로 저장되었습니다:\n{path}", path=path))
         except Exception as e:
-            QMessageBox.critical(self, tr("내보내기 오류"), f"{tr('파일 저장 중 오류가 발생했습니다')}:\n{e}")
+            QMessageBox.critical(self, tr("내보내기 오류"), tr("파일 저장 중 오류가 발생했습니다:\n{e}", e=e))
 
 
 def _to_number(text: str):

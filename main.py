@@ -12,74 +12,85 @@ Q12: 시작 화면에서 최근 프로젝트를 열거나 새 프로젝트를 �
 
 from __future__ import annotations
 
+import os
 import sys
-from pathlib import Path
 
-from qtpy.QtCore import Qt
-from qtpy.QtWidgets import QApplication, QMessageBox
+os.environ.setdefault("QT_API", "pyqt5")
 
-from mpcs.gui.dialogs.startup_dialog import StartupDialog
-from mpcs.gui.main_window import MainWindow
-from mpcs.infrastructure.config_manager import RecentProjectsManager, AppConfigManager
-from mpcs.infrastructure.project_serializer import (
+from qtpy.QtCore import Qt  # noqa: E402
+from qtpy.QtWidgets import QApplication, QMessageBox  # noqa: E402
+
+from mpcs.core.i18n import I18nManager, tr  # noqa: E402
+from mpcs.gui.dialogs.startup_dialog import StartupDialog  # noqa: E402
+from mpcs.gui.icons import app_icon  # noqa: E402
+from mpcs.gui.main_window import MainWindow, install_qt_translator  # noqa: E402
+from mpcs.gui.theme import apply_theme  # noqa: E402
+from mpcs.infrastructure.config_manager import AppConfigManager, RecentProjectsManager  # noqa: E402
+from mpcs.infrastructure.project_serializer import (  # noqa: E402
     ProjectDeserializeError,
     ProjectSerializer,
 )
-from mpcs.core.i18n import I18nManager
-from mpcs.gui.theme import get_modern_theme
+
+
+def _set_windows_app_id() -> None:
+    """Windows 작업 표시줄이 python.exe 대신 MPCS 아이콘으로 묶어 보이도록 앱 ID를 정한다."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("MPCS.MALDIPolymerCompositionSolver")
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def main() -> int:
     """애플리케이션 진입점."""
+    _set_windows_app_id()
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     app = QApplication(sys.argv)
     app.setApplicationName("MALDI Polymer Composition Solver")
-    app.setApplicationVersion("1.0")
+    app.setApplicationVersion("1.3")
     app.setOrganizationName("MPCS")
+    app.setWindowIcon(app_icon())      # 모든 창(시작 화면·메인·대화상자)의 제목 표시줄·작업 표시줄 아이콘
 
-    # 폰트 및 DPI 설정 (Windows 11)
-    app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-
-    # 전역 설정 로드 및 i18n 초기화
+    # 언어 (창을 만들기 전에) + Qt 표준 대화상자 번역
     app_config = AppConfigManager()
-    i18n = I18nManager.get_instance()
-    i18n.set_language(app_config.get_language())
+    lang = app_config.get_language()
+    I18nManager.get_instance().set_language(lang)
+    install_qt_translator(lang)
 
-    # 모던 테마 적용
-    app.setStyleSheet(get_modern_theme())
+    # 테마 (Fusion + 토큰 팔레트 + 맑은 고딕 + QSS)
+    apply_theme(app)
 
     recent_manager = RecentProjectsManager()
     serializer = ProjectSerializer()
 
     # Q12: 시작 화면 표시
     startup = StartupDialog(recent_manager)
-    result = startup.exec()
-
-    if result != StartupDialog.Accepted:
-        return 0  # 사용자가 다이얼로그를 닫음
+    if startup.exec() != StartupDialog.Accepted:
+        return 0
 
     project = None
     current_filepath: str | None = None
-
     if startup.selected_path:
-        # 기존 프로젝트 열기
         try:
             project = serializer.load(startup.selected_path)
             current_filepath = startup.selected_path
             recent_manager.add(startup.selected_path)
         except ProjectDeserializeError as exc:
             QMessageBox.critical(
-                None, "파일 열기 실패",
-                f"프로젝트를 불러올 수 없습니다:\n{exc}\n\n새 프로젝트로 시작합니다."
+                None, tr("파일 열기 실패"),
+                tr("프로젝트를 불러올 수 없습니다:\n{e}\n\n새 프로젝트로 시작합니다.", e=exc),
             )
             project = None
 
-    # 메인 윈도우 생성
     window = MainWindow(project=project, recent_manager=recent_manager)
     if current_filepath:
         window._current_filepath = current_filepath
         window._update_title()
+    app._mpcs_window = window      # 언어 전환 시 새 창으로 바뀐다
     window.show()
-
     return app.exec()
 
 

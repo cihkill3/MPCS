@@ -42,6 +42,16 @@ class I18nManager:
         except Exception as e:
             logging.error(f"사전 파일 로드 중 오류: {e}")
 
+    def register_dictionary(self, path: str | Path) -> None:
+        """추가 사전(JSON, 같은 형식 {한국어: {"en": ...}})을 병합한다. 나중에 등록한 항목이 우선."""
+        try:
+            data = json.loads(Path(path).read_text(encoding="utf-8"))
+        except Exception as e:  # noqa: BLE001
+            logging.error(f"사전 파일 로드 중 오류 {path}: {e}")
+            return
+        if isinstance(data, dict):
+            self.dictionary.update({k: v for k, v in data.items() if isinstance(v, dict)})
+
     def set_language(self, lang: str) -> None:
         if lang in ["ko", "en"]:
             self.lang = lang
@@ -69,6 +79,10 @@ class I18nManager:
             except Exception:
                 return translated
         return translated
+
+
+def current_language() -> str:
+    return I18nManager.get_instance().lang
 
 
 def tr(text: str, **kwargs: Any) -> str:

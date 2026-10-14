@@ -5,6 +5,7 @@ Models Layer: End Group Definition
 
 from __future__ import annotations
 
+from mpcs.core.i18n import tr
 from dataclasses import dataclass
 import molmass
 
@@ -84,8 +85,8 @@ class EndGroup:
         errors: list[str] = []
         if self.is_custom_mass and self.custom_mass <= 0.0:
             errors.append(
-                "사용자 정의 말단기의 질량이 0 이하입니다. "
-                "양수 질량(Da)을 입력하십시오."
+                tr("사용자 정의 말단기의 질량이 0 이하입니다. "
+                "양수 질량(Da)을 입력하십시오.")
             )
         return errors
 
